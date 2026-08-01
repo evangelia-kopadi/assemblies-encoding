@@ -1,0 +1,26 @@
+.venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.pytest_cache/
+.mypy_cache/
+.DS_Store
+Thumbs.db
+
+# Local reruns written by run_sensitivity_sweep.py
+/sensitivity_sweep_raw*.csv
+/sensitivity_sweep_summary*.csv
+/sensitivity_sweep_overall*.csv
+
+# Local generated reports
+experiments/student_success/student_success_multiseed_summary.csv
+experiments/student_success/student_success_multiseed_dodeltas.csv
+docs/results/
+
+# Paper build intermediates
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.log
+paper/*.out
+paper/*.tmp.zip

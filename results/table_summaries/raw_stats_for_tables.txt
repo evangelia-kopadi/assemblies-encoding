@@ -1,0 +1,102 @@
+--- PC Per-Config Stats ---
+
+Config       : Bernoulli_pos0.20_neg0.10
+n            : 50
+NeuronMean   : 0.877
+NeuronSD     : 0.151
+AssemblyMean : 0.4
+AssemblySD   : 0.207
+GapMean      : 0
+GapSD        : 0
+
+
+
+Config       : Bernoulli_pos0.30_neg0.05
+n            : 50
+NeuronMean   : 0.895
+NeuronSD     : 0.155
+AssemblyMean : 0.678
+AssemblySD   : 0.192
+GapMean      : 0
+GapSD        : 0
+
+
+
+Config       : Bernoulli_pos0.30_neg0.10
+n            : 50
+NeuronMean   : 0.892
+NeuronSD     : 0.158
+AssemblyMean : 0.545
+AssemblySD   : 0.201
+GapMean      : 0
+GapSD        : 0
+
+
+
+Config       : Bernoulli_pos0.30_neg0.15
+n            : 50
+NeuronMean   : 0.88
+NeuronSD     : 0.159
+AssemblyMean : 0.406
+AssemblySD   : 0.263
+GapMean      : 0
+GapSD        : 0
+
+
+
+Config       : Bernoulli_pos0.40_neg0.10
+n            : 50
+NeuronMean   : 0.898
+NeuronSD     : 0.156
+AssemblyMean : 0.66
+AssemblySD   : 0.206
+GapMean      : 0
+GapSD        : 0
+
+
+
+Config       : Deterministic_kstep10
+n            : 50
+NeuronMean   : 0.905
+NeuronSD     : 0.149
+AssemblyMean : 0.87
+AssemblySD   : 0.144
+GapMean      : 0
+GapSD        : 0
+
+
+
+Config       : Deterministic_kstep15
+n            : 50
+NeuronMean   : 0.905
+NeuronSD     : 0.149
+AssemblyMean : 0.874
+AssemblySD   : 0.144
+GapMean      : 0
+GapSD        : 0
+
+
+
+Config       : Deterministic_kstep5
+n            : 50
+NeuronMean   : 0.905
+NeuronSD     : 0.149
+AssemblyMean : 0.872
+AssemblySD   : 0.143
+GapMean      : 0
+GapSD        : 0
+
+
+
+--- Family Stats ---
+Bernoulli Family (n=250):
+  Neuron: Mean=0.888, SD=0.155
+  Assembly: Mean=0.538, SD=0.245
+Deterministic Family (n=150):
+  Neuron: Mean=0.905, SD=0.148
+  Assembly: Mean=0.872, SD=0.143
+
+--- Student Summary Stats ---
+n: 50
+Neuron F1: Mean=0.944, SD=0.09, Min=0.545, Max=1
+Assembly F1: Mean=0.944, SD=0.09, Min=0.545, Max=1
