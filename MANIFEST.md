@@ -2,7 +2,7 @@
 
 ## Paper
 
-- `paper/causal_structure_preservation_under_encoding_uncertainty.md`: editable SUM 2026 manuscript source.
+- `paper/causal_structure_preservation_in_neural_assemblies_under_encoding_uncertainty.md`: editable SUM 2026 manuscript source.
 - `paper/references.bib`: bibliography used by the manuscript.
 - `paper/llncs-pandoc-template.tex`: LNCS Pandoc template.
 - `paper/build_paper.ps1`: local paper build script.
@@ -70,3 +70,4 @@
 - `figures/deterministic_k_simple_3dag.png`
 - `figures/sensitivity_full_overview_400runs.png`
 - `figures/sensitivity_gap_representative_400runs.png`
+

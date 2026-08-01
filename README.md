@@ -6,7 +6,7 @@ This repository is a minimal extraction from the larger development workspace. I
 
 ## Associated paper
 
-This repository accompanies the SUM 2026 manuscript **"Causal Structure Preservation in Neural Assemblies under Encoding Uncertainty"**. The editable paper source is available at `paper/causal_structure_preservation_under_encoding_uncertainty.md`, with its bibliography and build script in the same folder. References to Tables 1-4 in this README refer to that manuscript.
+This repository accompanies the SUM 2026 manuscript **"Causal Structure Preservation in Neural Assemblies under Encoding Uncertainty"**. The editable paper source is available at `paper/causal_structure_preservation_in_neural_assemblies_under_encoding_uncertainty.md`, with its bibliography and build script in the same folder. References to Tables 1-4 in this README refer to that manuscript.
 
 ## What is included
 
@@ -100,7 +100,7 @@ The verification script checks the included CSV artifacts and prints the paper-l
 Edit the manuscript here:
 
 ```text
-paper/causal_structure_preservation_under_encoding_uncertainty.md
+paper/causal_structure_preservation_in_neural_assemblies_under_encoding_uncertainty.md
 ```
 
 After manuscript edits, rebuild the paper outputs from the repository root:
