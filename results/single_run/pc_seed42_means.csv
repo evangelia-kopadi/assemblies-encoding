@@ -1,0 +1,3 @@
+Config,Assembly F1,Neuron F1,Recall (Assembly vs GT),Precision (Assembly vs GT),Recall (Neuron vs GT),Precision (Neuron vs GT)
+Bernoulli (0.30/0.10),0.444,0.838,0.533,0.388,0.833,0.86
+Deterministic-k (step 10),0.851,0.88,0.803,0.92,0.853,0.92
