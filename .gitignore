@@ -24,3 +24,8 @@ paper/*.blg
 paper/*.log
 paper/*.out
 paper/*.tmp.zip
+
+# Exclude local paper build helpers
+paper/build_paper.ps1
+paper/build_artifacts_links.md
+
