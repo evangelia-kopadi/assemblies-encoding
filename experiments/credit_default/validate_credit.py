@@ -10,10 +10,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 import numpy as np
 import pandas as pd
 import os
-from src.experiment_defaults import DEFAULTS, runner_kwargs
+from experiments.experiment_defaults import DEFAULTS, runner_kwargs
 from src.runner import run_causal_dag_validation
-from src.causal_dag import visualize_three_dags
-from src.validation.pearl_do_calculus import compute_neuron_and_assembly_mean_features, probability_of_values, sign
+from src.visualization.dag_plotting import visualize_three_dags
+from src.validation.interventional.pearl_do_calculus import compute_neuron_and_assembly_mean_features, probability_of_values, sign
 
 def generate_credit_data(n_customers=DEFAULTS.n_samples, seed=DEFAULTS.seed, do=None):
     """
@@ -305,5 +305,7 @@ if __name__ == '__main__':
     print('='*70)
     print('  Results: credit_default/credit_causal_results.txt')
     print('  Visualization: credit_default/credit_3dag_comparison.png')
+
+
 
 

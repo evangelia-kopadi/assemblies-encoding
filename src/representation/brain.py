@@ -13,9 +13,12 @@ Scientific basis:
     Proceedings of the National Academy of Sciences, 117(25), 14464-14472.
     https://doi.org/10.1073/pnas.2001893117
 
-Original Implementation:
+Original Implementation (borrowed/adapted from the assemblies codebase):
     Author: Daniel Mitropolsky, 2018
     Princeton University & MIT
+    Upstream repository: https://github.com/dmitropolsky/assemblies
+    Upstream commit (pinned): https://github.com/dmitropolsky/assemblies/commit/a7ded3b23aa1cce10b8979801a27da8a97bc23d3
+    Upstream file (pinned): https://github.com/dmitropolsky/assemblies/blob/a7ded3b23aa1cce10b8979801a27da8a97bc23d3/brain.py
 """
 
 import numpy as np
@@ -601,4 +604,5 @@ class Brain:
               "is now:", self.connectomes[target_area_name][other_area_name])
 
     return num_first_winners_processed
+
 
