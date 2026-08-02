@@ -363,7 +363,7 @@ def run_causal_dag_validation(
     # STAGE IV: Assembly formation
     # =========================================================================
     print()
-    print("[STAGE IV] Assembly Formation (Papadimitriou Brain)...")
+    print("[STAGE IV] Assembly Formation (Neural Assemblies Brain)...")
     brain = Brain(p=beta, save_size=True, save_winners=True, seed=seed, max_support_ratio=brain_max_support_ratio if brain_max_support_ratio is not None else 1.0)
     if disable_plasticity_control:
         brain.disable_plasticity = True
@@ -706,6 +706,7 @@ def run_causal_dag_validation(
             'ratio': compression_ratio,
         },
     }
+
 
 
 
