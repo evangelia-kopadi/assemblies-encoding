@@ -39,7 +39,6 @@ This repository accompanies the SUM 2026 manuscript **"Causal Structure Preserva
 - `results/student_success_table4/`: frozen Student Success 50-seed robustness artifacts used for the paper's Table 4.
 - `figures/`: figures referenced by the paper source.
 - `paper/`: editable paper source, bibliography, and build script.
-- `scripts/verify_artifacts.py`: quick consistency check for the included paper artifacts.
 
 ## Experiment roles
 
@@ -50,6 +49,13 @@ The single-run benchmark (`results/single_run/`) supports the concrete determini
 The main encoding conclusion is based on the five-dataset, ten-seed sensitivity sweeps (`results/sensitivity/`). In those sweeps, each SCM generator produces symbolic observations that pass through the same Bernoulli and deterministic-k encoding grid before PC/GES graph recovery. Each discovery method has 400 runs.
 
 The Student Success multi-seed experiment (`results/student_success_table4/`) is a separate 50-seed robustness and intervention check for the paper's Table 4.
+
+## Table-to-artifact mapping
+
+- Table 1 -> `results/single_run/`
+- Tables 2-3 -> `results/sensitivity/` and `results/table_summaries/`
+- Table 4 -> `results/student_success_table4/`
+
 
 ## Encoding grid used in the paper
 
@@ -96,10 +102,7 @@ Total = 400 runs per discovery method
 python -m venv .venv
 . .venv/Scripts/activate  # Windows PowerShell: .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-python scripts/verify_artifacts.py
 ```
-
-The verification script checks the included CSV artifacts and prints the paper-level counts and means.
 
 
 ## Single-run Table 1 rerun
