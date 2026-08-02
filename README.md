@@ -31,7 +31,7 @@ This repository accompanies the SUM 2026 manuscript **"Causal Structure Preserva
   - Student Success
   - Vaccine Efficacy
 - `notebooks/pipeline_visualization.ipynb`: executable visual walkthrough of the Stage I-VI pipeline for Bernoulli and deterministic-k encodings.
-- `run_sensitivity_sweep.py`: PC/GES encoding sensitivity sweep runner.
+- `experiments/run_sensitivity_sweep.py`: PC/GES encoding sensitivity sweep runner.
 - `experiments/student_success/evaluate_student_success_multiseed.py`: Student Success multi-seed graph and intervention robustness check used for the paper's Table 4.
 - `results/single_run/`: frozen single-run benchmark artifacts for the deterministic-k seed-42 run used in Table 1.
 - `results/sensitivity/`: frozen multi-run PC/GES sensitivity sweep artifacts used for the paper's Tables 2-3.
@@ -120,7 +120,7 @@ Run the corresponding `validate_*.py` under `experiments/<dataset>/` for the oth
 Use a small run first:
 
 ```bash
-python run_sensitivity_sweep.py --datasets Student,Vaccine --seeds 42 --n-samples 200 --n-train 20 --method pc
+python experiments/run_sensitivity_sweep.py --datasets Student,Vaccine --seeds 42 --n-samples 200 --n-train 20 --method pc
 ```
 
 This writes local `sensitivity_sweep_*.csv` files in the repository root. They are ignored by git so that the frozen paper artifacts under `results/sensitivity/` remain unchanged. To compare a fresh rerun against the frozen values, open both CSVs side by side; column names and row order match.
@@ -130,13 +130,13 @@ This writes local `sensitivity_sweep_*.csv` files in the repository root. They a
 PC:
 
 ```bash
-python run_sensitivity_sweep.py --datasets Alzheimers,Stroke,Credit,Student,Vaccine --seeds 42,73,101,131,151,181,211,241,271,301 --n-samples 800 --n-train 120 --method pc
+python experiments/run_sensitivity_sweep.py --datasets Alzheimers,Stroke,Credit,Student,Vaccine --seeds 42,73,101,131,151,181,211,241,271,301 --n-samples 800 --n-train 120 --method pc
 ```
 
 GES:
 
 ```bash
-python run_sensitivity_sweep.py --datasets Alzheimers,Stroke,Credit,Student,Vaccine --seeds 42,73,101,131,151,181,211,241,271,301 --n-samples 800 --n-train 120 --method ges
+python experiments/run_sensitivity_sweep.py --datasets Alzheimers,Stroke,Credit,Student,Vaccine --seeds 42,73,101,131,151,181,211,241,271,301 --n-samples 800 --n-train 120 --method ges
 ```
 
 ## Student Success paper Table 4 rerun
@@ -150,13 +150,16 @@ This writes fresh outputs under `experiments/student_success/` and `docs/results
 ## Notes for extension
 
 - Add a new SCM generator under `experiments/<dataset>/`.
-- Register it in `run_sensitivity_sweep.py` inside `build_datasets()`.
+- Register it in `experiments/run_sensitivity_sweep.py` inside `build_datasets()`.
 - Add new encoding configurations in `build_sweep_configs()`.
 - Keep discovery settings fixed when comparing representation effects, unless the goal is explicitly algorithm tuning.
 
 ## License
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+
+
+
 
 
 
