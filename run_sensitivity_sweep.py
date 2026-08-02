@@ -22,7 +22,7 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from src.experiment_defaults import DEFAULTS
+from experiments.experiment_defaults import DEFAULTS
 from src.runner import run_causal_dag_validation
 
 from experiments.alzheimers.validate_alzheimers import generate_alzheimers_data
@@ -255,6 +255,7 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
 
 
 
