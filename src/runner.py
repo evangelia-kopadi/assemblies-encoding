@@ -18,26 +18,24 @@ from typing import Dict, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
-from .brain import Brain
+from .representation.brain import Brain
 from .encoding.bernoulli import encode_bernoulli_dataframe
 from .encoding.deterministic_k import build_deterministic_k_map, encode_deterministic_k_dataframe
-from .validation.assembly_feature_extraction import extract_assembly_features
-from .validation.assembly_formation import form_assemblies
-from .validation.information_preservation_mi import (
+from .representation.assembly_feature_extraction import extract_assembly_features
+from .representation.assembly_formation import form_assemblies
+from .representation.information_preservation_mi import (
     compute_mi_matrix,
     validate_information_preservation,
 )
-from .observational_diagnostics import (
+from .evaluation.observational_diagnostics import (
     binarize_dataframe,
     print_observational_association_diagnostics,
     print_feature_variance_only,
 )
 from .discovery.ges import run_ges_algorithm
 from .discovery.pc import run_pc_algorithm
-from .causal_dag import (
-    print_dag_comparison_report,
-    visualize_three_dags,
-)
+from .evaluation.dag_evaluation import print_dag_comparison_report
+from .visualization.dag_plotting import visualize_three_dags
 
 Edge = Tuple[str, str]
 
@@ -754,6 +752,8 @@ def run_causal_dag_validation(
             'ratio': compression_ratio,
         },
     }
+
+
 
 
 

@@ -12,15 +12,21 @@ from __future__ import annotations
 
 import argparse
 import os
+import sys
 from dataclasses import asdict
+
+# Ensure repo root is on sys.path so "import src.*" and "import experiments.*" resolve locally
+_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+if _REPO_ROOT not in sys.path:
+    sys.path.insert(0, _REPO_ROOT)
 
 import numpy as np
 import pandas as pd
 
-from src.experiment_defaults import DEFAULTS, runner_kwargs
+from experiments.experiment_defaults import DEFAULTS, runner_kwargs
 from src.runner import run_causal_dag_validation
 from src.encoding.bernoulli import encode_bernoulli_dataframe
-from src.validation.assembly_feature_extraction import extract_assembly_features
+from src.representation.assembly_feature_extraction import extract_assembly_features
 
 # Reuse the SCM + do() generator from the case study implementation without
 # requiring experiments/ to be a Python package.
@@ -525,6 +531,8 @@ def main() -> int:
 
 if __name__ == '__main__':
     raise SystemExit(main())
+
+
 
 
 

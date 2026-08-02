@@ -27,9 +27,9 @@ import numpy as np
 import random
 import pandas as pd
 
-from src.experiment_defaults import DEFAULTS, runner_kwargs
+from experiments.experiment_defaults import DEFAULTS, runner_kwargs
 from src.runner import run_causal_dag_validation
-from src.causal_dag import visualize_three_dags
+from src.visualization.dag_plotting import visualize_three_dags
 
 def generate_student_data(n_students=DEFAULTS.n_samples, seed=DEFAULTS.seed, do=None, *, variant: str = 'base'):
     """
@@ -314,7 +314,7 @@ def main():
     print('  Note: we reuse the trained Brain from the baseline run (no retraining)')
 
     from src.encoding.bernoulli import encode_bernoulli_dataframe
-    from src.validation.assembly_feature_extraction import extract_assembly_features
+    from src.representation.assembly_feature_extraction import extract_assembly_features
 
     def _extract_variable_features_from_neural(neural: np.ndarray) -> pd.DataFrame:
         feats = {}
@@ -599,6 +599,8 @@ if __name__ == '__main__':
             print(f"\n  Analysis log saved to: {os.path.basename(analysis_path)}")
         finally:
             sys.stdout, sys.stderr = _orig_stdout, _orig_stderr
+
+
 
 
 

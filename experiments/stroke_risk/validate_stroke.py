@@ -19,7 +19,7 @@ import os
 import numpy as np
 import pandas as pd
 
-from src.experiment_defaults import DEFAULTS, runner_kwargs
+from experiments.experiment_defaults import DEFAULTS, runner_kwargs
 from src.runner import run_causal_dag_validation
 
 
@@ -103,7 +103,7 @@ def _render_comparison_png(var_names, ground_truth_edges, neuron_edges, assembly
     fig.tight_layout()
     fig.savefig(out_path, dpi=220, bbox_inches="tight")
     plt.close(fig)
-from src.validation.pearl_do_calculus import compute_neuron_and_assembly_mean_features, probability_of_values, sign
+from src.validation.interventional.pearl_do_calculus import compute_neuron_and_assembly_mean_features, probability_of_values, sign
 
 def generate_stroke_data(n_patients=DEFAULTS.n_samples, seed=DEFAULTS.seed, do=None, *, variant: str = 'multivalued'):
     """Generate stroke risk data with known causal structure.
@@ -560,4 +560,5 @@ def main():
 
 if __name__ == '__main__':
     results = main()
+
 

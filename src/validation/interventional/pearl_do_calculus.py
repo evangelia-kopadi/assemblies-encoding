@@ -16,9 +16,9 @@ from typing import Callable, Dict, Iterable, Mapping, Sequence, Set
 import numpy as np
 import pandas as pd
 
-from ..encoding.bernoulli import encode_bernoulli_dataframe
-from ..encoding.deterministic_k import build_deterministic_k_map, encode_deterministic_k_dataframe
-from .assembly_feature_extraction import extract_assembly_features
+from ...encoding.bernoulli import encode_bernoulli_dataframe
+from ...encoding.deterministic_k import build_deterministic_k_map, encode_deterministic_k_dataframe
+from ...representation.assembly_feature_extraction import extract_assembly_features
 
 
 @dataclass(frozen=True)
