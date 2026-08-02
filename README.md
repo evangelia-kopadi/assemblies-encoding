@@ -104,10 +104,17 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
+For exact reproducibility of the paper numbers, install the pinned versions instead:
 
-## Single-run Table 1 rerun
+```bash
+pip install -r requirements-lock.txt
+```
 
-Table 1 is produced by running the per-dataset validate scripts at seed 42 with deterministic-k step 10. For example, to reproduce the Student Success row:
+`requirements.txt` contains broad compatible ranges (any Python 3.9+). `requirements-lock.txt` pins the exact versions used when the paper results were generated and is the recommended choice when reproducing Tables 1-4.
+
+## Single-run deterministic-k benchmark rerun
+
+This benchmark is produced by running the per-dataset validate scripts at seed 42 with deterministic-k step 10. For example, to reproduce the Student Success run:
 
 ```bash
 python experiments/student_success/validate_student_success.py
@@ -139,13 +146,15 @@ GES:
 python experiments/run_sensitivity_sweep.py --datasets Alzheimers,Stroke,Credit,Student,Vaccine --seeds 42,73,101,131,151,181,211,241,271,301 --n-samples 800 --n-train 120 --method ges
 ```
 
-## Student Success paper Table 4 rerun
+## Student Success Multi-seed Robustness and Interventional Validation (50 seeds)
+
+This experiment runs a single-dataset robustness check (used in the manuscript robustness section) and evaluates both graph-recovery stability and do()-effect consistency.
 
 ```bash
 python experiments/student_success/evaluate_student_success_multiseed.py --n-seeds 50 --seed0 42 --n-samples 1000 --n-eval 1000
 ```
 
-This writes fresh outputs under `experiments/student_success/` and `docs/results/`. The frozen values for the paper's Table 4 are kept under `results/student_success_table4/`.
+This writes fresh outputs under `experiments/student_success/` and `docs/results/`. Frozen reference artifacts are kept under `results/student_success_table4/`.
 
 ## Notes for extension
 
@@ -157,6 +166,8 @@ This writes fresh outputs under `experiments/student_success/` and `docs/results
 ## License
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+
+
 
 
 
