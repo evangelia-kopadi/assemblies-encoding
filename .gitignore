@@ -15,6 +15,9 @@ Thumbs.db
 # Local generated reports
 experiments/student_success/student_success_multiseed_summary.csv
 experiments/student_success/student_success_multiseed_dodeltas.csv
+experiments/student_success/student_success_causal_results*.txt
+experiments/student_success/student_success_3dag_comparison*.png
+experiments/student_success/student_success_causal_results_analysis.txt
 docs/results/
 
 # Paper build intermediates
@@ -33,3 +36,4 @@ paper/llncs-pandoc-template.tex
 
 # Local private utilities
 scripts/
+

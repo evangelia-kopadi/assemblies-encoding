@@ -424,6 +424,288 @@ def run_causal_dag_validation(
         assembly_df[:] = assembly_df.to_numpy() + rng.normal(0.0, jitter_std, assembly_df.shape)
         print(f"  Applied deterministic jitter std={jitter_std} to features")
 
+    obs_diagnostics = None
+
+    if skip_causal_discovery:
+        total_neurons = sum(brain.area_by_name[var].n for var in var_names)
+        total_assembly_neurons = sum(brain.area_by_name[var].w for var in var_names)
+        compression_ratio = total_neurons / total_assembly_neurons if total_assembly_neurons > 0 else float('inf')
+
+        return {
+            'neuron_df': neuron_df,
+            'assembly_df': assembly_df,
+            'brain': brain,
+            'var_names': list(var_names),
+            'compression': {
+                'original_neurons': total_neurons,
+                'assembly_neurons': total_assembly_neurons,
+                'ratio': compression_ratio,
+            },
+        }
+
+    # =========================================================================
+    # STAGE VI: Matched causal discovery on raw-neuron and assembly readouts
+    # =========================================================================
+    print()
+    print("[STAGE VI] Matched causal discovery...")
+
+    strict_neuron = (strict_causal_discovery if strict_neuron_causal_discovery is None else bool(strict_neuron_causal_discovery))
+    strict_assembly = (strict_causal_discovery if strict_assembly_causal_discovery is None else bool(strict_assembly_causal_discovery))
+
+    method_norm = method.strip().lower()
+    if method_norm not in {"pc", "ges"}:
+        raise ValueError(f"Unknown method={method!r}; expected 'pc' or 'ges'")
+
+    assembly_method_norm = (assembly_method.strip().lower() if assembly_method is not None else method_norm)
+    if assembly_method_norm not in {"pc", "ges"}:
+        raise ValueError(f"Unknown assembly_method={assembly_method!r}; expected 'pc' or 'ges'")
+
+    print()
+    print("  [DAG 1] Ground Truth:")
+    for source, target in ground_truth_edges:
+        print(f"    {source} -> {target}")
+
+    if skip_neuron_dag:
+        neuron_edges, neuron_graph = [], None
+        print()
+        print("  [DAG 2] Skipped neuron causal discovery (skip_neuron_dag=True)")
+    else:
+        print()
+        print(f"  [DAG 2] Running {method_norm.upper()} on raw-neuron readout features...")
+        if method_norm == "pc":
+            neuron_edges, neuron_graph = run_pc_algorithm(
+                neuron_df,
+                list(var_names),
+                alpha=alpha_pc,
+                strict=strict_neuron,
+            )
+        else:
+            neuron_edges, neuron_graph = run_ges_algorithm(
+                neuron_df,
+                list(var_names),
+                strict=strict_neuron,
+            )
+
+        print(f"    Discovered {len(neuron_edges)} edges")
+        for source, target in neuron_edges:
+            print(f"    {source} -> {target}")
+
+    print()
+    print(f"  [DAG 3] Running {assembly_method_norm.upper()} on assembly readout features...")
+
+    assembly_all_names = list(var_names)
+    _kept_names, assembly_dropped_vars = _variance_guard(
+        assembly_df,
+        assembly_all_names,
+        eps=assembly_variance_guard_eps,
+    )
+
+    guard_mode = str(assembly_variance_guard_mode).strip().lower()
+    if guard_mode not in {"jitter", "drop"}:
+        raise ValueError(f"Unknown assembly_variance_guard_mode={assembly_variance_guard_mode!r}; expected 'jitter' or 'drop'")
+
+    if assembly_dropped_vars:
+        if guard_mode == "drop":
+            print(
+                "    Variance-guard: dropping "
+                f"{len(assembly_dropped_vars)} near-constant/non-finite assembly feature(s) "
+                f"(eps={assembly_variance_guard_eps:g}): "
+                + ", ".join(assembly_dropped_vars)
+            )
+        else:
+            print(
+                "    Variance-guard: detected "
+                f"{len(assembly_dropped_vars)} near-constant/non-finite assembly feature(s) "
+                f"(eps={assembly_variance_guard_eps:g}); applying deterministic jitter std={assembly_variance_guard_jitter_std:g}"
+                + ": "
+                + ", ".join(assembly_dropped_vars)
+            )
+    else:
+        print(f"    Variance-guard: OK (eps={assembly_variance_guard_eps:g})")
+
+    if guard_mode == "drop":
+        assembly_guarded_names = _kept_names
+        assembly_df_for_cd = assembly_df[assembly_guarded_names].copy() if assembly_guarded_names else assembly_df.iloc[:, :0].copy()
+    else:
+        # Keep all variables, but add small deterministic jitter to degenerate columns
+        assembly_guarded_names = assembly_all_names
+        assembly_df_for_cd = assembly_df[assembly_guarded_names].copy()
+        if assembly_dropped_vars and assembly_variance_guard_jitter_std > 0:
+            rng = np.random.default_rng(seed=seed + 20202)
+            for col in assembly_dropped_vars:
+                assembly_df_for_cd[col] = assembly_df_for_cd[col].to_numpy(dtype=float) + rng.normal(
+                    0.0, float(assembly_variance_guard_jitter_std), size=len(assembly_df_for_cd)
+                )
+
+    def _run_one(df_for_cd: pd.DataFrame, names: list[str]) -> tuple[list[Edge], object | None]:
+        if len(names) < 2:
+            return [], None
+
+        if assembly_method_norm == "pc":
+            edges, graph = run_pc_algorithm(
+                df_for_cd,
+                names,
+                alpha=alpha_pc,
+                strict=strict_assembly,
+            )
+
+            # PC + Fisher-Z can fail on singular correlation matrices.
+            # If it still fails even after variance-guard, retry once with deterministic jitter.
+            if graph is None:
+                retry_jitter = jitter_std if jitter_std > 0 else 0.05
+                rng = np.random.default_rng(seed=seed + 12345)
+                arr = df_for_cd.to_numpy() + rng.normal(0.0, retry_jitter, df_for_cd.shape)
+                df_retry = pd.DataFrame(arr, columns=df_for_cd.columns)
+                print(f"    Retrying PC on assembly features with deterministic jitter std={retry_jitter}")
+                edges, graph = run_pc_algorithm(
+                    df_retry,
+                    names,
+                    alpha=alpha_pc,
+                    strict=strict_assembly,
+                )
+
+            return edges, graph
+
+        edges, graph = run_ges_algorithm(df_for_cd, names, strict=strict_assembly)
+        return edges, graph
+
+    assembly_edges, assembly_graph = _run_one(assembly_df_for_cd, assembly_guarded_names)
+
+    assembly_stability_used = False
+    assembly_stability_details = None
+
+    need_stability = assembly_stability_selection or (
+        assembly_stability_auto_on_degenerate and bool(assembly_dropped_vars)
+    )
+
+    if need_stability:
+        if len(assembly_guarded_names) < 2:
+            print("    Stability selection: skipped (too few non-degenerate variables)")
+        else:
+            assembly_stability_used = True
+            print(
+                "    Stability selection: "
+                f"bootstrapping n={assembly_stability_n_bootstrap}, "
+                f"frac={assembly_stability_frac:.2f}, "
+                f"threshold={assembly_stability_threshold:.2f}"
+            )
+
+            assembly_edges = _bootstrap_stable_edges(
+                data_df=assembly_df_for_cd,
+                var_names=assembly_guarded_names,
+                method=assembly_method_norm,
+                alpha=alpha_pc,
+                strict=strict_assembly,
+                n_bootstrap=assembly_stability_n_bootstrap,
+                sample_frac=assembly_stability_frac,
+                threshold=assembly_stability_threshold,
+                seed=seed + int(assembly_stability_seed_offset),
+            )
+
+            assembly_stability_details = {
+                "method": assembly_method_norm,
+                "n_bootstrap": int(assembly_stability_n_bootstrap),
+                "sample_frac": float(assembly_stability_frac),
+                "threshold": float(assembly_stability_threshold),
+                "seed": int(seed + int(assembly_stability_seed_offset)),
+            }
+
+    print(f"    Discovered {len(assembly_edges)} edges")
+    for source, target in assembly_edges:
+        print(f"    {source} -> {target}")
+
+    # =========================================================================
+    # EVALUATION: Compare recovered graphs and MI preservation
+    # =========================================================================
+    print()
+    print("[EVALUATION] Comparing recovered graphs and MI preservation...")
+    if skip_neuron_dag:
+        gt_set = set(ground_truth_edges)
+        asm_set = set(assembly_edges)
+        correct = asm_set & gt_set
+        spurious = asm_set - gt_set
+        missing = gt_set - asm_set
+        prec = len(correct) / len(asm_set) if asm_set else 0.0
+        rec = len(correct) / len(gt_set) if gt_set else 0.0
+        f1 = 0.0 if prec + rec == 0 else 2 * prec * rec / (prec + rec)
+        comparison_results = {
+            "ground_truth_edges": list(gt_set),
+            "assembly_vs_gt": {
+                "precision": prec,
+                "recall": rec,
+                "f1": f1,
+                "correct": sorted(correct),
+                "spurious": sorted(spurious),
+                "missing": sorted(missing),
+            },
+            "neuron_vs_gt": None,
+            "assembly_vs_neuron": None,
+            "preservation_score": None,
+        }
+        print("  (Neuron DAG skipped; reporting assembly vs ground truth only)")
+        print(f"  Assembly precision={prec:.3f}, recall={rec:.3f}, f1={f1:.3f}")
+    else:
+        comparison_results = print_dag_comparison_report(
+            list(ground_truth_edges),
+            neuron_edges,
+            assembly_edges,
+            list(var_names),
+        )
+
+    if visualize_save_path:
+        visualize_three_dags(
+            list(ground_truth_edges),
+            neuron_edges,
+            assembly_edges,
+            list(var_names),
+            save_path=visualize_save_path,
+        )
+    mi_neurons = compute_mi_matrix({c: neuron_df[c].to_numpy() for c in var_names}, list(var_names))
+    mi_assemblies = compute_mi_matrix({c: assembly_df[c].to_numpy() for c in var_names}, list(var_names))
+    validation = validate_information_preservation(mi_neurons, mi_assemblies, threshold=0.1)
+
+    total_neurons = sum(brain.area_by_name[var].n for var in var_names)
+    total_assembly_neurons = sum(brain.area_by_name[var].w for var in var_names)
+    compression_ratio = total_neurons / total_assembly_neurons if total_assembly_neurons > 0 else float('inf')
+
+    return {
+        'ground_truth_edges': list(ground_truth_edges),
+        'neuron_edges': neuron_edges,
+        'assembly_edges': assembly_edges,
+        'neuron_df': neuron_df,
+        'assembly_df': assembly_df,
+        'neuron_graph': neuron_graph,
+        'assembly_graph': assembly_graph,
+        'comparison': comparison_results,
+        'mi_neurons': mi_neurons,
+        'mi_assemblies': mi_assemblies,
+        'validation': validation,
+        'brain': brain,
+        'var_names': list(var_names),
+        'observational_diagnostics': obs_diagnostics,
+        'assembly_causal_discovery': {
+            'variance_guard_eps': float(assembly_variance_guard_eps),
+            'variance_guard_mode': str(assembly_variance_guard_mode),
+            'variance_guard_jitter_std': float(assembly_variance_guard_jitter_std),
+            'dropped_vars': list(assembly_dropped_vars),
+            'guarded_vars': list(assembly_guarded_names),
+            'stability_used': bool(assembly_stability_used),
+            'stability': assembly_stability_details,
+        },
+        'controls': {
+            'shuffled_mapping': bool(shuffled_mapping_control),
+            'disable_plasticity': bool(disable_plasticity_control),
+            'target_area_by_var_name': dict(target_area_by_var_name),
+            'deterministic_k_encoding': bool(deterministic_k_encoding),
+            'stimulus_k': int(stimulus_k if stimulus_k is not None else assembly_k) if deterministic_k_encoding else None,
+            'deterministic_k_step': int(deterministic_k_step) if deterministic_k_encoding else None,
+        },
+        'compression': {
+            'original_neurons': total_neurons,
+            'assembly_neurons': total_assembly_neurons,
+            'ratio': compression_ratio,
+        },
+    }
 
 
 
