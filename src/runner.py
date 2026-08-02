@@ -29,7 +29,7 @@ from .representation.information_preservation_mi import (
 )
 from .discovery.ges import run_ges_algorithm
 from .discovery.pc import run_pc_algorithm
-from .evaluation.dag_evaluation import print_dag_comparison_report
+from .validation.observational.dag_comparison import print_dag_comparison_report
 from .visualization.dag_plotting import visualize_three_dags
 
 Edge = Tuple[str, str]
@@ -423,6 +423,7 @@ def run_causal_dag_validation(
         neuron_df[:] = neuron_df.to_numpy() + rng.normal(0.0, jitter_std, neuron_df.shape)
         assembly_df[:] = assembly_df.to_numpy() + rng.normal(0.0, jitter_std, assembly_df.shape)
         print(f"  Applied deterministic jitter std={jitter_std} to features")
+
 
 
 
