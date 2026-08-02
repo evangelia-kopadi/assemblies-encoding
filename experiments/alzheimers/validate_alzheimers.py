@@ -209,8 +209,7 @@ def main():
         ground_truth_edges=ground_truth,
         skip_neuron_dag=False,
         jitter_std=0.00,
-        **runner_kwargs(),
-        observational_diagnostics=True
+        **runner_kwargs()
     )
     
     # ---------------------------------------------------------------------

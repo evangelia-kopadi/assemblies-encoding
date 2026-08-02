@@ -314,7 +314,6 @@ def main():
                 assembly_method="ges",
                 positive_prob=DEFAULTS.positive_prob,
                 negative_prob=DEFAULTS.negative_prob,
-                observational_diagnostics=True,
             )
 
             assembly_metrics = res["comparison"]["assembly_vs_gt"]
