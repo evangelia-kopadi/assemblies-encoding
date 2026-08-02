@@ -10,7 +10,7 @@ Parts of the neural assembly simulation core (notably `src/representation/brain.
 
 ## Associated paper
 
-This repository accompanies the SUM 2026 manuscript **"Causal Structure Preservation in Neural Assemblies under Encoding Uncertainty"**. The editable paper source is available at `paper/causal_structure_preservation_in_neural_assemblies_under_encoding_uncertainty.md`, with its bibliography and build script in the same folder. References to Tables 1-4 in this README refer to that manuscript.
+This repository accompanies the SUM 2026 manuscript **"Causal Structure Preservation in Neural Assemblies under Encoding Uncertainty"**. The editable paper source is available at `paper/causal_structure_preservation_in_neural_assemblies_under_encoding_uncertainty.md`, with its bibliography and build script in the same folder. References to Tables 1-5 in this README refer to that manuscript.
 
 ## What is included
 
@@ -32,11 +32,11 @@ This repository accompanies the SUM 2026 manuscript **"Causal Structure Preserva
   - Vaccine Efficacy
 - `notebooks/pipeline_visualization.ipynb`: executable visual walkthrough of the Stage I-VI pipeline for Bernoulli and deterministic-k encodings.
 - `experiments/run_sensitivity_sweep.py`: PC/GES encoding sensitivity sweep runner.
-- `experiments/student_success/evaluate_student_success_multiseed.py`: Student Success multi-seed graph and intervention robustness check used for the paper's Table 4.
+- `experiments/student_success/evaluate_student_success_multiseed.py`: Student Success multi-seed graph and intervention robustness check used for the Student Success validation study.
 - `results/single_run/`: frozen single-run benchmark artifacts for the deterministic-k seed-42 run used in Table 1.
 - `results/sensitivity/`: frozen multi-run PC/GES sensitivity sweep artifacts used for the paper's Tables 2-3.
 - `results/table_summaries/`: compact table-summary CSV/TXT files derived from the frozen runs.
-- `results/student_success_table4/`: frozen Student Success 50-seed robustness artifacts used for the paper's Table 4.
+- `results/student_success_validation/`: frozen Student Success 50-seed robustness artifacts used for the Student Success validation study.
 - `figures/`: figures referenced by the paper source.
 - `paper/`: editable paper source, bibliography, and build script.
 
@@ -48,13 +48,13 @@ The single-run benchmark (`results/single_run/`) supports the concrete determini
 
 The main encoding conclusion is based on the five-dataset, ten-seed sensitivity sweeps (`results/sensitivity/`). In those sweeps, each SCM generator produces symbolic observations that pass through the same Bernoulli and deterministic-k encoding grid before PC/GES graph recovery. Each discovery method has 400 runs.
 
-The Student Success multi-seed experiment (`results/student_success_table4/`) is a separate 50-seed robustness and intervention check for the paper's Table 4.
+The Student Success multi-seed experiment (`results/student_success_validation/`) is a separate 50-seed robustness and intervention validation check.
 
-## Table-to-artifact mapping
+## Result-artifact mapping
 
-- Table 1 -> `results/single_run/`
-- Tables 2-3 -> `results/sensitivity/` and `results/table_summaries/`
-- Table 4 -> `results/student_success_table4/`
+- Single-run benchmark -> `results/single_run/`
+- Multi-run sensitivity sweeps -> `results/sensitivity/` and `results/table_summaries/`
+- Student Success validation -> `results/student_success_validation/`
 
 
 ## Encoding grid used in the paper
@@ -110,7 +110,7 @@ For exact reproducibility of the paper numbers, install the pinned versions inst
 pip install -r requirements-lock.txt
 ```
 
-`requirements.txt` contains broad compatible ranges (any Python 3.9+). `requirements-lock.txt` pins the exact versions used when the paper results were generated and is the recommended choice when reproducing Tables 1-4.
+`requirements.txt` contains broad compatible ranges (any Python 3.9+). `requirements-lock.txt` pins the exact versions used when the paper results were generated and is the recommended choice when reproducing Tables 1-5.
 
 ## Single-run deterministic-k benchmark rerun
 
@@ -154,7 +154,7 @@ This experiment runs a single-dataset robustness check (used in the manuscript r
 python experiments/student_success/evaluate_student_success_multiseed.py --n-seeds 50 --seed0 42 --n-samples 1000 --n-eval 1000
 ```
 
-This writes fresh outputs under `experiments/student_success/` and `docs/results/`. Frozen reference artifacts are kept under `results/student_success_table4/`.
+This writes fresh outputs under `experiments/student_success/` and `docs/results/`. Frozen reference artifacts are kept under `results/student_success_validation/`.
 
 ## Notes for extension
 
@@ -166,6 +166,7 @@ This writes fresh outputs under `experiments/student_success/` and `docs/results
 ## License
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+
 
 
 
