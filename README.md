@@ -170,7 +170,8 @@ This writes fresh outputs under `experiments/student_success/` and `docs/results
 
 ## License
 
-No license has been selected yet. Add one before public release.
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+
 
 
 
