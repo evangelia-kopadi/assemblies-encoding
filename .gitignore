@@ -30,3 +30,6 @@ paper/build_paper.ps1
 paper/build_artifacts_links.md
 
 paper/llncs-pandoc-template.tex
+
+# Local private utilities
+scripts/
