@@ -101,23 +101,6 @@ python scripts/verify_artifacts.py
 
 The verification script checks the included CSV artifacts and prints the paper-level counts and means.
 
-## Paper editing and build
-
-Edit the manuscript here:
-
-```text
-paper/causal_structure_preservation_in_neural_assemblies_under_encoding_uncertainty.md
-```
-
-After manuscript edits, rebuild the paper outputs from the repository root:
-
-```powershell
-Push-Location paper
-.\build_paper.ps1
-Pop-Location
-```
-
-The build writes PDF, DOCX, and TEX outputs into `paper/`.
 
 ## Single-run Table 1 rerun
 
