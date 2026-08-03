@@ -1,4 +1,4 @@
-﻿"""
+"""
 Student Success Case Study - 3-DAG Causal Validation
 
 Validates that neural assemblies preserve causal information by comparing:
@@ -29,7 +29,7 @@ import numpy as np
 import random
 import pandas as pd
 
-from experiments.experiment_defaults import DEFAULTS, runner_kwargs, make_run_output_dir
+from experiments.experiment_defaults import DEFAULTS, runner_kwargs, get_output_filepath
 from src.runner import run_causal_dag_validation
 from src.visualization.dag_plotting import visualize_three_dags
 
@@ -447,8 +447,9 @@ def main():
         print()
         print(f"  Sign-match rate (directional): {sign_match_summary}")
     # Visualize the 3 DAGs
-    output_dir = os.path.dirname(__file__)
-    run_dir = make_run_output_dir("validate_student_success")
+    csv_path = get_output_filepath("table_1_student_metrics.csv")
+    output_dir = os.path.dirname(csv_path)
+    os.makedirs(output_dir, exist_ok=True)
 
     run_id = datetime.now().strftime('%Y%m%d_%H%M%S')
 
@@ -554,34 +555,6 @@ def main():
     except Exception as e:
         print(f"  Warning: failed to update latest results TXT: {e}")
 
-    # Write run configuration for reproducibility tracing
-    _run_config = {
-        "script": "experiments/student_success/validate_student_success.py",
-        "timestamp_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
-        "dataset": "StudentSuccess",
-        "experiment_defaults": {
-            "seed": DEFAULTS.seed,
-            "n_samples": DEFAULTS.n_samples,
-            "neurons_per_var": DEFAULTS.neurons_per_var,
-            "assembly_k": DEFAULTS.assembly_k,
-            "n_train": DEFAULTS.n_train,
-            "n_presentations": DEFAULTS.n_presentations,
-            "beta": DEFAULTS.beta,
-            "positive_prob": DEFAULTS.positive_prob,
-            "negative_prob": DEFAULTS.negative_prob,
-        },
-        "runner_kwargs_base": {
-            "deterministic_k_encoding": True,
-            "deterministic_k_readout_mode": "pool_mean",
-            "deterministic_k_step": 10,
-            "method": "pc",
-        },
-    }
-    _cfg_path = os.path.join(output_dir, "run_config.json")
-    with open(_cfg_path, "w", encoding="utf-8") as _fcfg:
-        json.dump(_run_config, _fcfg, indent=2)
-    print(f"  Wrote run config: {_cfg_path}")
-
     print(f'\n  Results saved to: {os.path.basename(results_file)}')
     print(f'  Latest results updated: {os.path.basename(results_latest_file)}')
     print(f'  DAG visualization saved to: {os.path.basename(dag_plot_path)}')
@@ -614,9 +587,10 @@ class _TeeTextIO:
 
 
 if __name__ == '__main__':
-    output_dir = os.path.dirname(__file__)
-    run_dir = make_run_output_dir("validate_student_success")
-    analysis_path = os.path.join(output_dir, 'student_success_causal_results_analysis.txt')
+    output_dir = os.path.dirname(get_output_filepath("table_1_student_metrics.csv"))
+    os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(output_dir, exist_ok=True)
+    analysis_path = os.path.join(output_dir, 'table_1_student_causal_results_analysis.txt')
 
     # Tee all console output (stdout+stderr) into an analysis log file
     with open(analysis_path, 'w', encoding='utf-8') as _log_f:
@@ -631,6 +605,23 @@ if __name__ == '__main__':
             print(f"\n  Analysis log saved to: {os.path.basename(analysis_path)}")
         finally:
             sys.stdout, sys.stderr = _orig_stdout, _orig_stderr
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -7,18 +7,7 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
-# Local reruns written by run_sensitivity_sweep.py
-/sensitivity_sweep_raw*.csv
-/sensitivity_sweep_summary*.csv
-/sensitivity_sweep_overall*.csv
-
-# Local generated reports
-experiments/student_success/student_success_multiseed_summary.csv
-experiments/student_success/student_success_multiseed_dodeltas.csv
-experiments/student_success/student_success_causal_results*.txt
-experiments/student_success/student_success_3dag_comparison*.png
-experiments/student_success/student_success_causal_results_analysis.txt
-docs/results/
+runs/
 
 # Paper build intermediates
 paper/*.aux
@@ -36,4 +25,7 @@ paper/llncs-pandoc-template.tex
 
 # Local private utilities
 scripts/
+
+
+
 

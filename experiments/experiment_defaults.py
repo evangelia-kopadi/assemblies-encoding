@@ -1,14 +1,16 @@
-﻿"""Experiment parameter loader.
+"""Experiment parameter loader.
 
-Single source of truth: experiments/config.json.
-Edit config.json to change any default across all scripts.
+Single source of truth: experiments/experiments_configuration.json.
+Edit experiments_configuration.json to change any default across all scripts.
 CLI args in individual scripts still override these values.
 """
 
 from __future__ import annotations
 
+import datetime
 import json
 import os
+import shutil
 from dataclasses import dataclass
 from typing import Any, Dict
 
@@ -24,6 +26,7 @@ _cfg = _load_config()
 _dg = _cfg["data_generation"]
 _ne = _cfg["neural_encoding"]
 _cd = _cfg["causal_discovery"]
+_out = _cfg.get("output", {})
 
 
 @dataclass(frozen=True)
@@ -63,35 +66,62 @@ def runner_kwargs(**overrides: Any) -> Dict[str, Any]:
     return base
 
 
-import datetime
-import shutil
-
-
 _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _CFG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "experiments_configuration.json")
+_CONFIG_COPIED = False
+
+
+def get_results_root() -> str:
+    """Return absolute base output root for experiment artifacts.
+
+    Config key: output.results_root in experiments_configuration.json.
+    Relative paths are resolved from repository root.
+    """
+    configured = str(_out.get("results_root", "runs")).strip()
+    if not configured:
+        configured = "runs"
+    if os.path.isabs(configured):
+        return configured
+    return os.path.normpath(os.path.join(_REPO_ROOT, configured))
+
+
+def get_run_output_dir() -> str:
+    """Return absolute daily run directory under configured results root.
+
+    Layout: <results_root>/YYYYMMDD
+    """
+    results_root = get_results_root()
+    date_str = datetime.datetime.now().strftime("%Y%m%d")
+    return os.path.join(results_root, date_str)
+
+
+def _ensure_results_dir_and_config() -> str:
+    """Ensure daily run directory exists and copy config there once.
+
+    Returns the daily run directory path.
+    """
+    global _CONFIG_COPIED
+    run_output_dir = get_run_output_dir()
+    os.makedirs(run_output_dir, exist_ok=True)
+
+    if not _CONFIG_COPIED:
+        config_dest = os.path.join(run_output_dir, "experiments_configuration.json")
+        shutil.copy2(_CFG_FILE, config_dest)
+        _CONFIG_COPIED = True
+
+    return run_output_dir
+
+
+def get_output_filepath(filename: str) -> str:
+    """Get absolute path for an output file in runs/YYYYMMDD."""
+    run_output_dir = _ensure_results_dir_and_config()
+    return os.path.join(run_output_dir, filename)
 
 
 def make_run_output_dir(script_name: str) -> str:
-    """Create a timestamped output directory under docs/results/ and copy the
-    active experiments_configuration.json into it.
+    """Backward-compatible alias that returns runs/YYYYMMDD.
 
-    Returns the absolute path to the new directory.
-
-    Usage in scripts::
-
-        from experiments.experiment_defaults import make_run_output_dir
-        run_dir = make_run_output_dir("evaluate_student_success_multiseed")
-        # write all outputs to run_dir
+    script_name is ignored to enforce the single daily folder layout.
     """
-    ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    slug = (
-        script_name.replace(".py", "")
-        .replace("experiments/", "")
-        .replace("experiments\\", "")
-        .replace("/", "_")
-        .replace("\\", "_")
-    )
-    run_dir = os.path.join(_REPO_ROOT, "docs", "results", f"{ts}_{slug}")
-    os.makedirs(run_dir, exist_ok=True)
-    shutil.copy2(_CFG_FILE, os.path.join(run_dir, "experiments_configuration.json"))
-    return run_dir
+    _ = script_name
+    return _ensure_results_dir_and_config()

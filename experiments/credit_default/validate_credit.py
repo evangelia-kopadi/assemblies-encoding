@@ -1,4 +1,4 @@
-﻿"""
+"""
 Credit Default Validation - Strong Realistic Effects
 Finance domain with well-documented strong causal relationships
 """
@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 import numpy as np
 import pandas as pd
 import os
-from experiments.experiment_defaults import DEFAULTS, runner_kwargs
+from experiments.experiment_defaults import DEFAULTS, runner_kwargs, get_output_filepath
 from src.runner import run_causal_dag_validation
 from src.visualization.dag_plotting import visualize_three_dags
 from src.validation.interventional.pearl_do_calculus import compute_neuron_and_assembly_mean_features, probability_of_values, sign
@@ -118,6 +118,9 @@ def generate_credit_data(n_customers=DEFAULTS.n_samples, seed=DEFAULTS.seed, do=
     return df, ground_truth_edges
 
 if __name__ == '__main__':
+    # Prepare output file
+    csv_path = get_output_filepath("table_1_credit_metrics.csv")
+    os.makedirs(os.path.dirname(csv_path), exist_ok=True)
     # Generate data
     df, ground_truth_edges = generate_credit_data(n_customers=DEFAULTS.n_samples, seed=DEFAULTS.seed)
     
@@ -242,11 +245,11 @@ if __name__ == '__main__':
         neuron_edges=results['neuron_edges'],
         assembly_edges=results['assembly_edges'],
         var_names=list(df.columns),
-        save_path=os.path.join(os.path.dirname(__file__), 'credit_3dag_comparison.png')
+        save_path=os.path.join(os.path.dirname(csv_path), 'credit_3dag_comparison.png')
     )
     
     # Save detailed results
-    with open(os.path.join(os.path.dirname(__file__), 'credit_causal_results.txt'), 'w', encoding='utf-8') as f:
+    with open(os.path.join(os.path.dirname(csv_path), 'credit_causal_results.txt'), 'w', encoding='utf-8') as f:
         f.write('='*70 + '\n')
         f.write('CREDIT DEFAULT - 3-DAG CAUSAL VALIDATION RESULTS\n')
         f.write('='*70 + '\n\n')
@@ -305,36 +308,22 @@ if __name__ == '__main__':
     print('\n' + '='*70)
     print('RESULTS SAVED')
     print('='*70)
-    print('  Results: credit_default/credit_causal_results.txt')
-    print('  Visualization: credit_default/credit_3dag_comparison.png')
+    print(f"  Results: {os.path.join(os.path.dirname(csv_path), 'credit_causal_results.txt')}")
+    print(f"  Visualization: {os.path.join(os.path.dirname(csv_path), 'credit_3dag_comparison.png')}")
 
-    # Write run configuration for reproducibility tracing
-    _run_config = {
-        "script": "experiments/credit_default/validate_credit.py",
-        "timestamp_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
-        "dataset": "CreditDefault",
-        "experiment_defaults": {
-            "seed": DEFAULTS.seed,
-            "n_samples": DEFAULTS.n_samples,
-            "neurons_per_var": DEFAULTS.neurons_per_var,
-            "assembly_k": DEFAULTS.assembly_k,
-            "n_train": DEFAULTS.n_train,
-            "n_presentations": DEFAULTS.n_presentations,
-            "beta": DEFAULTS.beta,
-            "positive_prob": DEFAULTS.positive_prob,
-            "negative_prob": DEFAULTS.negative_prob,
-        },
-        "runner_kwargs_base": {
-            "deterministic_k_encoding": True,
-            "deterministic_k_readout_mode": "pool_mean",
-            "deterministic_k_step": 10,
-            "method": "pc",
-        },
-    }
-    _cfg_path = os.path.join(os.path.dirname(__file__), "run_config.json")
-    with open(_cfg_path, "w", encoding="utf-8") as _fcfg:
-        json.dump(_run_config, _fcfg, indent=2)
-    print(f"  Wrote run config: {_cfg_path}")
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

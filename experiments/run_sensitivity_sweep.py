@@ -1,4 +1,4 @@
-﻿"""Encoding Sensitivity Sweep.
+"""Encoding Sensitivity Sweep.
 
 Full method name: encoding sensitivity sweep for neural assembly causal
 discovery under encoding uncertainty.
@@ -25,7 +25,7 @@ import pandas as pd
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 
-from experiments.experiment_defaults import DEFAULTS
+from experiments.experiment_defaults import DEFAULTS, get_output_filepath
 from src.runner import run_causal_dag_validation
 
 from experiments.alzheimers.validate_alzheimers import generate_alzheimers_data
@@ -211,9 +211,16 @@ def main() -> None:
                     }
                 )
 
-    out_dir = REPO_ROOT
+    if args.method == "pc":
+        raw_name = "table_2_3_pc_sensitivity_raw.csv"
+        summary_name = "table_2_3_pc_sensitivity_summary.csv"
+        overall_name = "table_2_3_pc_sensitivity_overall.csv"
+    else:
+        raw_name = "table_4_ges_sensitivity_raw.csv"
+        summary_name = "table_4_ges_sensitivity_summary.csv"
+        overall_name = "table_4_ges_sensitivity_overall.csv"
     df_all = pd.DataFrame(rows)
-    all_path = out_dir / f"sensitivity_sweep_raw_{args.method}.csv"
+    all_path = Path(get_output_filepath(raw_name))
     df_all.to_csv(all_path, index=False)
 
     summary = (
@@ -230,7 +237,7 @@ def main() -> None:
         .sort_values(["Dataset", "Assembly_F1_mean"], ascending=[True, False])
     )
 
-    summary_path = out_dir / f"sensitivity_sweep_summary_{args.method}.csv"
+    summary_path = Path(get_output_filepath(summary_name))
     summary.to_csv(summary_path, index=False)
 
     overall = (
@@ -243,7 +250,7 @@ def main() -> None:
         .sort_values("Assembly_F1_mean", ascending=False)
     )
 
-    overall_path = out_dir / f"sensitivity_sweep_overall_{args.method}.csv"
+    overall_path = Path(get_output_filepath(overall_name))
     overall.to_csv(overall_path, index=False)
 
     print("\n" + "=" * 80)
@@ -258,6 +265,13 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
+
+
+
+
+
 
 
 
