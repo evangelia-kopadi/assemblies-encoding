@@ -1,4 +1,4 @@
-"""
+﻿"""
 Student Success Case Study - 3-DAG Causal Validation
 
 Validates that neural assemblies preserve causal information by comparing:
@@ -15,6 +15,8 @@ Ground Truth Causal Structure:
 
 import os
 import sys
+import json
+import datetime
 
 from datetime import datetime
 import shutil
@@ -550,6 +552,34 @@ def main():
         shutil.copy2(results_file, results_latest_file)
     except Exception as e:
         print(f"  Warning: failed to update latest results TXT: {e}")
+
+    # Write run configuration for reproducibility tracing
+    _run_config = {
+        "script": "experiments/student_success/validate_student_success.py",
+        "timestamp_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
+        "dataset": "StudentSuccess",
+        "experiment_defaults": {
+            "seed": DEFAULTS.seed,
+            "n_samples": DEFAULTS.n_samples,
+            "neurons_per_var": DEFAULTS.neurons_per_var,
+            "assembly_k": DEFAULTS.assembly_k,
+            "n_train": DEFAULTS.n_train,
+            "n_presentations": DEFAULTS.n_presentations,
+            "beta": DEFAULTS.beta,
+            "positive_prob": DEFAULTS.positive_prob,
+            "negative_prob": DEFAULTS.negative_prob,
+        },
+        "runner_kwargs_base": {
+            "deterministic_k_encoding": True,
+            "deterministic_k_readout_mode": "pool_mean",
+            "deterministic_k_step": 10,
+            "method": "pc",
+        },
+    }
+    _cfg_path = os.path.join(output_dir, "run_config.json")
+    with open(_cfg_path, "w", encoding="utf-8") as _fcfg:
+        json.dump(_run_config, _fcfg, indent=2)
+    print(f"  Wrote run config: {_cfg_path}")
 
     print(f'\n  Results saved to: {os.path.basename(results_file)}')
     print(f'  Latest results updated: {os.path.basename(results_latest_file)}')
