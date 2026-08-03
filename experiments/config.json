@@ -1,0 +1,38 @@
+﻿{
+  "causal_discovery": {
+    "deterministic_k_step": 10,
+    "method": "pc",
+    "deterministic_k_readout_mode": "pool_mean",
+    "alpha_pc": 0.05,
+    "deterministic_k_encoding": true
+  },
+  "sensitivity_sweep": {
+    "alpha_pc": 0.05,
+    "n_presentations": 3,
+    "n_samples": 800,
+    "seeds": "42,73",
+    "n_train": 120,
+    "datasets": "Alzheimers,Stroke,Credit,Student,Vaccine"
+  },
+  "neural_encoding": {
+    "negative_prob": 0.1,
+    "n_presentations": 3,
+    "neurons_per_var": 1666,
+    "assembly_k": 100,
+    "positive_prob": 0.3,
+    "n_train": 200,
+    "beta": 0.05
+  },
+  "data_generation": {
+    "n_samples": 5000,
+    "seed": 42
+  },
+  "multiseed": {
+    "n_eval": 1000,
+    "alpha_primary": 0.1,
+    "seed0": 42,
+    "alpha_fallback": 0.2,
+    "n_seeds": 50
+  },
+  "_comment": "Default parameters for all experiments. Edit here to change defaults across all scripts. CLI args still override these values."
+}
