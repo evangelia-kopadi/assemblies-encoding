@@ -1,4 +1,4 @@
-# assemblies-encoding
+﻿# assemblies-encoding
 
 Clean reproducibility package for the SUM 2026 paper experiments on causal structure preservation in neural assemblies under neural encoding uncertainty.
 
@@ -112,6 +112,12 @@ pip install -r requirements-lock.txt
 
 `requirements.txt` contains broad compatible ranges (any Python 3.9+). `requirements-lock.txt` pins the exact versions used when the paper results were generated and is the recommended choice when reproducing Tables 1-5.
 
+
+## What "reproducibility" means in this repository
+
+The frozen artifacts under `results/` are exactly reproducible: running the same scripts with the same seeds and the pinned environment (`requirements-lock.txt`) will reproduce the numbers in Tables 1-5 of the paper.
+
+Fresh runs with different seeds will produce numerically different results, because data sampling, neural encoding, and assembly formation all involve stochastic components. This is expected and does not undermine the paper conclusions. The core finding is stated at the level of **qualitative consistency**: the deterministic-k advantage over Bernoulli at the assembly level is preserved across seeds, datasets, and algorithms — not at the level of exact point estimates from any single run.
 ## Single-run deterministic-k benchmark rerun
 
 This benchmark is produced by running the per-dataset validate scripts at seed 42 with deterministic-k step 10. For example, to reproduce the Student Success run:
