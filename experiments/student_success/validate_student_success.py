@@ -29,7 +29,7 @@ import numpy as np
 import random
 import pandas as pd
 
-from experiments.experiment_defaults import DEFAULTS, runner_kwargs
+from experiments.experiment_defaults import DEFAULTS, runner_kwargs, make_run_output_dir
 from src.runner import run_causal_dag_validation
 from src.visualization.dag_plotting import visualize_three_dags
 
@@ -448,6 +448,7 @@ def main():
         print(f"  Sign-match rate (directional): {sign_match_summary}")
     # Visualize the 3 DAGs
     output_dir = os.path.dirname(__file__)
+    run_dir = make_run_output_dir("validate_student_success")
 
     run_id = datetime.now().strftime('%Y%m%d_%H%M%S')
 
@@ -614,6 +615,7 @@ class _TeeTextIO:
 
 if __name__ == '__main__':
     output_dir = os.path.dirname(__file__)
+    run_dir = make_run_output_dir("validate_student_success")
     analysis_path = os.path.join(output_dir, 'student_success_causal_results_analysis.txt')
 
     # Tee all console output (stdout+stderr) into an analysis log file

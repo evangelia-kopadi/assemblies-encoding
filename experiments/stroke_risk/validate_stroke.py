@@ -21,7 +21,7 @@ import os
 import numpy as np
 import pandas as pd
 
-from experiments.experiment_defaults import DEFAULTS, runner_kwargs
+from experiments.experiment_defaults import DEFAULTS, runner_kwargs, make_run_output_dir
 from src.runner import run_causal_dag_validation
 
 
@@ -268,6 +268,7 @@ def main():
     var_names = ['Hypertension', 'Age', 'Smoking', 
                  'Atherosclerosis', 'BloodClotting', 'Stroke']
     output_dir = os.path.dirname(__file__)
+    run_dir = make_run_output_dir("validate_stroke")
     dag_plot_path = os.path.join(output_dir, 'stroke_3dag_comparison.png')
     
     

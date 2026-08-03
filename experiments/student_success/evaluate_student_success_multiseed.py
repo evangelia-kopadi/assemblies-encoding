@@ -25,7 +25,7 @@ if _REPO_ROOT not in sys.path:
 import numpy as np
 import pandas as pd
 
-from experiments.experiment_defaults import DEFAULTS, runner_kwargs, _cfg
+from experiments.experiment_defaults import DEFAULTS, runner_kwargs, _cfg, make_run_output_dir
 
 _ms = _cfg.get("multiseed", {})
 from src.runner import run_causal_dag_validation
