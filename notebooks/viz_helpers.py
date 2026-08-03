@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import math as _math
 
@@ -26,9 +26,10 @@ def encode(
     positive_values_map,
     positive_prob: float = 0.30,
     negative_prob: float = 0.10,
+    k_step: int = 10,
 ):
     if deterministic_k:
-        k_map = build_deterministic_k_map(df, var_names, base_k=assembly_k, k_step=8)
+        k_map = build_deterministic_k_map(df, var_names, base_k=assembly_k, k_step=k_step)
         neural, stim_idx = encode_deterministic_k_dataframe(
             df,
             var_names,
