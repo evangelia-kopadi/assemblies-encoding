@@ -21,11 +21,11 @@ import os
 import numpy as np
 import pandas as pd
 
-from experiments.experiment_defaults import DEFAULTS, runner_kwargs, get_output_filepath
+from experiments.experiment_defaults import DEFAULTS, runner_kwargs, get_output_filepath, _cfg
 from src.runner import run_causal_dag_validation
 
 
-
+_stroke_cfg = _cfg.get("stroke_validation", {})
 
 
 def _render_comparison_png(var_names, ground_truth_edges, neuron_edges, assembly_edges, out_path: Path) -> None:
@@ -283,8 +283,8 @@ def main():
         'Stroke': {'Stroke'}
     }
     # Run 3-DAG validation (sweep)
-    sweep_n_train = [400, 800]
-    sweep_n_presentations = [1, 3, 5]
+    sweep_n_train = [int(x) for x in _stroke_cfg.get("sweep_n_train", [400, 800])]
+    sweep_n_presentations = [int(x) for x in _stroke_cfg.get("sweep_n_presentations", [1, 3, 5])]
 
     sweep_rows = []
     best_row = None
@@ -303,21 +303,10 @@ def main():
                 skip_neuron_dag=False,
                 strict_neuron_causal_discovery=False,
                 strict_assembly_causal_discovery=False,
-                # deterministic-k multivalued setup
-                deterministic_k_encoding=True,
-                deterministic_k_readout_mode="pool_mean",
-                deterministic_k_step=10,
-                stimulus_k=DEFAULTS.assembly_k,
-                neurons_per_var=DEFAULTS.neurons_per_var,
-                assembly_k=DEFAULTS.assembly_k,
-                n_train=n_train,
-                n_presentations=n_presentations,
-                beta=DEFAULTS.beta,
-                seed=DEFAULTS.seed,
-                alpha_pc=0.05,
                 assembly_method="ges",
-                positive_prob=DEFAULTS.positive_prob,
-                negative_prob=DEFAULTS.negative_prob,
+                stimulus_k=DEFAULTS.assembly_k,
+                # deterministic-k multivalued setup; all other knobs come from config via runner_kwargs()
+                **runner_kwargs(n_train=n_train, n_presentations=n_presentations),
             )
 
             assembly_metrics = res["comparison"]["assembly_vs_gt"]
@@ -378,7 +367,7 @@ def main():
         negative_prob=DEFAULTS.negative_prob,
         seed=DEFAULTS.seed,
         return_assembly_flip_map=True,
-        deterministic_k_step=10,
+        deterministic_k_step=runner_kwargs()["deterministic_k_step"],
         stimulus_k=DEFAULTS.assembly_k,
     )
 
@@ -422,7 +411,7 @@ def main():
             negative_prob=DEFAULTS.negative_prob,
             seed=DEFAULTS.seed,
             assembly_flip_map=assembly_flip_map,
-            deterministic_k_step=10,
+            deterministic_k_step=runner_kwargs()["deterministic_k_step"],
             stimulus_k=DEFAULTS.assembly_k,
         )
 
@@ -537,18 +526,4 @@ def main():
 
 if __name__ == '__main__':
     results = main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
