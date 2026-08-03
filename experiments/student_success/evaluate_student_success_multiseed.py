@@ -25,7 +25,9 @@ if _REPO_ROOT not in sys.path:
 import numpy as np
 import pandas as pd
 
-from experiments.experiment_defaults import DEFAULTS, runner_kwargs
+from experiments.experiment_defaults import DEFAULTS, runner_kwargs, _cfg
+
+_ms = _cfg.get("multiseed", {})
 from src.runner import run_causal_dag_validation
 from src.encoding.bernoulli import encode_bernoulli_dataframe
 from src.representation.assembly_feature_extraction import extract_assembly_features
