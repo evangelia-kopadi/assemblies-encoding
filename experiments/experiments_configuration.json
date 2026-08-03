@@ -40,5 +40,10 @@
     "n_samples": 1000,
     "_used_by": "evaluate_student_success_multiseed.py (Table 5: 50-seed Student Success robustness)"
   },
+  "output": {
+    "results_root": "runs",
+    "_used_by": "all scripts using get_output_filepath(); relative to repo root or absolute path"
+  },
   "_comment": "Central configuration for all experiments. Edit values here to change defaults across all scripts. CLI args still override these values."
 }
+

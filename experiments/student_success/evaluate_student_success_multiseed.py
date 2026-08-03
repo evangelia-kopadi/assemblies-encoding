@@ -1,11 +1,11 @@
-﻿"""Multi-seed evaluation for Student Success (3-DAG + do() effects).
+"""Multi-seed evaluation for Student Success (3-DAG + do() effects).
 
 Runs many random seeds to move from a single-run demo to aggregate statistics.
 
-Outputs:
-- experiments/student_success/student_success_multiseed_summary.csv
-- experiments/student_success/student_success_multiseed_dodeltas.csv
-- docs/results/student_success_multiseed.md
+Outputs (all under runs/YYYYMMDD):
+- summary.csv
+- dodeltas.csv
+- report.md
 """
 
 from __future__ import annotations
@@ -25,7 +25,7 @@ if _REPO_ROOT not in sys.path:
 import numpy as np
 import pandas as pd
 
-from experiments.experiment_defaults import DEFAULTS, runner_kwargs, _cfg, make_run_output_dir
+from experiments.experiment_defaults import DEFAULTS, runner_kwargs, _cfg, get_output_filepath
 
 _ms = _cfg.get("multiseed", {})
 from src.runner import run_causal_dag_validation
@@ -334,7 +334,7 @@ def run_seed(
     return summary, do_rows
 
 
-def write_report(*, summary_df: pd.DataFrame, do_df: pd.DataFrame, out_md: str) -> None:
+def write_report(*, summary_df: pd.DataFrame, do_df: pd.DataFrame, out_md: str, summary_csv: str, do_csv: str) -> None:
     n = int(len(summary_df))
 
     neuron_f1 = summary_df['neuron_f1'].to_numpy(dtype=float)
@@ -407,8 +407,8 @@ def write_report(*, summary_df: pd.DataFrame, do_df: pd.DataFrame, out_md: str) 
 
     lines.append('## Artifacts')
     lines.append('')
-    lines.append('- Summary CSV: `experiments/student_success/student_success_multiseed_summary.csv`')
-    lines.append('- do() deltas CSV: `experiments/student_success/student_success_multiseed_dodeltas.csv`')
+    lines.append('- Summary CSV: `table_5_student_summary.csv`')
+    lines.append('- do() deltas CSV: `table_5_student_dodeltas.csv`')
     lines.append('')
 
     os.makedirs(os.path.dirname(out_md), exist_ok=True)
@@ -469,19 +469,19 @@ def write_report(*, summary_df: pd.DataFrame, do_df: pd.DataFrame, out_md: str) 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description='Multi-seed Student Success evaluation')
-    parser.add_argument('--n-seeds', type=int, default=50)
-    parser.add_argument('--seed0', type=int, default=DEFAULTS.seed)
-    parser.add_argument('--n-samples', type=int, default=DEFAULTS.n_samples)
-    parser.add_argument('--n-eval', type=int, default=min(DEFAULTS.n_samples, 2000))
-    parser.add_argument('--alpha-primary', type=float, default=0.1)
-    parser.add_argument('--alpha-fallback', type=float, default=0.2)
+    parser.add_argument('--n-seeds', type=int, default=_ms.get('n_seeds', 50))
+    parser.add_argument('--seed0', type=int, default=_ms.get('seed0', DEFAULTS.seed))
+    parser.add_argument('--n-samples', type=int, default=_ms.get('n_samples', DEFAULTS.n_samples))
+    parser.add_argument('--n-eval', type=int, default=_ms.get('n_eval', min(_ms.get('n_samples', DEFAULTS.n_samples), 2000)))
+    parser.add_argument('--alpha-primary', type=float, default=_ms.get('alpha_primary', 0.1))
+    parser.add_argument('--alpha-fallback', type=float, default=_ms.get('alpha_fallback', 0.2))
     parser.add_argument('--verbose', action='store_true', help='Print full per-seed logs')
     args = parser.parse_args()
 
     summaries: list[dict] = []
     do_rows: list[dict] = []
 
-    seeds = [args.seed0 + i for i in range(args.n_seeds)]
+    seeds = [args.seed0 + i for i in range(args.n_seeds)]
 
     print(f'Running Student Success multi-seed evaluation: n_seeds={args.n_seeds}')
     print(f'  seed0={args.seed0} -> {seeds[-1]}')
@@ -518,49 +518,13 @@ def main() -> int:
     summary_df = pd.DataFrame(summaries).sort_values('seed')
     do_df = pd.DataFrame(do_rows).sort_values(['seed', 'intervention'])
 
-    summary_csv = os.path.join('experiments', 'student_success', 'student_success_multiseed_summary.csv')
-    do_csv = os.path.join('experiments', 'student_success', 'student_success_multiseed_dodeltas.csv')
+    summary_csv = get_output_filepath('table_5_student_summary.csv')
+    do_csv = get_output_filepath('table_5_student_dodeltas.csv')
     summary_df.to_csv(summary_csv, index=False)
     do_df.to_csv(do_csv, index=False)
 
-    # Write run configuration alongside results for reproducibility tracing
-    run_config = {
-        "script": "experiments/student_success/evaluate_student_success_multiseed.py",
-        "timestamp_utc": datetime.datetime.utcnow().isoformat(timespec="seconds") + "Z",
-        "cli_args": {
-            "n_seeds": args.n_seeds,
-            "seed0": args.seed0,
-            "seed_range": f"{args.seed0}..{seeds[-1]}",
-            "n_samples": args.n_samples,
-            "n_eval": args.n_eval,
-            "alpha_primary": args.alpha_primary,
-            "alpha_fallback": args.alpha_fallback,
-        },
-        "experiment_defaults": {
-            "neurons_per_var": DEFAULTS.neurons_per_var,
-            "assembly_k": DEFAULTS.assembly_k,
-            "n_train": DEFAULTS.n_train,
-            "n_presentations": DEFAULTS.n_presentations,
-            "beta": DEFAULTS.beta,
-            "positive_prob": DEFAULTS.positive_prob,
-            "negative_prob": DEFAULTS.negative_prob,
-        },
-        "runner_kwargs_base": {
-            "deterministic_k_encoding": True,
-            "deterministic_k_readout_mode": "pool_mean",
-            "deterministic_k_step": 10,
-            "method": "pc",
-        },
-    }
-    config_exp = os.path.join("experiments", "student_success", "student_success_multiseed_run_config.json")
-    config_docs = os.path.join("docs", "results", "student_success_multiseed_run_config.json")
-    for cfg_path in (config_exp, config_docs):
-        os.makedirs(os.path.dirname(cfg_path), exist_ok=True)
-        with open(cfg_path, "w", encoding="utf-8") as f:
-            json.dump(run_config, f, indent=2)
-
-    out_md = os.path.join('docs', 'results', 'student_success_multiseed.md')
-    write_report(summary_df=summary_df, do_df=do_df, out_md=out_md)
+    out_md = get_output_filepath('table_5_student_report.md')
+    write_report(summary_df=summary_df, do_df=do_df, out_md=out_md, summary_csv=summary_csv, do_csv=do_csv)
 
     print('Done.')
     print(f'  Wrote: {summary_csv}')
@@ -571,6 +535,20 @@ def main() -> int:
 
 if __name__ == '__main__':
     raise SystemExit(main())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

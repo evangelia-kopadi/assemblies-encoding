@@ -1,4 +1,4 @@
-﻿"""
+"""
 Alzheimer's Disease Case Study - 3-DAG Causal Validation
 
 Validates that neural assemblies preserve causal information by comparing:
@@ -27,7 +27,7 @@ import os
 import numpy as np
 import pandas as pd
 
-from experiments.experiment_defaults import DEFAULTS, runner_kwargs, make_run_output_dir
+from experiments.experiment_defaults import DEFAULTS, runner_kwargs, get_output_filepath
 from src.runner import run_causal_dag_validation
 from src.visualization.dag_plotting import visualize_three_dags
 from src.validation.interventional.pearl_do_calculus import compute_neuron_and_assembly_mean_features, probability_of_values, sign
@@ -370,8 +370,9 @@ def main():
         print(f"{source}->{target} ({do_value:10s})          | {d_raw:+.3f}          | {d_neuron:+.3f}            | {d_assembly:+.3f}              | N:{match_neuron}/A:{match_assembly}")
 
     # Visualize the 3 DAGs
-    output_dir = os.path.dirname(__file__)
-    run_dir = make_run_output_dir("validate_alzheimers")
+    csv_path = get_output_filepath("table_1_alzheimers_metrics.csv")
+    output_dir = os.path.dirname(csv_path)
+    os.makedirs(output_dir, exist_ok=True)
     dag_plot_path = os.path.join(output_dir, 'alzheimers_3dag_comparison.png')
     
     visualize_three_dags(
@@ -468,34 +469,6 @@ def main():
                 )
         else:
             f.write('  (not computed)\n')
-    
-    # Write run configuration for reproducibility tracing
-    _run_config = {
-        "script": "experiments/alzheimers/validate_alzheimers.py",
-        "timestamp_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
-        "dataset": "Alzheimers",
-        "experiment_defaults": {
-            "seed": DEFAULTS.seed,
-            "n_samples": DEFAULTS.n_samples,
-            "neurons_per_var": DEFAULTS.neurons_per_var,
-            "assembly_k": DEFAULTS.assembly_k,
-            "n_train": DEFAULTS.n_train,
-            "n_presentations": DEFAULTS.n_presentations,
-            "beta": DEFAULTS.beta,
-            "positive_prob": DEFAULTS.positive_prob,
-            "negative_prob": DEFAULTS.negative_prob,
-        },
-        "runner_kwargs_base": {
-            "deterministic_k_encoding": True,
-            "deterministic_k_readout_mode": "pool_mean",
-            "deterministic_k_step": 10,
-            "method": "pc",
-        },
-    }
-    _cfg_path = os.path.join(output_dir, "run_config.json")
-    with open(_cfg_path, "w", encoding="utf-8") as _fcfg:
-        json.dump(_run_config, _fcfg, indent=2)
-    print(f"  Wrote run config: {_cfg_path}")
 
     print(f'\n  Results saved to: {os.path.basename(results_file)}')
     print(f'  DAG visualization saved to: {os.path.basename(dag_plot_path)}')
@@ -504,6 +477,14 @@ def main():
 
 if __name__ == '__main__':
     results = main()
+
+
+
+
+
+
+
+
 
 
 

@@ -1,4 +1,4 @@
-﻿# assemblies-encoding
+# assemblies-encoding
 
 Clean reproducibility package for the SUM 2026 paper experiments on causal structure preservation in neural assemblies under neural encoding uncertainty.
 
@@ -33,10 +33,10 @@ This repository accompanies the SUM 2026 manuscript **"Causal Structure Preserva
 - `notebooks/pipeline_visualization.ipynb`: executable visual walkthrough of the Stage I-VI pipeline for Bernoulli and deterministic-k encodings.
 - `experiments/run_sensitivity_sweep.py`: PC/GES encoding sensitivity sweep runner.
 - `experiments/student_success/evaluate_student_success_multiseed.py`: Student Success multi-seed graph and intervention robustness check used for the Student Success validation study.
-- `results/single_run/`: frozen single-run benchmark artifacts for the deterministic-k seed-42 run used in Table 1.
-- `results/sensitivity/`: frozen multi-run PC/GES sensitivity sweep artifacts used for the paper's Tables 2-3.
-- `results/table_summaries/`: compact table-summary CSV/TXT files derived from the frozen runs.
-- `results/student_success_validation/`: frozen Student Success 50-seed robustness artifacts used for the Student Success validation study.
+- `results/`: frozen single-run benchmark artifacts under flat table-based filenames for Table 1 (for example, `table_1_single_run_means.csv` and `table_1_single_run_metrics.csv`).
+- `results/`: frozen multi-run PC/GES sensitivity sweep artifacts with paper-mapped filenames: `table_2_3_pc_sensitivity_*.csv` and `table_4_ges_sensitivity_*.csv`.
+- `results/`: compact table-summary CSV/TXT files derived from the frozen runs, named to match the relevant paper tables.
+- `results/`: frozen Student Success 50-seed robustness artifacts under flat names such as `table_5_student_summary.csv`, `table_5_student_dodeltas.csv`, and `table_5_student_report.md`.
 - `figures/`: figures referenced by the paper source.
 - `paper/`: editable paper source, bibliography, and build script.
 
@@ -44,17 +44,17 @@ This repository accompanies the SUM 2026 manuscript **"Causal Structure Preserva
 
 The repository contains both single-run and multi-run artifacts.
 
-The single-run benchmark (`results/single_run/`) supports the concrete deterministic-k example summarized in Table 1. It is useful as a small, inspectable run, not as the main robustness evidence.
+The single-run benchmark (`results/`) supports the concrete deterministic-k example summarized in Table 1. It is useful as a small, inspectable run, not as the main robustness evidence.
 
-The main encoding conclusion is based on the five-dataset, ten-seed sensitivity sweeps (`results/sensitivity/`). In those sweeps, each SCM generator produces symbolic observations that pass through the same Bernoulli and deterministic-k encoding grid before PC/GES graph recovery. Each discovery method has 400 runs.
+The main encoding conclusion is based on the five-dataset, ten-seed sensitivity sweeps (`results/`). In those sweeps, each SCM generator produces symbolic observations that pass through the same Bernoulli and deterministic-k encoding grid before PC/GES graph recovery. Each discovery method has 400 runs.
 
-The Student Success multi-seed experiment (`results/student_success_validation/`) is a separate 50-seed robustness and intervention validation check.
+The Student Success multi-seed experiment (`results/`) is a separate 50-seed robustness and intervention validation check.
 
 ## Result-artifact mapping
 
-- Single-run benchmark -> `results/single_run/`
-- Multi-run sensitivity sweeps -> `results/sensitivity/` and `results/table_summaries/`
-- Student Success validation -> `results/student_success_validation/`
+- Single-run benchmark -> `results/table_1_single_run_*.csv`
+- Multi-run sensitivity sweeps -> `results/table_2_3_pc_sensitivity_*.csv`, `results/table_4_ges_sensitivity_*.csv`, and the table-summary files in `results/`
+- Student Success validation -> `results/table_5_student_*.csv`
 
 
 ## Encoding grid used in the paper
@@ -126,7 +126,7 @@ This benchmark is produced by running the per-dataset validate scripts at seed 4
 python experiments/student_success/validate_student_success.py
 ```
 
-Run the corresponding `validate_*.py` under `experiments/<dataset>/` for the other four datasets. Each script writes its metrics to the terminal; the frozen values used in the paper are kept under `results/single_run/`.
+Run the corresponding `validate_*.py` under `experiments/<dataset>/` for the other four datasets. Each script writes its metrics to the terminal; the frozen values used in the paper are kept under `results/` with table-based filenames.
 
 ## Smoke-test rerun
 
@@ -136,7 +136,7 @@ Use a small run first:
 python experiments/run_sensitivity_sweep.py --datasets Student,Vaccine --seeds 42 --n-samples 200 --n-train 20 --method pc
 ```
 
-This writes local `sensitivity_sweep_*.csv` files in the repository root. They are ignored by git so that the frozen paper artifacts under `results/sensitivity/` remain unchanged. To compare a fresh rerun against the frozen values, open both CSVs side by side; column names and row order match.
+This writes local sensitivity outputs under `runs/YYYYMMDD/` (for example `table_2_3_pc_sensitivity_*.csv` and `table_4_ges_sensitivity_*.csv`) and copies `experiments_configuration.json` there once per run day. The `runs/` folder is ignored by git so that frozen paper artifacts under `results/` remain unchanged. To compare a fresh rerun against frozen values, open both CSVs side by side; column names and row order match.
 
 ## Full sensitivity reruns
 
@@ -160,7 +160,7 @@ This experiment runs a single-dataset robustness check (used in the manuscript r
 python experiments/student_success/evaluate_student_success_multiseed.py --n-seeds 50 --seed0 42 --n-samples 1000 --n-eval 1000
 ```
 
-This writes fresh outputs under `experiments/student_success/` and `docs/results/`. Frozen reference artifacts are kept under `results/student_success_validation/`.
+This writes fresh outputs under `runs/YYYYMMDD/` using table-based filenames. Frozen reference artifacts are kept under `results/` with the same naming standard.
 
 ## Notes for extension
 
@@ -172,6 +172,14 @@ This writes fresh outputs under `experiments/student_success/` and `docs/results
 ## License
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+
+
+
+
+
+
+
+
 
 
 

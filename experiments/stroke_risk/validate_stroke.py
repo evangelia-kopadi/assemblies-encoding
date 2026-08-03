@@ -1,4 +1,4 @@
-﻿"""
+"""
 Stroke Risk Case Study - 3-DAG Causal Validation
 
 Validates causal preservation with stroke risk factors.
@@ -21,7 +21,7 @@ import os
 import numpy as np
 import pandas as pd
 
-from experiments.experiment_defaults import DEFAULTS, runner_kwargs, make_run_output_dir
+from experiments.experiment_defaults import DEFAULTS, runner_kwargs, get_output_filepath
 from src.runner import run_causal_dag_validation
 
 
@@ -267,8 +267,9 @@ def main():
     
     var_names = ['Hypertension', 'Age', 'Smoking', 
                  'Atherosclerosis', 'BloodClotting', 'Stroke']
-    output_dir = os.path.dirname(__file__)
-    run_dir = make_run_output_dir("validate_stroke")
+    csv_path = get_output_filepath("table_1_stroke_metrics.csv")
+    output_dir = os.path.dirname(csv_path)
+    os.makedirs(output_dir, exist_ok=True)
     dag_plot_path = os.path.join(output_dir, 'stroke_3dag_comparison.png')
     
     
@@ -345,33 +346,7 @@ def main():
     assert best_row is not None
     results = best_row["results"]
 
-    sweep_out = Path(__file__).with_name("stroke_sweep_results.txt")
-    with sweep_out.open("w", encoding="utf-8") as f:
-        f.write("Stroke multivalued + deterministic-k sweep\n")
-        f.write("Optimize: assembly recall, then F1, then precision\n")
-        f.write("n_samples={}\n".format(len(df)))
-        f.write("Grid: n_train in [400, 800] x n_presentations in [1, 3, 5]\n\n")
-        for r in sweep_rows:
-            mark = " <== BEST" if r is best_row else ""
-            f.write(
-                "n_train={}, n_presentations={} | assembly P={:.3f} R={:.3f} F1={:.3f}{}\n".format(
-                    r["n_train"], r["n_presentations"], r["precision"], r["recall"], r["f1"], mark
-                )
-            )
-
-    # Persist a short summary for easy diffing (Alzheimer-style)
-    short_out = Path(__file__).with_name("stroke_deterministic_k_results.txt")
-    with short_out.open("w", encoding="utf-8") as f:
-        f.write("Stroke multivalued + deterministic-k (scalar pool-mean readout)\n")
-        f.write("Locked: assembly_method=GES, alpha_pc=0.05, deterministic_k_step=10\n")
-        f.write(f"n_samples={len(df)}\n\n")
-        for k in ["neuron_edges", "assembly_edges"]:
-            if k in results:
-                f.write(f"{k} ({len(results[k])}):\n")
-                for u, v in results[k]:
-                    f.write(f"  {u} -> {v}\n")
-                f.write("\n")
-    png_out = Path(__file__).with_name("stroke_3dag_comparison.png")
+    png_out = Path(output_dir) / "stroke_3dag_comparison.png"
     _render_comparison_png(
         var_names=var_names,
         ground_truth_edges=ground_truth,
@@ -554,34 +529,6 @@ def main():
             f.write(f'Sign-match rate (directional): {sign_match_summary}\n')
         else:
             f.write('Sign-match rate (directional): (not computed)\n')
-    
-    # Write run configuration for reproducibility tracing
-    _run_config = {
-        "script": "experiments/stroke_risk/validate_stroke.py",
-        "timestamp_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
-        "dataset": "StrokeRisk",
-        "experiment_defaults": {
-            "seed": DEFAULTS.seed,
-            "n_samples": DEFAULTS.n_samples,
-            "neurons_per_var": DEFAULTS.neurons_per_var,
-            "assembly_k": DEFAULTS.assembly_k,
-            "n_train": DEFAULTS.n_train,
-            "n_presentations": DEFAULTS.n_presentations,
-            "beta": DEFAULTS.beta,
-            "positive_prob": DEFAULTS.positive_prob,
-            "negative_prob": DEFAULTS.negative_prob,
-        },
-        "runner_kwargs_base": {
-            "deterministic_k_encoding": True,
-            "deterministic_k_readout_mode": "pool_mean",
-            "deterministic_k_step": 10,
-            "method": "pc",
-        },
-    }
-    _cfg_path = os.path.join(output_dir, "run_config.json")
-    with open(_cfg_path, "w", encoding="utf-8") as _fcfg:
-        json.dump(_run_config, _fcfg, indent=2)
-    print(f"  Wrote run config: {_cfg_path}")
 
     print(f'\n  Results saved to: {os.path.basename(results_file)}')
     print(f'  DAG visualization saved to: {os.path.basename(dag_plot_path)}')
@@ -590,5 +537,18 @@ def main():
 
 if __name__ == '__main__':
     results = main()
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
