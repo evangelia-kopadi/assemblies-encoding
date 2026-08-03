@@ -1,4 +1,4 @@
-"""Multi-seed evaluation for Student Success (3-DAG + do() effects).
+﻿"""Multi-seed evaluation for Student Success (3-DAG + do() effects).
 
 Runs many random seeds to move from a single-run demo to aggregate statistics.
 
@@ -11,6 +11,8 @@ Outputs:
 from __future__ import annotations
 
 import argparse
+import json
+import datetime
 import os
 import sys
 from dataclasses import asdict
@@ -519,6 +521,42 @@ def main() -> int:
     summary_df.to_csv(summary_csv, index=False)
     do_df.to_csv(do_csv, index=False)
 
+    # Write run configuration alongside results for reproducibility tracing
+    run_config = {
+        "script": "experiments/student_success/evaluate_student_success_multiseed.py",
+        "timestamp_utc": datetime.datetime.utcnow().isoformat(timespec="seconds") + "Z",
+        "cli_args": {
+            "n_seeds": args.n_seeds,
+            "seed0": args.seed0,
+            "seed_range": f"{args.seed0}..{seeds[-1]}",
+            "n_samples": args.n_samples,
+            "n_eval": args.n_eval,
+            "alpha_primary": args.alpha_primary,
+            "alpha_fallback": args.alpha_fallback,
+        },
+        "experiment_defaults": {
+            "neurons_per_var": DEFAULTS.neurons_per_var,
+            "assembly_k": DEFAULTS.assembly_k,
+            "n_train": DEFAULTS.n_train,
+            "n_presentations": DEFAULTS.n_presentations,
+            "beta": DEFAULTS.beta,
+            "positive_prob": DEFAULTS.positive_prob,
+            "negative_prob": DEFAULTS.negative_prob,
+        },
+        "runner_kwargs_base": {
+            "deterministic_k_encoding": True,
+            "deterministic_k_readout_mode": "pool_mean",
+            "deterministic_k_step": 10,
+            "method": "pc",
+        },
+    }
+    config_exp = os.path.join("experiments", "student_success", "student_success_multiseed_run_config.json")
+    config_docs = os.path.join("docs", "results", "student_success_multiseed_run_config.json")
+    for cfg_path in (config_exp, config_docs):
+        os.makedirs(os.path.dirname(cfg_path), exist_ok=True)
+        with open(cfg_path, "w", encoding="utf-8") as f:
+            json.dump(run_config, f, indent=2)
+
     out_md = os.path.join('docs', 'results', 'student_success_multiseed.md')
     write_report(summary_df=summary_df, do_df=do_df, out_md=out_md)
 
@@ -531,6 +569,7 @@ def main() -> int:
 
 if __name__ == '__main__':
     raise SystemExit(main())
+
 
 
 
