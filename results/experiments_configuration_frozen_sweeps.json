@@ -31,18 +31,6 @@
     "seed": 42,
     "_used_by": "validate_alzheimers.py, validate_credit.py, validate_stroke.py, validate_student_success.py, validate_vaccine.py (Table 1: single-run benchmark)"
   },
-  "stroke_validation": {
-    "sweep_n_train": [
-      400,
-      800
-    ],
-    "sweep_n_presentations": [
-      1,
-      3,
-      5
-    ],
-    "_used_by": "validate_stroke.py (internal grid over n_train and n_presentations to select best assembly run for Table 1 Stroke)"
-  },
   "multiseed": {
     "n_eval": 1000,
     "alpha_primary": 0.1,
@@ -58,3 +46,4 @@
   },
   "_comment": "Central configuration for all experiments. Edit values here to change defaults across all scripts. CLI args still override these values."
 }
+

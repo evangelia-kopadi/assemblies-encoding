@@ -104,7 +104,7 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-For exact reproducibility of the paper numbers, install the pinned versions instead:
+For frozen-artifact reproducibility and closest reruns of paper numbers, install the pinned versions instead:
 
 ```bash
 pip install -r requirements-lock.txt
@@ -115,9 +115,11 @@ pip install -r requirements-lock.txt
 
 ## What "reproducibility" means in this repository
 
-The frozen artifacts under `results/` are exactly reproducible: running the same scripts with the same seeds and the pinned environment (`requirements-lock.txt`) will reproduce the numbers in Tables 1-5 of the paper.
+The frozen artifacts under `results/` are tied to three things: pinned environment (`requirements-lock.txt`), frozen run settings (`results/experiments_configuration_frozen_sweeps.json`), and the script versions that produced them.
 
-Fresh runs with different seeds will produce numerically different results, because data sampling, neural encoding, and assembly formation all involve stochastic components. This is expected and does not undermine the paper conclusions. The core finding is stated at the level of **qualitative consistency**: the deterministic-k advantage over Bernoulli at the assembly level is preserved across seeds, datasets, and algorithms — not at the level of exact point estimates from any single run.
+On current `main`, fresh reruns with the same settings are expected to preserve the paper conclusions and usually stay close, but row-by-row numeric identity is not guaranteed for every stochastic Bernoulli setting.
+
+If you need the strict historical sweep baseline, run from the same historical snapshot that produced the frozen sweeps (`179c79a`) and use explicit sweep CLI arguments (datasets, 10 seeds, `n_samples=800`, `n_train=120`, `n_presentations=3`, `alpha_pc=0.05`).
 ## Paper Table Runbook (Scripts and Commands)
 
 Use the repository root first:
