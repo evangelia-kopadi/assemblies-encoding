@@ -1,4 +1,4 @@
-"""Experiment parameter loader.
+﻿"""Experiment parameter loader.
 
 Single source of truth: experiments/config.json.
 Edit config.json to change any default across all scripts.
@@ -61,3 +61,37 @@ def runner_kwargs(**overrides: Any) -> Dict[str, Any]:
     }
     base.update(overrides)
     return base
+
+
+import datetime
+import shutil
+
+
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_CFG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "experiments_configuration.json")
+
+
+def make_run_output_dir(script_name: str) -> str:
+    """Create a timestamped output directory under docs/results/ and copy the
+    active experiments_configuration.json into it.
+
+    Returns the absolute path to the new directory.
+
+    Usage in scripts::
+
+        from experiments.experiment_defaults import make_run_output_dir
+        run_dir = make_run_output_dir("evaluate_student_success_multiseed")
+        # write all outputs to run_dir
+    """
+    ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    slug = (
+        script_name.replace(".py", "")
+        .replace("experiments/", "")
+        .replace("experiments\\", "")
+        .replace("/", "_")
+        .replace("\\", "_")
+    )
+    run_dir = os.path.join(_REPO_ROOT, "docs", "results", f"{ts}_{slug}")
+    os.makedirs(run_dir, exist_ok=True)
+    shutil.copy2(_CFG_FILE, os.path.join(run_dir, "experiments_configuration.json"))
+    return run_dir

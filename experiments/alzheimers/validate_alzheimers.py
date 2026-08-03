@@ -27,7 +27,7 @@ import os
 import numpy as np
 import pandas as pd
 
-from experiments.experiment_defaults import DEFAULTS, runner_kwargs
+from experiments.experiment_defaults import DEFAULTS, runner_kwargs, make_run_output_dir
 from src.runner import run_causal_dag_validation
 from src.visualization.dag_plotting import visualize_three_dags
 from src.validation.interventional.pearl_do_calculus import compute_neuron_and_assembly_mean_features, probability_of_values, sign
@@ -371,6 +371,7 @@ def main():
 
     # Visualize the 3 DAGs
     output_dir = os.path.dirname(__file__)
+    run_dir = make_run_output_dir("validate_alzheimers")
     dag_plot_path = os.path.join(output_dir, 'alzheimers_3dag_comparison.png')
     
     visualize_three_dags(
