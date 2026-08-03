@@ -25,8 +25,10 @@ import pandas as pd
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
 
-from experiments.experiment_defaults import DEFAULTS, get_output_filepath
+from experiments.experiment_defaults import DEFAULTS, get_output_filepath, _cfg
 from src.runner import run_causal_dag_validation
+
+_ss = _cfg.get("sensitivity_sweep", {})
 
 from experiments.alzheimers.validate_alzheimers import generate_alzheimers_data
 from experiments.stroke_risk.validate_stroke import generate_stroke_data
@@ -37,13 +39,13 @@ from experiments.vaccine_efficacy.validate_vaccine import generate_vaccine_data
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run encoding sensitivity sweep")
-    parser.add_argument("--datasets", default="Alzheimers,Stroke,Credit,Student,Vaccine")
-    parser.add_argument("--seeds", default="42,73")
-    parser.add_argument("--n-samples", type=int, default=800)
-    parser.add_argument('--n-train', type=int, default=120)
-    parser.add_argument('--method', choices=['pc', 'ges'], default='pc', help='Causal discovery method')
-    parser.add_argument("--n-presentations", type=int, default=3)
-    parser.add_argument("--alpha-pc", type=float, default=0.05)
+    parser.add_argument("--datasets", default=_ss.get("datasets", "Alzheimers,Stroke,Credit,Student,Vaccine"))
+    parser.add_argument("--seeds", default=_ss.get("seeds", "42,73"))
+    parser.add_argument("--n-samples", type=int, default=_ss.get("n_samples", 800))
+    parser.add_argument('--n-train', type=int, default=_ss.get("n_train", 120))
+    parser.add_argument('--method', choices=['pc', 'ges'], default=_ss.get('method', 'pc'), help='Causal discovery method')
+    parser.add_argument("--n-presentations", type=int, default=_ss.get("n_presentations", 3))
+    parser.add_argument("--alpha-pc", type=float, default=_ss.get("alpha_pc", 0.05))
     return parser.parse_args()
 
 
