@@ -118,49 +118,47 @@ pip install -r requirements-lock.txt
 The frozen artifacts under `results/` are exactly reproducible: running the same scripts with the same seeds and the pinned environment (`requirements-lock.txt`) will reproduce the numbers in Tables 1-5 of the paper.
 
 Fresh runs with different seeds will produce numerically different results, because data sampling, neural encoding, and assembly formation all involve stochastic components. This is expected and does not undermine the paper conclusions. The core finding is stated at the level of **qualitative consistency**: the deterministic-k advantage over Bernoulli at the assembly level is preserved across seeds, datasets, and algorithms — not at the level of exact point estimates from any single run.
-## Single-run deterministic-k benchmark rerun
+## Paper Table Runbook (Scripts and Commands)
 
-This benchmark is produced by running the per-dataset validate scripts at seed 42 with deterministic-k step 10. For example, to reproduce the Student Success run:
+Use the repository root first:
 
 ```bash
+cd "c:\Users\A1110561\OneDrive - BI Norwegian Business School (BIEDU)\Documents\My\PHD\Repos\assemblies-encoding"
+```
+
+All defaults are read from `experiments/experiments_configuration.json`.
+
+### Table 1 - Single-run benchmark (5 datasets)
+
+This workflow uses `n_train=200` from config by default.
+
+```bash
+python experiments/alzheimers/validate_alzheimers.py
+python experiments/stroke_risk/validate_stroke.py
+python experiments/credit_default/validate_credit.py
+python experiments/vaccine_efficacy/validate_vaccine.py
 python experiments/student_success/validate_student_success.py
 ```
 
-Run the corresponding `validate_*.py` under `experiments/<dataset>/` for the other four datasets. Each script writes its metrics to the terminal; the frozen values used in the paper are kept under `results/` with table-based filenames.
-
-## Smoke-test rerun
-
-Use a small run first:
+### Table 2-3 - PC sensitivity sweep (400 runs)
 
 ```bash
-python experiments/run_sensitivity_sweep.py --datasets Student,Vaccine --seeds 42 --n-samples 200 --n-train 20 --method pc
+python experiments/run_sensitivity_sweep.py --method pc
 ```
 
-This writes local sensitivity outputs under `runs/YYYYMMDD/` (for example `table_2_3_pc_sensitivity_*.csv` and `table_4_ges_sensitivity_*.csv`) and copies `experiments_configuration.json` there once per run day. The `runs/` folder is ignored by git so that frozen paper artifacts under `results/` remain unchanged. To compare a fresh rerun against frozen values, open both CSVs side by side; column names and row order match.
-
-## Full sensitivity reruns
-
-PC:
+### Table 4 - GES sensitivity sweep (400 runs)
 
 ```bash
-python experiments/run_sensitivity_sweep.py --datasets Alzheimers,Stroke,Credit,Student,Vaccine --seeds 42,73,101,131,151,181,211,241,271,301 --n-samples 800 --n-train 120 --method pc
+python experiments/run_sensitivity_sweep.py --method ges
 ```
 
-GES:
+### Table 5 - Student 50-seed robustness
 
 ```bash
-python experiments/run_sensitivity_sweep.py --datasets Alzheimers,Stroke,Credit,Student,Vaccine --seeds 42,73,101,131,151,181,211,241,271,301 --n-samples 800 --n-train 120 --method ges
+python experiments/student_success/evaluate_student_success_multiseed.py
 ```
 
-## Student Success Multi-seed Robustness and Interventional Validation (50 seeds)
-
-This experiment runs a single-dataset robustness check (used in the manuscript robustness section) and evaluates both graph-recovery stability and do()-effect consistency.
-
-```bash
-python experiments/student_success/evaluate_student_success_multiseed.py --n-seeds 50 --seed0 42 --n-samples 1000 --n-eval 1000
-```
-
-This writes fresh outputs under `runs/YYYYMMDD/` using table-based filenames. Frozen reference artifacts are kept under `results/` with the same naming standard.
+Fresh outputs are written under `runs/YYYYMMDD/`. Frozen reference artifacts used by the paper stay under `results/`.
 
 ## Notes for extension
 
