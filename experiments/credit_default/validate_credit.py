@@ -1,11 +1,16 @@
 """
-Credit Default Validation 
-Finance domain with strong causal relationships
+Credit Default Case Study - 3-DAG Causal Validation
 
 Validates that neural assemblies preserve causal information by comparing:
-1. Ground Truth DAG (known causal structure)
+1. Ground Truth DAG (from finance literature)
 2. Neuron DAG (causal discovery on neuron activations)
 3. Assembly DAG (causal discovery on assembly activations)
+
+Ground Truth Causal Structure (5 variables):
+  Income -> CreditUtilization
+  PaymentHistory -> Default
+  CreditUtilization -> Default
+  DebtToIncome -> Default
 """
 
 import sys
@@ -315,6 +320,7 @@ if __name__ == '__main__':
     print('='*70)
     print(f"  Results: {os.path.join(os.path.dirname(csv_path), 'credit_causal_results.txt')}")
     print(f"  Visualization: {os.path.join(os.path.dirname(csv_path), 'credit_3dag_comparison.png')}")
+
 
 
 
