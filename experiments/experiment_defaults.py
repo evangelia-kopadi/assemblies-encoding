@@ -67,7 +67,9 @@ def runner_kwargs(**overrides: Any) -> Dict[str, Any]:
 
 
 _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-_CFG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "experiments_configuration.json")
+_CFG_FILE = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "experiments_configuration.json"
+)
 _CONFIG_COPIED = False
 
 

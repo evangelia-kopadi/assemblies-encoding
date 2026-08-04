@@ -69,7 +69,11 @@ def compare_dags(ground_truth_edges, discovered_edges, var_names):
 
     precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
     recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
-    f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0.0
+    f1 = (
+        2 * precision * recall / (precision + recall)
+        if (precision + recall) > 0
+        else 0.0
+    )
 
     gt_skel = _edge_skeleton(ground_truth_edges)
     disc_skel = _edge_skeleton(discovered_edges)
@@ -80,7 +84,11 @@ def compare_dags(ground_truth_edges, discovered_edges, var_names):
 
     skel_precision = skel_tp / (skel_tp + skel_fp) if (skel_tp + skel_fp) > 0 else 0.0
     skel_recall = skel_tp / (skel_tp + skel_fn) if (skel_tp + skel_fn) > 0 else 0.0
-    skel_f1 = 2 * skel_precision * skel_recall / (skel_precision + skel_recall) if (skel_precision + skel_recall) > 0 else 0.0
+    skel_f1 = (
+        2 * skel_precision * skel_recall / (skel_precision + skel_recall)
+        if (skel_precision + skel_recall) > 0
+        else 0.0
+    )
 
     return {
         "tp": tp,
@@ -103,7 +111,9 @@ def compare_dags(ground_truth_edges, discovered_edges, var_names):
     }
 
 
-def print_dag_comparison_report(ground_truth_edges, neuron_edges, assembly_edges, var_names):
+def print_dag_comparison_report(
+    ground_truth_edges, neuron_edges, assembly_edges, var_names
+):
     """Print detailed comparison report for the three DAGs."""
     print("\n" + "=" * 70)
     print("CAUSAL DAG COMPARISON REPORT")
@@ -156,7 +166,11 @@ def print_dag_comparison_report(ground_truth_edges, neuron_edges, assembly_edges
         print("\n[TARGET] EDGES REMOVED BY ASSEMBLY COMPRESSION:")
         for source, target in sorted(removed_by_assembly):
             is_spurious = (source, target) in neuron_spurious
-            status = "(GOOD - removed spurious edge!)" if is_spurious else "(BAD - removed true edge)"
+            status = (
+                "(GOOD - removed spurious edge!)"
+                if is_spurious
+                else "(BAD - removed true edge)"
+            )
             print(f"  {source} -> {target}  {status}")
 
     neuron_comparison = compare_dags(ground_truth_edges, neuron_edges, var_names)
@@ -191,7 +205,9 @@ def print_dag_comparison_report(ground_truth_edges, neuron_edges, assembly_edges
     print("PRESERVATION ASSESSMENT:")
     print("=" * 70)
 
-    preservation_score = (assembly_comparison["f1"] + neuron_to_assembly["precision"]) / 2
+    preservation_score = (
+        assembly_comparison["f1"] + neuron_to_assembly["precision"]
+    ) / 2
 
     if preservation_score > 0.8:
         status = "EXCELLENT"

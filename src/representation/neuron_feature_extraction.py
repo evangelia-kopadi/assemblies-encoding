@@ -15,7 +15,10 @@ from typing import Mapping, Sequence, Set
 import numpy as np
 import pandas as pd
 
-from ..encoding.deterministic_k import build_deterministic_k_map, encode_deterministic_k_dataframe
+from ..encoding.deterministic_k import (
+    build_deterministic_k_map,
+    encode_deterministic_k_dataframe,
+)
 
 
 def encode_for_deterministic_k_features(
@@ -77,7 +80,9 @@ def extract_neuron_features_from_encoded(
                         neuron_features[var_name] = activations[:, local].mean(axis=1)
                         continue
 
-            values = sorted(stimulus_indices[var_name].keys(), key=lambda value: str(value))
+            values = sorted(
+                stimulus_indices[var_name].keys(), key=lambda value: str(value)
+            )
             if values:
                 local = stimulus_indices[var_name][values[-1]]
                 neuron_features[var_name] = activations[:, local].mean(axis=1)

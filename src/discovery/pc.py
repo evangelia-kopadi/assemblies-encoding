@@ -67,7 +67,9 @@ def run_pc_algorithm(data_df, var_names, alpha=0.05, strict=False):
         return [], None
 
 
-def parse_causallearn_cpdag(*, cg: object, node_names: Sequence[str]) -> list[CPDAGEdge]:
+def parse_causallearn_cpdag(
+    *, cg: object, node_names: Sequence[str]
+) -> list[CPDAGEdge]:
     """Parse a causal-learn PC result into a CPDAG edge list.
 
     causal-learn uses an adjacency matrix with endpoint encoding:

@@ -39,12 +39,22 @@ from experiments.vaccine_efficacy.validate_vaccine import generate_vaccine_data
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Run encoding sensitivity sweep")
-    parser.add_argument("--datasets", default=_ss.get("datasets", "Alzheimers,Stroke,Credit,Student,Vaccine"))
+    parser.add_argument(
+        "--datasets",
+        default=_ss.get("datasets", "Alzheimers,Stroke,Credit,Student,Vaccine"),
+    )
     parser.add_argument("--seeds", default=_ss.get("seeds", "42,73"))
     parser.add_argument("--n-samples", type=int, default=_ss.get("n_samples", 800))
-    parser.add_argument('--n-train', type=int, default=_ss.get("n_train", 120))
-    parser.add_argument('--method', choices=['pc', 'ges'], default=_ss.get('method', 'pc'), help='Causal discovery method')
-    parser.add_argument("--n-presentations", type=int, default=_ss.get("n_presentations", 3))
+    parser.add_argument("--n-train", type=int, default=_ss.get("n_train", 120))
+    parser.add_argument(
+        "--method",
+        choices=["pc", "ges"],
+        default=_ss.get("method", "pc"),
+        help="Causal discovery method",
+    )
+    parser.add_argument(
+        "--n-presentations", type=int, default=_ss.get("n_presentations", 3)
+    )
     parser.add_argument("--alpha-pc", type=float, default=_ss.get("alpha_pc", 0.05))
     return parser.parse_args()
 
@@ -57,48 +67,100 @@ def _f1(comp: dict, key: str) -> float:
 def build_datasets(n_samples: int):
     return {
         "Alzheimers": {
-            "gen": lambda seed: generate_alzheimers_data(n_patients=n_samples, seed=seed),
+            "gen": lambda seed: generate_alzheimers_data(
+                n_patients=n_samples, seed=seed
+            ),
             "var_names": [
-                "APOE4", "PhysicalActivity", "Diet", "Cholesterol", "Inflammation",
-                "SleepQuality", "Education", "Amyloid", "Tau", "CognitiveDecline",
+                "APOE4",
+                "PhysicalActivity",
+                "Diet",
+                "Cholesterol",
+                "Inflammation",
+                "SleepQuality",
+                "Education",
+                "Amyloid",
+                "Tau",
+                "CognitiveDecline",
             ],
             "positive_values_map": {
-                "APOE4": {"Carrier"}, "PhysicalActivity": {"Sedentary"}, "Diet": {"Poor"},
-                "Cholesterol": {"High"}, "Inflammation": {"High"}, "SleepQuality": {"Poor"},
-                "Education": {"Low"}, "Amyloid": {"High"}, "Tau": {"High"},
+                "APOE4": {"Carrier"},
+                "PhysicalActivity": {"Sedentary"},
+                "Diet": {"Poor"},
+                "Cholesterol": {"High"},
+                "Inflammation": {"High"},
+                "SleepQuality": {"Poor"},
+                "Education": {"Low"},
+                "Amyloid": {"High"},
+                "Tau": {"High"},
                 "CognitiveDecline": {"Decline"},
             },
         },
         "Stroke": {
             "gen": lambda seed: generate_stroke_data(n_patients=n_samples, seed=seed),
-            "var_names": ["Hypertension", "Age", "Smoking", "Atherosclerosis", "BloodClotting", "Stroke"],
+            "var_names": [
+                "Hypertension",
+                "Age",
+                "Smoking",
+                "Atherosclerosis",
+                "BloodClotting",
+                "Stroke",
+            ],
             "positive_values_map": {
-                "Hypertension": {"High"}, "Age": {"Elderly"}, "Smoking": {"Smoker"},
-                "Atherosclerosis": {"Present"}, "BloodClotting": {"Hypercoagulable"}, "Stroke": {"Stroke"},
+                "Hypertension": {"High"},
+                "Age": {"Elderly"},
+                "Smoking": {"Smoker"},
+                "Atherosclerosis": {"Present"},
+                "BloodClotting": {"Hypercoagulable"},
+                "Stroke": {"Stroke"},
             },
         },
         "Credit": {
             "gen": lambda seed: generate_credit_data(n_customers=n_samples, seed=seed),
-            "var_names": ["Income", "PaymentHistory", "CreditUtilization", "DebtToIncome", "Default"],
+            "var_names": [
+                "Income",
+                "PaymentHistory",
+                "CreditUtilization",
+                "DebtToIncome",
+                "Default",
+            ],
             "positive_values_map": {
-                "Income": {"Low"}, "PaymentHistory": {"LatePay"},
-                "CreditUtilization": {"High"}, "DebtToIncome": {"High"}, "Default": {"Default"},
+                "Income": {"Low"},
+                "PaymentHistory": {"LatePay"},
+                "CreditUtilization": {"High"},
+                "DebtToIncome": {"High"},
+                "Default": {"Default"},
             },
         },
         "Student": {
             "gen": lambda seed: generate_student_data(n_students=n_samples, seed=seed),
-            "var_names": ["PriorGPA", "Attendance", "StudyHours", "FinalExamScore", "FinalGrade"],
+            "var_names": [
+                "PriorGPA",
+                "Attendance",
+                "StudyHours",
+                "FinalExamScore",
+                "FinalGrade",
+            ],
             "positive_values_map": {
-                "PriorGPA": {"High"}, "Attendance": {"Good"}, "StudyHours": {"High"},
-                "FinalExamScore": {"Excellent"}, "FinalGrade": {"Excellent"},
+                "PriorGPA": {"High"},
+                "Attendance": {"Good"},
+                "StudyHours": {"High"},
+                "FinalExamScore": {"Excellent"},
+                "FinalGrade": {"Excellent"},
             },
         },
         "Vaccine": {
             "gen": lambda seed: generate_vaccine_data(n_patients=n_samples, seed=seed),
-            "var_names": ["Vaccination", "ImmuneHealth", "AntibodyResponse", "Immunity"],
+            "var_names": [
+                "Vaccination",
+                "ImmuneHealth",
+                "AntibodyResponse",
+                "Immunity",
+            ],
             "positive_values_map": {
-                "Vaccination": {"Vaccinated"}, "ImmuneHealth": {"Strong"},
-                "AntibodyResponse": {"High"}, "Immunity": {"Immune"},
+                "Vaccination": {"Vaccinated"},
+                "ImmuneHealth": {"Strong"},
+                "AntibodyResponse": {"High"},
+                "Immunity": {"Immune"},
             },
         },
     }
@@ -109,38 +171,44 @@ def build_sweep_configs(base_kwargs: dict) -> list[dict]:
 
     # Bernoulli sweeps (keep one axis fixed each time)
     for pos in [0.20, 0.30, 0.40]:
-        configs.append({
-            "name": f"Bernoulli_pos{pos:.2f}_neg0.10",
-            "kwargs": {
-                **base_kwargs,
-                "deterministic_k_encoding": False,
-                "positive_prob": pos,
-                "negative_prob": 0.10,
-            },
-        })
+        configs.append(
+            {
+                "name": f"Bernoulli_pos{pos:.2f}_neg0.10",
+                "kwargs": {
+                    **base_kwargs,
+                    "deterministic_k_encoding": False,
+                    "positive_prob": pos,
+                    "negative_prob": 0.10,
+                },
+            }
+        )
     for neg in [0.05, 0.10, 0.15]:
-        configs.append({
-            "name": f"Bernoulli_pos0.30_neg{neg:.2f}",
-            "kwargs": {
-                **base_kwargs,
-                "deterministic_k_encoding": False,
-                "positive_prob": 0.30,
-                "negative_prob": neg,
-            },
-        })
+        configs.append(
+            {
+                "name": f"Bernoulli_pos0.30_neg{neg:.2f}",
+                "kwargs": {
+                    **base_kwargs,
+                    "deterministic_k_encoding": False,
+                    "positive_prob": 0.30,
+                    "negative_prob": neg,
+                },
+            }
+        )
 
     # Deterministic-k sweeps
     for step in [5, 10, 15]:
-        configs.append({
-            "name": f"Deterministic_kstep{step}",
-            "kwargs": {
-                **base_kwargs,
-                "deterministic_k_encoding": True,
-                "deterministic_k_step": step,
-                "deterministic_k_readout_mode": "pool_mean",
-                "stimulus_k": DEFAULTS.assembly_k,
-            },
-        })
+        configs.append(
+            {
+                "name": f"Deterministic_kstep{step}",
+                "kwargs": {
+                    **base_kwargs,
+                    "deterministic_k_encoding": True,
+                    "deterministic_k_step": step,
+                    "deterministic_k_readout_mode": "pool_mean",
+                    "stimulus_k": DEFAULTS.assembly_k,
+                },
+            }
+        )
 
     # de-duplicate (baseline Bernoulli appears in both loops)
     dedup: dict[str, dict] = {}
@@ -176,7 +244,9 @@ def main() -> None:
     total = len(selected_datasets) * len(seeds) * len(sweep_configs)
     idx = 0
 
-    print(f"Running sensitivity sweep using method={args.method}: datasets={selected_datasets}, seeds={seeds}, configs={len(sweep_configs)}, total runs={total}")
+    print(
+        f"Running sensitivity sweep using method={args.method}: datasets={selected_datasets}, seeds={seeds}, configs={len(sweep_configs)}, total runs={total}"
+    )
 
     for ds_name in selected_datasets:
         ds = datasets[ds_name]
@@ -187,7 +257,8 @@ def main() -> None:
                 print(f"[{idx}/{total}] {ds_name} | seed={seed} | {cfg['name']}")
 
                 kwargs = {**cfg["kwargs"], "seed": seed}
-                results = run_causal_dag_validation(method=args.method, 
+                results = run_causal_dag_validation(
+                    method=args.method,
                     df=df,
                     var_names=ds["var_names"],
                     ground_truth_edges=gt_edges,
@@ -201,7 +272,8 @@ def main() -> None:
 
                 rows.append(
                     {
-                        "Dataset": ds_name, "Method": args.method,
+                        "Dataset": ds_name,
+                        "Method": args.method,
                         "Seed": seed,
                         "Config": cfg["name"],
                         "Neuron_F1": nf,
@@ -267,17 +339,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
