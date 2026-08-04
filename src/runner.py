@@ -1,6 +1,6 @@
 """Causal DAG Validation Runner.
 
-Full method name: causal structure preservation pipeline from the paper.
+Causal structure preservation pipeline.
 
 How it works: take one SCM dataset and ground-truth DAG; encode observations as
 neural activity; compute the raw-neuron readout as the within-run baseline; run

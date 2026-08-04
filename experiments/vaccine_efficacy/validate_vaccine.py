@@ -1,5 +1,5 @@
 """
-Vaccine Efficacy - EXTREMELY Strong Causal Effects
+Vaccine Efficacy - Strong Causal Effects
 Medical domain with near-deterministic relationships
 """
 

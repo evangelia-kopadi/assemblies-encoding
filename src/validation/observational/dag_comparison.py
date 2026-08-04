@@ -1,6 +1,6 @@
 """DAG structural evaluation helpers.
 
-Full method name: Directed Acyclic Graph (DAG) structural comparison.
+Directed Acyclic Graph (DAG) structural comparison.
 
 How it works: compare recovered neuron-level and assembly-level edge lists with
 SCM ground-truth edge lists; compute precision, recall, F1, skeleton metrics,

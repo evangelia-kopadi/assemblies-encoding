@@ -11,7 +11,7 @@
     "alpha_pc": 0.05,
     "n_presentations": 3,
     "n_samples": 800,
-    "seeds": "42,73",
+    "seeds": "42,73,101,131,151,181,211,241,271,301",
     "n_train": 120,
     "datasets": "Alzheimers,Stroke,Credit,Student,Vaccine",
     "_used_by": "run_sensitivity_sweep.py (Tables 2-3: PC sweep; Table 4: GES sweep -- run twice with --method pc and --method ges)"

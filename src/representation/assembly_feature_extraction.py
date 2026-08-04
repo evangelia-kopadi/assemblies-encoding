@@ -1,6 +1,6 @@
 """Assembly-level feature extraction from a fixed Brain.
 
-Full method name: fixed-Brain assembly feature extraction from learned connectomes.
+Fixed-Brain assembly feature extraction from learned connectomes.
 
 How it works: reuse a Brain whose assemblies have already been formed, project
 encoded neural samples through the learned stimulus-area connectomes, and reduce

@@ -16,10 +16,8 @@ Ground Truth Causal Structure:
 import os
 import sys
 import json
-import datetime
 
 from datetime import datetime
-import shutil
 
 # Ensure repo root is on sys.path so `import src.*` resolves locally
 _REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
@@ -451,14 +449,11 @@ def main():
     output_dir = os.path.dirname(csv_path)
     os.makedirs(output_dir, exist_ok=True)
 
-    run_id = datetime.now().strftime('%Y%m%d_%H%M%S')
-
-    print(f"\n  Run ID: {run_id}")
 
 
-    dag_plot_path = os.path.join(output_dir, f'student_success_3dag_comparison_{run_id}.png')
 
-    dag_plot_latest_path = os.path.join(output_dir, 'student_success_3dag_comparison.png')
+    dag_plot_path = os.path.join(output_dir, 'student_success_3dag_comparison.png')
+
     visualize_three_dags(
         ground_truth_edges=results['ground_truth_edges'],
         neuron_edges=results['neuron_edges'],
@@ -468,11 +463,6 @@ def main():
     )
     
 
-    # Keep a stable filename for convenience (latest run)
-    try:
-        shutil.copy2(dag_plot_path, dag_plot_latest_path)
-    except Exception as e:
-        print(f"  Warning: failed to update latest DAG PNG: {e}")
     # Summary
     print('\n' + '='*70)
     print('EXPERIMENT COMPLETE')
@@ -492,9 +482,8 @@ def main():
     print(results['assembly_df'].std().to_string())
     
     # Save results
-    results_file = os.path.join(output_dir, f'student_success_causal_results_{run_id}.txt')
+    results_file = os.path.join(output_dir, 'student_success_causal_results.txt')
 
-    results_latest_file = os.path.join(output_dir, 'student_success_causal_results.txt')
     with open(results_file, 'w', encoding='utf-8') as f:
         f.write('='*70 + '\n')
         f.write('STUDENT SUCCESS - 3-DAG CAUSAL VALIDATION RESULTS\n')
@@ -549,16 +538,8 @@ def main():
         else:
             f.write('Sign-match rate (directional): (not computed)\n')
     
-    # Keep a stable filename for convenience (latest run)
-    try:
-        shutil.copy2(results_file, results_latest_file)
-    except Exception as e:
-        print(f"  Warning: failed to update latest results TXT: {e}")
-
     print(f'\n  Results saved to: {os.path.basename(results_file)}')
-    print(f'  Latest results updated: {os.path.basename(results_latest_file)}')
     print(f'  DAG visualization saved to: {os.path.basename(dag_plot_path)}')
-    print(f'  Latest DAG PNG updated: {os.path.basename(dag_plot_latest_path)}')
     
     return results
 
@@ -588,7 +569,6 @@ class _TeeTextIO:
 
 if __name__ == '__main__':
     output_dir = os.path.dirname(get_output_filepath("table_1_student_metrics.csv"))
-    os.makedirs(output_dir, exist_ok=True)
     os.makedirs(output_dir, exist_ok=True)
     analysis_path = os.path.join(output_dir, 'table_1_student_causal_results_analysis.txt')
 

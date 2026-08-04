@@ -1,6 +1,11 @@
 """
-Credit Default Validation - Strong Realistic Effects
-Finance domain with well-documented strong causal relationships
+Credit Default Validation 
+Finance domain with strong causal relationships
+
+Validates that neural assemblies preserve causal information by comparing:
+1. Ground Truth DAG (known causal structure)
+2. Neuron DAG (causal discovery on neuron activations)
+3. Assembly DAG (causal discovery on assembly activations)
 """
 
 import sys

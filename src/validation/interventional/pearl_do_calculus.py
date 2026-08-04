@@ -1,6 +1,6 @@
 """Pearl-style do-intervention validation helpers.
 
-Full method name: Pearl-style intervention evaluation with SCM do(...) samples.
+Pearl-style intervention evaluation with SCM do(...) samples.
 
 How it works: use synthetic SCM generators as intervention oracles; generate
 baseline and do(...) samples; estimate changes in target probabilities or feature
