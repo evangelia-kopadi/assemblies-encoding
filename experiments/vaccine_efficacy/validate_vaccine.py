@@ -1,6 +1,14 @@
 """
-Vaccine Efficacy - Strong Causal Effects
-Medical domain with near-deterministic relationships
+Vaccine Efficacy Case Study - 3-DAG Causal Validation
+
+Validates that neural assemblies preserve causal information by comparing:
+1. Ground Truth DAG (from immunology literature)
+2. Neuron DAG (causal discovery on neuron activations)
+3. Assembly DAG (causal discovery on assembly activations)
+
+Ground Truth Causal Structure (4 variables):
+  Vaccination -> AntibodyResponse -> Immunity
+  ImmuneHealth -> AntibodyResponse (co-factor)
 """
 
 import sys
@@ -277,6 +285,7 @@ if __name__ == '__main__':
     print('='*70)
     print(f'Neuron F1: {results["comparison"]["neuron_vs_gt"]["f1"]:.3f}')
     print(f'Assembly F1: {results["comparison"]["assembly_vs_gt"]["f1"]:.3f}')
+
 
 
 
