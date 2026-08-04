@@ -29,3 +29,6 @@ scripts/
 
 
 
+
+# Ignore SUM/reference docs bundle
+docs/
