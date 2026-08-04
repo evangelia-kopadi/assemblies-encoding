@@ -23,7 +23,7 @@ def form_assemblies(
     target_area_by_var_name=None,
     shuffle_seed=None,
 ):
-    """Form assemblies for variables using the Neural Assemblies Brain method."""
+    """Form assemblies for variables using the Neural Assemblies Brain."""
 
     if target_area_by_var_name is None:
         target_area_by_var_name = {var_name: var_name for var_name in var_names}
