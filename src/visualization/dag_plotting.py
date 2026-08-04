@@ -1,4 +1,4 @@
-"""DAG visualization helpers.
+"""DAG visualization.
 
 How it works: render ground-truth, neuron-level, and assembly-level DAGs
 side-by-side with a shared hierarchical layout and optional PNG export.

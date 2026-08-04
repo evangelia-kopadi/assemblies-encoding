@@ -1,15 +1,16 @@
 """
 Stroke Risk Case Study - 3-DAG Causal Validation
 
-Validates causal preservation with stroke risk factors.
-Same structure as Alzheimer's: two independent pathways converging.
+Validates that neural assemblies preserve causal information by comparing:
+1. Ground Truth DAG (known causal structure)
+2. Neuron DAG (causal discovery on neuron activations)
+3. Assembly DAG (causal discovery on assembly activations)
 
 Ground Truth Causal Structure (from epidemiology):
   Hypertension -> Atherosclerosis -> Stroke (vascular pathway)
   Smoking -> BloodClotting -> Stroke (thrombotic pathway)
   Age -> Atherosclerosis (age-related vascular damage)
 """
-
 
 import sys
 import json

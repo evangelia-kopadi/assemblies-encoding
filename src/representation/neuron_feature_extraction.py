@@ -1,6 +1,6 @@
 """Neuron-level feature extraction from encoded spike patterns.
 
-Full method name: deterministic-k neuron feature extraction.
+Deterministic-k neuron feature extraction.
 
 How it works: encode a dataframe with deterministic-k stimulus sets, then reduce
 each variable's neuron block to one scalar feature per sample. The default readout

@@ -1,6 +1,6 @@
 """Neural assembly formation.
 
-Full method name: Papadimitriou-style neural assembly formation with k-winner
+NEMO-style neural assembly formation with k-winner
 take-all projection and Hebbian plasticity.
 
 How it works: present encoded variable stimuli to Brain areas for repeated

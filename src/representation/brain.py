@@ -1,7 +1,6 @@
 """Brain assembly model based on Papadimitriou assembly theory.
 
-Full method name: neural assembly calculus simulation with k-winner-take-all
-dynamics and Hebbian plasticity.
+Neural assembly calculus simulation with k-winner-take-all dynamics and Hebbian plasticity.
 
 How it works: stimuli project into brain areas; each projection keeps only the
 top-k winners; repeated co-activation strengthens connectomes; support tracking

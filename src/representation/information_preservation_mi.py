@@ -1,6 +1,6 @@
 """MI-based information-preservation metrics.
 
-Full method name: Mutual Information (MI) information-preservation validation.
+Mutual Information (MI) information-preservation validation.
 
 How it works: discretize each continuous neuron/assembly feature at its median;
 compute pairwise MI matrices for neuron features and assembly features; compare
