@@ -68,7 +68,9 @@ def encode_deterministic_k_dataframe(
     for var_idx, var_name in enumerate(variables):
         if var_name not in value_to_index_map:
             values = ordered_observed_values(df[var_name])
-            value_to_index_map[var_name] = {value: value_idx for value_idx, value in enumerate(values)}
+            value_to_index_map[var_name] = {
+                value: value_idx for value_idx, value in enumerate(values)
+            }
 
         if var_name not in stimulus_k_map:
             raise ValueError(f"missing stimulus_k_map for variable {var_name!r}")
@@ -78,7 +80,9 @@ def encode_deterministic_k_dataframe(
 
         indices_for_values: dict[object, np.ndarray] = {}
         cursor = 0
-        for value, _value_idx in sorted(value_to_index_map[var_name].items(), key=lambda item: item[1]):
+        for value, _value_idx in sorted(
+            value_to_index_map[var_name].items(), key=lambda item: item[1]
+        ):
             k = int(stimulus_k_map[var_name].get(value, 0))
             if k <= 0:
                 raise ValueError(f"Invalid k={k} for {var_name} value {value!r}")
@@ -87,7 +91,7 @@ def encode_deterministic_k_dataframe(
                     f"Variable {var_name} needs more than {neurons_per_var} neurons "
                     f"for deterministic-k encoding (cursor={cursor}, k={k})."
                 )
-            indices_for_values[value] = available[cursor:cursor + k]
+            indices_for_values[value] = available[cursor : cursor + k]
             cursor += k
 
         stimulus_indices[var_name] = indices_for_values

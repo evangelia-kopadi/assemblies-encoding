@@ -17,7 +17,10 @@ import numpy as np
 import pandas as pd
 
 from ...encoding.bernoulli import encode_bernoulli_dataframe
-from ...encoding.deterministic_k import build_deterministic_k_map, encode_deterministic_k_dataframe
+from ...encoding.deterministic_k import (
+    build_deterministic_k_map,
+    encode_deterministic_k_dataframe,
+)
 from ...representation.assembly_feature_extraction import extract_assembly_features
 
 
@@ -37,7 +40,9 @@ def sign(value: float, *, eps: float = 1e-12) -> int:
     return 0
 
 
-def probability_of_values(df: pd.DataFrame, column: str, positive_values: Set[object]) -> float:
+def probability_of_values(
+    df: pd.DataFrame, column: str, positive_values: Set[object]
+) -> float:
     return float(df[column].isin(positive_values).mean())
 
 
@@ -197,7 +202,10 @@ def compute_neuron_and_assembly_mean_features(
     align_assembly_to_positive: bool = True,
     assembly_flip_map: Mapping[str, bool] | None = None,
     return_assembly_flip_map: bool = False,
-) -> tuple[Dict[str, float], Dict[str, float]] | tuple[Dict[str, float], Dict[str, float], Dict[str, bool]]:
+) -> (
+    tuple[Dict[str, float], Dict[str, float]]
+    | tuple[Dict[str, float], Dict[str, float], Dict[str, bool]]
+):
     """Return per-variable mean feature values for neurons and assemblies."""
 
     stimulus_indices = None
@@ -239,7 +247,11 @@ def compute_neuron_and_assembly_mean_features(
                 positive_values = list(positive_values_map[var])
 
             if positive_values:
-                arrays = [stimulus_indices[var][value] for value in positive_values if value in stimulus_indices[var]]
+                arrays = [
+                    stimulus_indices[var][value]
+                    for value in positive_values
+                    if value in stimulus_indices[var]
+                ]
                 if arrays:
                     local = np.concatenate(arrays, axis=0)
                     if local.size > 0:
@@ -264,14 +276,20 @@ def compute_neuron_and_assembly_mean_features(
         neurons_per_var,
         source_var_by_target_area_name=source_var_by_target_area_name,
     )
-    assembly_features_base = {key: value for key, value in assembly_features.items() if "_x_" not in key}
+    assembly_features_base = {
+        key: value for key, value in assembly_features.items() if "_x_" not in key
+    }
 
     flip_map: Dict[str, bool] = {}
     if align_assembly_to_positive:
-        flip_map = dict(assembly_flip_map) if assembly_flip_map is not None else compute_assembly_feature_flip_map(
-            df,
-            assembly_features_base=assembly_features_base,
-            positive_values_map=positive_values_map,
+        flip_map = (
+            dict(assembly_flip_map)
+            if assembly_flip_map is not None
+            else compute_assembly_feature_flip_map(
+                df,
+                assembly_features_base=assembly_features_base,
+                positive_values_map=positive_values_map,
+            )
         )
 
     assembly_means: Dict[str, float] = {}

@@ -31,9 +31,7 @@ def mutual_information(x_values, y_values):
     for (x_value, y_value), count in joint.items():
         p_xy = count / n
         if p_xy > 0 and p_x[x_value] > 0 and p_y[y_value] > 0:
-            mi += p_xy * np.log2(
-                p_xy / ((p_x[x_value] / n) * (p_y[y_value] / n))
-            )
+            mi += p_xy * np.log2(p_xy / ((p_x[x_value] / n) * (p_y[y_value] / n)))
 
     return mi
 

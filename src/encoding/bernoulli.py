@@ -76,7 +76,11 @@ def encode_bernoulli_dataframe(
     for var_idx, var_name in enumerate(variables):
         start_idx = var_idx * neurons_per_var
         end_idx = start_idx + neurons_per_var
-        positive_values = positive_values_map.get(var_name) if positive_values_map and var_name in positive_values_map else None
+        positive_values = (
+            positive_values_map.get(var_name)
+            if positive_values_map and var_name in positive_values_map
+            else None
+        )
         var_seed = None if seed is None else seed + var_idx
 
         neural_data[:, start_idx:end_idx] = encode_bernoulli_variable(

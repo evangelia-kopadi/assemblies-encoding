@@ -53,7 +53,9 @@ def form_assemblies(
         rng.shuffle(stimuli)
 
         for source_var_name, stim_name in stimuli:
-            target_area_name = target_area_by_var_name.get(source_var_name, source_var_name)
+            target_area_name = target_area_by_var_name.get(
+                source_var_name, source_var_name
+            )
             try:
                 brain.project(
                     areas_by_stim={stim_name: [target_area_name]},
@@ -64,7 +66,8 @@ def form_assemblies(
                 stimuli = [
                     (var_name, stimulus_name)
                     for (var_name, stimulus_name) in stimuli
-                    if target_area_by_var_name.get(var_name, var_name) != target_area_name
+                    if target_area_by_var_name.get(var_name, var_name)
+                    != target_area_name
                 ]
                 break
 

@@ -8,7 +8,9 @@ import matplotlib.pyplot as plt
 import networkx as nx
 
 
-def visualize_three_dags(ground_truth_edges, neuron_edges, assembly_edges, var_names, save_path=None):
+def visualize_three_dags(
+    ground_truth_edges, neuron_edges, assembly_edges, var_names, save_path=None
+):
     """Visualize the three DAGs side-by-side with hierarchical tree layout."""
 
     def hierarchical_layout(edges, var_names):
@@ -75,8 +77,12 @@ def visualize_three_dags(ground_truth_edges, neuron_edges, assembly_edges, var_n
         pos = pos_gt
 
         gt_set = set(ground_truth_edges)
-        correct_edges = [e for e in edges if e in gt_set] if title != "Ground Truth" else edges
-        spurious_edges = [e for e in edges if e not in gt_set] if title != "Ground Truth" else []
+        correct_edges = (
+            [e for e in edges if e in gt_set] if title != "Ground Truth" else edges
+        )
+        spurious_edges = (
+            [e for e in edges if e not in gt_set] if title != "Ground Truth" else []
+        )
 
         if spurious_edges:
             nx.draw_networkx_edges(
@@ -132,7 +138,14 @@ def visualize_three_dags(ground_truth_edges, neuron_edges, assembly_edges, var_n
 
             legend_elements = [
                 Line2D([0], [0], color="black", linewidth=2.5, label="Correct Edge"),
-                Line2D([0], [0], color="red", linewidth=4, linestyle="--", label="Spurious Edge"),
+                Line2D(
+                    [0],
+                    [0],
+                    color="red",
+                    linewidth=4,
+                    linestyle="--",
+                    label="Spurious Edge",
+                ),
             ]
             ax.legend(handles=legend_elements, loc="upper right", fontsize=10)
 

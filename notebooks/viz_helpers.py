@@ -9,7 +9,10 @@ from matplotlib.patches import Circle as _Circle, FancyArrowPatch as _FAP
 from src.discovery.ges import run_ges_algorithm
 from src.discovery.pc import run_pc_algorithm
 from src.encoding.bernoulli import encode_bernoulli_dataframe
-from src.encoding.deterministic_k import build_deterministic_k_map, encode_deterministic_k_dataframe
+from src.encoding.deterministic_k import (
+    build_deterministic_k_map,
+    encode_deterministic_k_dataframe,
+)
 from src.representation.assembly_feature_extraction import extract_assembly_features
 from src.representation.assembly_formation import form_assemblies
 from src.representation.brain import Brain
@@ -29,7 +32,9 @@ def encode(
     k_step: int = 10,
 ):
     if deterministic_k:
-        k_map = build_deterministic_k_map(df, var_names, base_k=assembly_k, k_step=k_step)
+        k_map = build_deterministic_k_map(
+            df, var_names, base_k=assembly_k, k_step=k_step
+        )
         neural, stim_idx = encode_deterministic_k_dataframe(
             df,
             var_names,
@@ -63,7 +68,9 @@ def neuron_readout(
     for idx, var in enumerate(var_names):
         block = neural[:, idx * neurons_per_var : (idx + 1) * neurons_per_var]
         if deterministic_k and stim_idx and var in stim_idx:
-            pos_vals = [v for v in positive_values_map.get(var, set()) if v in stim_idx[var]]
+            pos_vals = [
+                v for v in positive_values_map.get(var, set()) if v in stim_idx[var]
+            ]
             if pos_vals:
                 local = np.concatenate([stim_idx[var][v] for v in pos_vals])
                 features[var] = block[:, local].mean(axis=1)
@@ -115,7 +122,9 @@ def assembly_readout(
     return pd.DataFrame({k: v for k, v in feats.items() if "_x_" not in k})
 
 
-def discover(feature_df, *, var_names, method: str, alpha: float = 0.05, strict: bool = False):
+def discover(
+    feature_df, *, var_names, method: str, alpha: float = 0.05, strict: bool = False
+):
     if method == "pc":
         edges, _ = run_pc_algorithm(feature_df, var_names, alpha=alpha, strict=strict)
     else:
