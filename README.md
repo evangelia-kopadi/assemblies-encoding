@@ -193,3 +193,67 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 
 
 
+
+## One-command full pipeline (all paper tables)
+
+To run all paper data-generation scripts in the recommended order (Table 1 validates, Table 2-3 PC sweep, Table 4 GES sweep, Table 5 multiseed), use:
+
+```bash
+python experiments/run_all_paper_experiments.py
+```
+
+Preview the planned commands without running:
+
+```bash
+python experiments/run_all_paper_experiments.py --dry-run
+```
+
+Skip parts if needed:
+
+```bash
+python experiments/run_all_paper_experiments.py --skip-validate
+python experiments/run_all_paper_experiments.py --skip-sweep
+python experiments/run_all_paper_experiments.py --skip-multiseed
+```
+
+Select methods explicitly (default is both):
+
+```bash
+python experiments/run_all_paper_experiments.py --methods pc,ges
+```
+
+## Parameter quick reference
+
+Parameter source of truth:
+- Core defaults are loaded from experiments/experiments_configuration.json.
+- Shared loader and default wiring are implemented in experiments/experiment_defaults.py.
+- Script CLI arguments override configuration defaults when provided.
+
+Orchestrator parameters (experiments/run_all_paper_experiments.py):
+- --methods: sweep methods to run, comma-separated, allowed values pc and ges (default pc,ges).
+- --skip-validate: skip all five validate_*.py single-run scripts.
+- --skip-sweep: skip run_sensitivity_sweep.py runs.
+- --skip-multiseed: skip evaluate_student_success_multiseed.py.
+- --dry-run: print plan and commands only, no execution.
+
+Sensitivity sweep parameters (experiments/run_sensitivity_sweep.py):
+- --datasets: dataset list (default from sensitivity_sweep.datasets).
+- --seeds: seed list (default from sensitivity_sweep.seeds).
+- --n-samples: per-dataset sample count.
+- --n-train: training examples for the assembly stage.
+- --n-presentations: repeated presentation cycles.
+- --method: causal discovery method, pc or ges.
+- --alpha-pc: PC conditional-independence significance level.
+
+Student multiseed parameters (experiments/student_success/evaluate_student_success_multiseed.py):
+- --n-seeds: number of sequential seeds to evaluate.
+- --seed0: starting seed.
+- --n-samples: training cohort size per seed.
+- --n-eval: intervention evaluation cohort size.
+- --alpha-primary: primary PC alpha.
+- --alpha-fallback: fallback PC alpha if needed.
+- --verbose: print per-seed logs.
+
+Output location:
+- New run artifacts are written under runs/YYYYMMDD via get_output_filepath.
+- Frozen paper reference artifacts remain under results.
