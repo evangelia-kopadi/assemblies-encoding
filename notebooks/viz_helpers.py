@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import math as _math
 
@@ -159,8 +159,13 @@ def draw_dag(
 ):
     wrap_labels = wrap_labels or {}
 
-    ax.set_xlim(-1.85, 1.85)
-    ax.set_ylim(-2.05, 2.05)
+    xs = [dag_pos[v][0] for v in var_names if v in dag_pos]
+    ys = [dag_pos[v][1] for v in var_names if v in dag_pos]
+    if xs and ys:
+        x_pad = max(0.18, node_r + 0.08)
+        y_pad = max(0.18, node_r + 0.08)
+        ax.set_xlim(min(xs) - x_pad, max(xs) + x_pad)
+        ax.set_ylim(min(ys) - y_pad, max(ys) + y_pad)
     ax.set_aspect("equal")
     ax.axis("off")
     ax.set_title(title, fontsize=title_fs, pad=8, fontweight="bold")
@@ -214,14 +219,5 @@ def draw_dag(
             color="#1a1a1a",
         )
 
-    if gt_edges:
-        ax.plot([], [], color="#2E7D32", lw=2.5, label="correct")
-        ax.plot([], [], color="#C62828", lw=2.5, label="spurious")
-        ax.legend(
-            loc="lower center",
-            fontsize=7.5,
-            framealpha=0.75,
-            ncol=2,
-            handlelength=1.4,
-            borderpad=0.5,
-        )
+
+
