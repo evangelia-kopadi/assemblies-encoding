@@ -14,7 +14,7 @@
     "seeds": "42,73,101,131,151,181,211,241,271,301",
     "n_train": 120,
     "datasets": "Alzheimers,Stroke,Credit,Student,Vaccine",
-    "_used_by": "run_sensitivity_sweep.py (Tables 2-3: PC sweep; Table 4: GES sweep -- run twice with --method pc and --method ges)"
+    "_used_by": "run_sensitivity_sweep.py (paper Table 3: PC sweep; paper Table 4: GES sweep -- run twice with --method pc and --method ges)"
   },
   "neural_encoding": {
     "negative_prob": 0.1,
@@ -29,7 +29,7 @@
   "data_generation": {
     "n_samples": 5000,
     "seed": 42,
-    "_used_by": "validate_alzheimers.py, validate_credit.py, validate_stroke.py, validate_student_success.py, validate_vaccine.py (Table 1: single-run benchmark)"
+    "_used_by": "generate_single_run_table_artifacts.py (paper Table 2: single-run benchmark); validate_*.py scripts provide detailed logs and DAG PNGs"
   },
   "stroke_validation": {
     "sweep_n_train": [
@@ -41,7 +41,7 @@
       3,
       5
     ],
-    "_used_by": "validate_stroke.py (internal grid over n_train and n_presentations to select best assembly run for Table 1 Stroke)"
+    "_used_by": "validate_stroke.py internal diagnostic grid; not used by the frozen paper Table 2 single-run CSV generator"
   },
   "multiseed": {
     "n_eval": 1000,
@@ -51,6 +51,11 @@
     "n_seeds": 50,
     "n_samples": 1000,
     "_used_by": "evaluate_student_success_multiseed.py (Table 5: 50-seed Student Success robustness)"
+  },
+  "environment": {
+    "python_version": "3.13.4",
+    "dependency_lock": "requirements-lock.txt",
+    "_used_by": "Reproducing the current latest-env frozen artifacts in results/"
   },
   "output": {
     "results_root": "runs",
