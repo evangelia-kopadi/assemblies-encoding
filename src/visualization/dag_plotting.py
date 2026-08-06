@@ -53,23 +53,44 @@ def visualize_three_dags(
             nodes_per_level.setdefault(level, []).append(node)
 
         for level, nodes in nodes_per_level.items():
-            y = 1.0 - (level / max(max_level, 1))
+            if compact_layout:
+                y = 0.9 - 0.8 * (level / max(max_level, 1))
+            else:
+                y = 1.0 - (level / max(max_level, 1))
             num_nodes = len(nodes)
             for i, node in enumerate(sorted(nodes)):
                 x = (i + 1) / (num_nodes + 1)
                 if compact_layout:
-                    x = 0.5 + (x - 0.5) * 0.82
-                    y = 0.5 + (y - 0.5) * 0.82
+                    spread = 1.24 if level == 0 and num_nodes == 3 else 1.12
+                    x = 0.5 + (x - 0.5) * spread
                 pos[node] = (x, y)
 
         return pos
 
-    fig, axes = plt.subplots(1, 3, figsize=(22, 8))
-    fig.suptitle(
-        "Causal DAG Comparison (Ground Truth vs Neuron vs Assembly)",
-        fontsize=16,
-        fontweight="bold",
-    )
+    if compact_layout:
+        figsize = (11.2, 3.75)
+        node_size = 3000
+        label_font_size = 9.6
+        title_font_size = 12.6
+        legend_font_size = 9
+        label_font_weight = "semibold"
+        title_font_weight = "semibold"
+    else:
+        figsize = (22, 8)
+        node_size = 3000
+        label_font_size = 9
+        title_font_size = 14
+        legend_font_size = 10
+        label_font_weight = "bold"
+        title_font_weight = "bold"
+
+    fig, axes = plt.subplots(1, 3, figsize=figsize)
+    if not compact_layout:
+        fig.suptitle(
+            "Causal DAG Comparison (Ground Truth vs Neuron vs Assembly)",
+            fontsize=16,
+            fontweight="bold",
+        )
 
     dags = [
         ("Ground Truth", ground_truth_edges, "lightgreen"),
@@ -77,9 +98,18 @@ def visualize_three_dags(
         ("Assembly DAG", assembly_edges, "lightcoral"),
     ]
     # bw_safe keeps color, while marker shapes and dashed edges avoid color-only cues.
-    node_shapes = {"Ground Truth": "o", "Neuron DAG": "s", "Assembly DAG": "^"}
+    node_shapes = {"Ground Truth": "o", "Neuron DAG": "s", "Assembly DAG": "h"}
 
     pos_gt = hierarchical_layout(ground_truth_edges, var_names)
+    if compact_layout:
+        label_overrides = {
+            "Hypertension": "Hyper-\ntension",
+            "Atherosclerosis": "Athero-\nsclerosis",
+            "BloodClotting": "Blood\nClotting",
+        }
+    else:
+        label_overrides = {}
+    node_labels = {node: label_overrides.get(node, node) for node in var_names}
 
     for ax, (title, edges, color) in zip(axes, dags):
         graph = nx.DiGraph()
@@ -108,7 +138,7 @@ def visualize_three_dags(
                 ax=ax,
                 connectionstyle="arc3,rad=0.2",
                 arrowstyle="-|>",
-                node_size=3000,
+                node_size=node_size,
                 style="dashed",
                 alpha=0.8,
             )
@@ -125,14 +155,14 @@ def visualize_three_dags(
                 ax=ax,
                 connectionstyle="arc3,rad=0.15",
                 arrowstyle="-|>",
-                node_size=3000,
+                node_size=node_size,
             )
 
         nx.draw_networkx_nodes(
             graph,
             pos,
             node_color=color,
-            node_size=3000,
+            node_size=node_size,
             alpha=0.9,
             ax=ax,
             node_shape=node_shapes[title] if bw_safe else "s",
@@ -140,12 +170,23 @@ def visualize_three_dags(
             linewidths=1.2 if bw_safe else 0,
         )
 
-        nx.draw_networkx_labels(graph, pos, font_size=9, font_weight="bold", ax=ax)
+        nx.draw_networkx_labels(
+            graph,
+            pos,
+            labels=node_labels,
+            font_size=label_font_size,
+            font_weight=label_font_weight,
+            ax=ax,
+        )
 
-        ax.set_title(f"{title}\n({len(edges)} edges)", fontsize=14, fontweight="bold")
+        ax.set_title(f"{title}\n({len(edges)} edges)", fontsize=title_font_size, fontweight=title_font_weight, pad=7)
         ax.axis("off")
-        ax.set_xlim(-0.1, 1.1)
-        ax.set_ylim(-0.1, 1.2)
+        if compact_layout:
+            ax.set_xlim(-0.12, 1.12)
+            ax.set_ylim(-0.08, 1.08)
+        else:
+            ax.set_xlim(-0.1, 1.1)
+            ax.set_ylim(-0.1, 1.2)
 
         if spurious_edges:
             from matplotlib.lines import Line2D
@@ -161,9 +202,12 @@ def visualize_three_dags(
                     label="Spurious Edge",
                 ),
             ]
-            ax.legend(handles=legend_elements, loc="upper right", fontsize=10)
+            ax.legend(handles=legend_elements, loc="upper right", fontsize=legend_font_size)
 
-    plt.tight_layout()
+    if compact_layout:
+        plt.tight_layout(pad=0.5, w_pad=1.1)
+    else:
+        plt.tight_layout()
 
     if save_path:
         plt.savefig(save_path, dpi=300, bbox_inches="tight")
