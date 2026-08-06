@@ -9,7 +9,14 @@ import networkx as nx
 
 
 def visualize_three_dags(
-    ground_truth_edges, neuron_edges, assembly_edges, var_names, save_path=None
+    ground_truth_edges,
+    neuron_edges,
+    assembly_edges,
+    var_names,
+    save_path=None,
+    *,
+    bw_safe: bool = False,
+    compact_layout: bool = False,
 ):
     """Visualize the three DAGs side-by-side with hierarchical tree layout."""
 
@@ -50,6 +57,9 @@ def visualize_three_dags(
             num_nodes = len(nodes)
             for i, node in enumerate(sorted(nodes)):
                 x = (i + 1) / (num_nodes + 1)
+                if compact_layout:
+                    x = 0.5 + (x - 0.5) * 0.82
+                    y = 0.5 + (y - 0.5) * 0.82
                 pos[node] = (x, y)
 
         return pos
@@ -66,6 +76,8 @@ def visualize_three_dags(
         ("Neuron DAG", neuron_edges, "lightblue"),
         ("Assembly DAG", assembly_edges, "lightcoral"),
     ]
+    # bw_safe keeps color, while marker shapes and dashed edges avoid color-only cues.
+    node_shapes = {"Ground Truth": "o", "Neuron DAG": "s", "Assembly DAG": "^"}
 
     pos_gt = hierarchical_layout(ground_truth_edges, var_names)
 
@@ -123,7 +135,9 @@ def visualize_three_dags(
             node_size=3000,
             alpha=0.9,
             ax=ax,
-            node_shape="s",
+            node_shape=node_shapes[title] if bw_safe else "s",
+            edgecolors="black" if bw_safe else "none",
+            linewidths=1.2 if bw_safe else 0,
         )
 
         nx.draw_networkx_labels(graph, pos, font_size=9, font_weight="bold", ax=ax)
@@ -156,3 +170,5 @@ def visualize_three_dags(
         print(f"\n  DAG comparison saved to: {save_path}")
 
     return fig
+
+
