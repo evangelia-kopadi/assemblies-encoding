@@ -9,9 +9,9 @@
 
 ## 3-DAG metrics (mean with 95% CI)
 
-- Neuron DAG vs GT F1: 0.944 [0.919, 0.969]
-- Assembly DAG vs GT F1: 0.944 [0.919, 0.969]
-- Preservation score: 0.972 [0.959, 0.984]
+- Neuron DAG vs GT F1: 0.825 [0.746, 0.904]
+- Assembly DAG vs GT F1: 0.665 [0.573, 0.756]
+- Preservation score: 0.735 [0.644, 0.826]
 
 ## do() effect preservation
 
@@ -33,13 +33,8 @@ These metrics ask whether *bigger raw do-effects correspond to bigger feature-sp
 
 | Outcome | PearsonR_raw_vs_neuron | PearsonR_raw_vs_assembly | SpearmanRho_abs_raw_vs_abs_neuron | SpearmanRho_abs_raw_vs_abs_assembly | CalibSlope_neuron_to_raw | CalibR2_neuron_to_raw | CalibMAE_neuron_to_raw | CalibSlope_assembly_to_raw | CalibR2_assembly_to_raw | CalibMAE_assembly_to_raw |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Exam | 1.000 | 1.000 | 1.000 | 1.000 | 5.002 | 1.000 | 0.000 | 5.001 | 1.000 | 0.001 |
+| Exam | 1.000 | 1.000 | 1.000 | 1.000 | 4.999 | 1.000 | 0.000 | 4.999 | 1.000 | 0.000 |
 | Grade | 1.000 | 1.000 | 1.000 | 1.000 | 5.001 | 1.000 | 0.000 | 5.001 | 1.000 | 0.000 |
 
 Notes: PearsonR uses signed deltas; SpearmanRho uses |delta| to test importance ordering; calibration fits raw ≈ a·feature.
-
-
-
-
-
 

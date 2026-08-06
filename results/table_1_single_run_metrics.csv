@@ -1,11 +1,11 @@
 Config,Dataset,Domain,GT Edges,Assembly F1,Neuron F1,Recall (Assembly vs GT),Precision (Assembly vs GT),Recall (Neuron vs GT),Precision (Neuron vs GT)
-Deterministic-k (step 10),Alzheimer’s,Medical,5,0.6,0.6,0.6,0.6,0.6,0.6
-Bernoulli (0.30/0.10),Alzheimer’s,Medical,5,0.24,0.5,0.3,0.2,0.5,0.5
-Deterministic-k (step 10),Stroke Risk,Medical,5,1.0,1.0,1.0,1.0,1.0,1.0
-Bernoulli (0.30/0.10),Stroke Risk,Medical,5,0.167,1.0,0.2,0.143,1.0,1.0
-Deterministic-k (step 10),Credit Default,Finance,5,1.0,1.0,1.0,1.0,1.0,1.0
-Bernoulli (0.30/0.10),Credit Default,Finance,5,0.545,1.0,0.75,0.429,1.0,1.0
+Deterministic-k (step 10),Alzheimer,Medical,10,1.0,1.0,1.0,1.0,1.0,1.0
+Deterministic-k (step 10),Stroke Risk,Medical,5,0.727,1.0,0.8,0.667,1.0,1.0
+Deterministic-k (step 10),Credit Default,Finance,4,1.0,1.0,1.0,1.0,1.0,1.0
 Deterministic-k (step 10),Student Success,Education,4,0.857,1.0,0.75,1.0,1.0,1.0
-Bernoulli (0.30/0.10),Student Success,Education,4,0.6,0.889,0.75,0.5,1.0,0.8
-Deterministic-k (step 10),Vaccine Efficacy,Medical,3,0.8,0.8,0.667,1.0,0.667,1.0
-Bernoulli (0.30/0.10),Vaccine Efficacy,Medical,3,0.667,0.8,0.667,0.667,0.667,1.0
+Deterministic-k (step 10),Vaccine Efficacy,Medical,3,1.0,1.0,1.0,1.0,1.0,1.0
+Bernoulli (0.30/0.10),Alzheimer,Medical,10,0.571,1.0,0.6,0.545,1.0,1.0
+Bernoulli (0.30/0.10),Stroke Risk,Medical,5,0.308,1.0,0.4,0.25,1.0,1.0
+Bernoulli (0.30/0.10),Credit Default,Finance,4,0.75,1.0,0.75,0.75,1.0,1.0
+Bernoulli (0.30/0.10),Student Success,Education,4,0.889,1.0,1.0,0.8,1.0,1.0
+Bernoulli (0.30/0.10),Vaccine Efficacy,Medical,3,0.75,0.857,1.0,0.6,1.0,0.75

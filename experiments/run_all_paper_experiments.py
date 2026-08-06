@@ -1,9 +1,10 @@
 """Run all experiment scripts needed to regenerate current paper data artifacts.
 
 This orchestrator executes the full paper pipeline in a fixed order:
-1) Single-run dataset validations (Table 1 family)
-2) Sensitivity sweeps for both methods (PC and GES; Tables 2-4 family)
-3) Student Success multiseed robustness evaluation (Table 5 family)
+1) Single-run dataset validations and flat CSV artifacts
+2) Sensitivity sweeps for both methods (PC and GES)
+3) Compact PC/GES derived CSV artifacts when both methods are run
+4) Student Success multiseed robustness evaluation (Table 5 family)
 
 Usage:
   python experiments/run_all_paper_experiments.py
@@ -42,12 +43,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--skip-validate",
         action="store_true",
-        help="Skip all validate_*.py single-run dataset scripts",
+        help="Skip validate_*.py scripts and single-run CSV artifact generation",
     )
     parser.add_argument(
         "--skip-sweep",
         action="store_true",
-        help="Skip sensitivity sweeps",
+        help="Skip sensitivity sweeps and compact PC/GES artifact generation",
     )
     parser.add_argument(
         "--skip-multiseed",
@@ -105,6 +106,10 @@ def build_steps(methods: list[str], args: argparse.Namespace) -> list[Step]:
                     "Validate Vaccine dataset",
                     ["experiments/vaccine_efficacy/validate_vaccine.py"],
                 ),
+                Step(
+                    "Generate single-run benchmark CSV artifacts",
+                    ["experiments/generate_single_run_table_artifacts.py"],
+                ),
             ]
         )
 
@@ -114,6 +119,13 @@ def build_steps(methods: list[str], args: argparse.Namespace) -> list[Step]:
                 Step(
                     f"Run sensitivity sweep ({method.upper()})",
                     ["experiments/run_sensitivity_sweep.py", "--method", method],
+                )
+            )
+        if set(methods) == {"pc", "ges"}:
+            steps.append(
+                Step(
+                    "Generate compact PC/GES comparison CSV artifacts",
+                    ["experiments/generate_compact_pc_ges_artifacts.py"],
                 )
             )
 
