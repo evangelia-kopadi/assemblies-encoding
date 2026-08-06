@@ -33,7 +33,7 @@ This repository accompanies the SUM 2026 manuscript **"Causal Structure Preserva
 - `notebooks/pipeline_visualization.ipynb`: executable visual walkthrough of the Stage I-VI pipeline for Bernoulli and deterministic-k encodings.
 - `experiments/run_sensitivity_sweep.py`: PC/GES encoding sensitivity sweep runner.
 - `experiments/student_success/evaluate_student_success_multiseed.py`: Student Success multi-seed graph and intervention robustness check used for the Student Success validation study.
-- `results/`: frozen single-run benchmark artifacts under flat legacy filenames for the manuscript's single-run benchmark table (for example, `table_1_single_run_means.csv` and `table_1_single_run_metrics.csv`).
+- `results/`: frozen single-run benchmark artifacts under flat compatibility filenames for the manuscript's single-run benchmark table (for example, `table_1_single_run_means.csv` and `table_1_single_run_metrics.csv`).
 - `results/`: frozen multi-run PC/GES sensitivity sweep artifacts with paper-mapped filenames: `table_2_3_pc_sensitivity_*.csv` and `table_4_ges_sensitivity_*.csv`.
 - `results/`: compact table-summary CSV/TXT files derived from the frozen runs, named to match the relevant paper tables.
 - `results/`: frozen Student Success 50-seed robustness artifacts under flat names such as `table_5_student_summary.csv`, `table_5_student_dodeltas.csv`, and `table_5_student_report.md`.
@@ -53,7 +53,7 @@ The Student Success multi-seed experiment (`results/`) is a separate 50-seed rob
 ## Result-artifact mapping
 
 - Topology benchmark (paper Table 1) -> generator definitions in `experiments/<dataset>/validate_*.py` and `experiments/run_sensitivity_sweep.py`
-- Single-run benchmark (paper Table 2; legacy artifact names) -> `results/table_1_single_run_*.csv`
+- Single-run benchmark (paper Table 2; flat compatibility filenames) -> `results/table_1_single_run_*.csv`
 - PC sensitivity sweep (paper Table 3) -> `results/table_2_3_pc_sensitivity_*.csv`
 - GES robustness sweep (paper Table 4) -> `results/table_4_ges_sensitivity_*.csv`
 - Student Success validation (paper Table 5) -> `results/table_5_student_*.csv`
@@ -106,18 +106,18 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-For frozen-artifact reproducibility and closest reruns of paper numbers, install the pinned versions instead:
+For exact frozen-artifact reproducibility, install the pinned latest-env dependency set instead:
 
 ```bash
 pip install -r requirements-lock.txt
 ```
 
-`requirements.txt` contains broad compatible ranges (any Python 3.9+). `requirements-lock.txt` pins the exact versions used when the paper results were generated and is the recommended choice when reproducing Tables 1-5.
+`requirements.txt` contains broad compatible ranges (any Python 3.9+). `requirements-lock.txt` is a full `pip freeze` from the current canonical latest-env run (Python 3.13.4; generated 2026-08-06) and is the recommended choice when reproducing Tables 1-5.
 
 
 ## What "reproducibility" means in this repository
 
-The frozen artifacts under `results/` are tied to three things: pinned environment (`requirements-lock.txt`), frozen run settings (`results/experiments_configuration_frozen_sweeps.json`, synchronized with `experiments/experiments_configuration.json` for the current canonical set), and the script versions that produced them.
+The frozen artifacts under `results/` are tied to three things: the pinned latest-env environment (`requirements-lock.txt`), frozen run settings (`results/experiments_configuration_frozen_sweeps.json`, synchronized with `experiments/experiments_configuration.json` for the current canonical set), and the script versions that produced them.
 
 Fresh reruns with broad dependencies from `requirements.txt` are expected to preserve the paper conclusions, but exact row-level identity requires `requirements-lock.txt` and the frozen configuration. If dependencies are intentionally upgraded, regenerate the full artifact family under `runs/YYYYMMDD/`, inspect the qualitative claims, then promote that run to `results/` and update `requirements-lock.txt`.
 
@@ -191,24 +191,6 @@ Fresh outputs are written under `runs/YYYYMMDD/`. Frozen reference artifacts use
 ## License
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

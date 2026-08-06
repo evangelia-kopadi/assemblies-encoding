@@ -9,7 +9,7 @@ assembly DAG F1 scores; write raw, summary, and overall CSV outputs.
 
 Usage examples:
   python experiments/run_sensitivity_sweep.py
-  python experiments/run_sensitivity_sweep.py --datasets Credit,Student,Vaccine --seeds 42,73 --n-samples 800
+  python experiments/run_sensitivity_sweep.py --datasets Credit,Student,Vaccine --method ges --n-samples 800
 """
 
 from __future__ import annotations
@@ -43,7 +43,7 @@ def parse_args() -> argparse.Namespace:
         "--datasets",
         default=_ss.get("datasets", "Alzheimers,Stroke,Credit,Student,Vaccine"),
     )
-    parser.add_argument("--seeds", default=_ss.get("seeds", "42,73"))
+    parser.add_argument("--seeds", default=_ss.get("seeds", "42,73,101,131,151,181,211,241,271,301"))
     parser.add_argument("--n-samples", type=int, default=_ss.get("n_samples", 800))
     parser.add_argument("--n-train", type=int, default=_ss.get("n_train", 120))
     parser.add_argument(
