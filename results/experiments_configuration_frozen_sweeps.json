@@ -11,7 +11,7 @@
     "alpha_pc": 0.05,
     "n_presentations": 3,
     "n_samples": 800,
-    "seeds": "42,73",
+    "seeds": "42,73,101,131,151,181,211,241,271,301",
     "n_train": 120,
     "datasets": "Alzheimers,Stroke,Credit,Student,Vaccine",
     "_used_by": "run_sensitivity_sweep.py (Tables 2-3: PC sweep; Table 4: GES sweep -- run twice with --method pc and --method ges)"
@@ -31,6 +31,18 @@
     "seed": 42,
     "_used_by": "validate_alzheimers.py, validate_credit.py, validate_stroke.py, validate_student_success.py, validate_vaccine.py (Table 1: single-run benchmark)"
   },
+  "stroke_validation": {
+    "sweep_n_train": [
+      400,
+      800
+    ],
+    "sweep_n_presentations": [
+      1,
+      3,
+      5
+    ],
+    "_used_by": "validate_stroke.py (internal grid over n_train and n_presentations to select best assembly run for Table 1 Stroke)"
+  },
   "multiseed": {
     "n_eval": 1000,
     "alpha_primary": 0.1,
@@ -46,4 +58,3 @@
   },
   "_comment": "Central configuration for all experiments. Edit values here to change defaults across all scripts. CLI args still override these values."
 }
-

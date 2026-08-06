@@ -33,7 +33,7 @@ This repository accompanies the SUM 2026 manuscript **"Causal Structure Preserva
 - `notebooks/pipeline_visualization.ipynb`: executable visual walkthrough of the Stage I-VI pipeline for Bernoulli and deterministic-k encodings.
 - `experiments/run_sensitivity_sweep.py`: PC/GES encoding sensitivity sweep runner.
 - `experiments/student_success/evaluate_student_success_multiseed.py`: Student Success multi-seed graph and intervention robustness check used for the Student Success validation study.
-- `results/`: frozen single-run benchmark artifacts under flat table-based filenames for Table 1 (for example, `table_1_single_run_means.csv` and `table_1_single_run_metrics.csv`).
+- `results/`: frozen single-run benchmark artifacts under flat legacy filenames for the manuscript's single-run benchmark table (for example, `table_1_single_run_means.csv` and `table_1_single_run_metrics.csv`).
 - `results/`: frozen multi-run PC/GES sensitivity sweep artifacts with paper-mapped filenames: `table_2_3_pc_sensitivity_*.csv` and `table_4_ges_sensitivity_*.csv`.
 - `results/`: compact table-summary CSV/TXT files derived from the frozen runs, named to match the relevant paper tables.
 - `results/`: frozen Student Success 50-seed robustness artifacts under flat names such as `table_5_student_summary.csv`, `table_5_student_dodeltas.csv`, and `table_5_student_report.md`.
@@ -44,7 +44,7 @@ This repository accompanies the SUM 2026 manuscript **"Causal Structure Preserva
 
 The repository contains both single-run and multi-run artifacts.
 
-The single-run benchmark (`results/`) supports the concrete deterministic-k example summarized in Table 1. It is useful as a small, inspectable run, not as the main robustness evidence.
+The single-run benchmark (`results/`) supports the concrete deterministic-k example summarized in the manuscript's single-run benchmark table. It is useful as a small, inspectable run, not as the main robustness evidence.
 
 The main encoding conclusion is based on the five-dataset, ten-seed sensitivity sweeps (`results/`). In those sweeps, each SCM generator produces symbolic observations that pass through the same Bernoulli and deterministic-k encoding grid before PC/GES graph recovery. Each discovery method has 400 runs.
 
@@ -52,9 +52,11 @@ The Student Success multi-seed experiment (`results/`) is a separate 50-seed rob
 
 ## Result-artifact mapping
 
-- Single-run benchmark -> `results/table_1_single_run_*.csv`
-- Multi-run sensitivity sweeps -> `results/table_2_3_pc_sensitivity_*.csv`, `results/table_4_ges_sensitivity_*.csv`, and the table-summary files in `results/`
-- Student Success validation -> `results/table_5_student_*.csv`
+- Topology benchmark (paper Table 1) -> generator definitions in `experiments/<dataset>/validate_*.py` and `experiments/run_sensitivity_sweep.py`
+- Single-run benchmark (paper Table 2; legacy artifact names) -> `results/table_1_single_run_*.csv`
+- PC sensitivity sweep (paper Table 3) -> `results/table_2_3_pc_sensitivity_*.csv`
+- GES robustness sweep (paper Table 4) -> `results/table_4_ges_sensitivity_*.csv`
+- Student Success validation (paper Table 5) -> `results/table_5_student_*.csv`
 
 
 ## Encoding grid used in the paper
@@ -115,11 +117,10 @@ pip install -r requirements-lock.txt
 
 ## What "reproducibility" means in this repository
 
-The frozen artifacts under `results/` are tied to three things: pinned environment (`requirements-lock.txt`), frozen run settings (`results/experiments_configuration_frozen_sweeps.json`), and the script versions that produced them.
+The frozen artifacts under `results/` are tied to three things: pinned environment (`requirements-lock.txt`), frozen run settings (`results/experiments_configuration_frozen_sweeps.json`, synchronized with `experiments/experiments_configuration.json` for the current canonical set), and the script versions that produced them.
 
-On current `main`, fresh reruns with the same settings are expected to preserve the paper conclusions and usually stay close, but row-by-row numeric identity is not guaranteed for every stochastic Bernoulli setting.
+Fresh reruns with broad dependencies from `requirements.txt` are expected to preserve the paper conclusions, but exact row-level identity requires `requirements-lock.txt` and the frozen configuration. If dependencies are intentionally upgraded, regenerate the full artifact family under `runs/YYYYMMDD/`, inspect the qualitative claims, then promote that run to `results/` and update `requirements-lock.txt`.
 
-If you need the strict historical sweep baseline, run from the same historical snapshot that produced the frozen sweeps (`179c79a`) and use explicit sweep CLI arguments (datasets, 10 seeds, `n_samples=800`, `n_train=120`, `n_presentations=3`, `alpha_pc=0.05`).
 ## Paper Table Runbook (Scripts and Commands)
 
 Use the repository root first:
@@ -130,9 +131,19 @@ cd "c:\Users\A1110561\OneDrive - BI Norwegian Business School (BIEDU)\Documents\
 
 All defaults are read from `experiments/experiments_configuration.json`.
 
-### Table 1 - Single-run benchmark (5 datasets)
+### Table 1 - Benchmark topologies
 
-This workflow uses `n_train=200` from config by default.
+The topology table is fixed by the SCM generator definitions in `experiments/<dataset>/validate_*.py` and `experiments/run_sensitivity_sweep.py`.
+
+### Table 2 - Single-run benchmark (5 datasets)
+
+This workflow uses `n_train=200` from config by default and writes the flat `table_1_single_run_*.csv` artifact family.
+
+```bash
+python experiments/generate_single_run_table_artifacts.py
+```
+
+For detailed per-dataset logs and DAG PNGs, run the validation scripts:
 
 ```bash
 python experiments/alzheimers/validate_alzheimers.py
@@ -142,16 +153,24 @@ python experiments/vaccine_efficacy/validate_vaccine.py
 python experiments/student_success/validate_student_success.py
 ```
 
-### Table 2-3 - PC sensitivity sweep (400 runs)
+### Table 3 - PC sensitivity sweep (400 runs)
 
 ```bash
 python experiments/run_sensitivity_sweep.py --method pc
 ```
 
-### Table 4 - GES sensitivity sweep (400 runs)
+### Table 4 - GES robustness sweep (400 runs)
 
 ```bash
 python experiments/run_sensitivity_sweep.py --method ges
+```
+
+### Compact PC/GES derived artifacts
+
+After both full sweeps have run, generate the compact single-seed PC/GES comparison files:
+
+```bash
+python experiments/generate_compact_pc_ges_artifacts.py
 ```
 
 ### Table 5 - Student 50-seed robustness
@@ -196,7 +215,7 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 
 ## One-command full pipeline (all paper tables)
 
-To run all paper data-generation scripts in the recommended order (Table 1 validates, Table 2-3 PC sweep, Table 4 GES sweep, Table 5 multiseed), use:
+To run all paper data-generation scripts in the recommended order (Table 1 topology sources, Table 2 single-run artifacts, Table 3 PC sweep, Table 4 GES sweep, compact PC/GES derived artifacts, Table 5 multiseed), use:
 
 ```bash
 python experiments/run_all_paper_experiments.py
@@ -231,8 +250,8 @@ Parameter source of truth:
 
 Orchestrator parameters (experiments/run_all_paper_experiments.py):
 - --methods: sweep methods to run, comma-separated, allowed values pc and ges (default pc,ges).
-- --skip-validate: skip all five validate_*.py single-run scripts.
-- --skip-sweep: skip run_sensitivity_sweep.py runs.
+- --skip-validate: skip all five validate_*.py scripts and the single-run CSV generator.
+- --skip-sweep: skip run_sensitivity_sweep.py runs and compact PC/GES derived artifacts.
 - --skip-multiseed: skip evaluate_student_success_multiseed.py.
 - --dry-run: print plan and commands only, no execution.
 
