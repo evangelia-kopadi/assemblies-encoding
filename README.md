@@ -106,7 +106,7 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-For exact frozen-artifact reproducibility, install the pinned latest-env dependency set instead:
+For exact frozen-artifact reproducibility, use Python 3.13.4 and install the pinned latest-env dependency set instead:
 
 ```bash
 pip install -r requirements-lock.txt
@@ -114,12 +114,22 @@ pip install -r requirements-lock.txt
 
 `requirements.txt` contains broad compatible ranges (any Python 3.9+). `requirements-lock.txt` is a full `pip freeze` from the current canonical latest-env run (Python 3.13.4; generated 2026-08-06) and is the recommended choice when reproducing Tables 1-5.
 
+Exact reproduction path:
+
+```bash
+python --version  # expected: Python 3.13.4
+pip install -r requirements-lock.txt
+python experiments/run_all_paper_experiments.py
+```
+
+The full pipeline writes fresh artifacts under `runs/YYYYMMDD/`; compare or promote those files against `results/` when refreshing the frozen reference set.
+
 
 ## What "reproducibility" means in this repository
 
 The frozen artifacts under `results/` are tied to three things: the pinned latest-env environment (`requirements-lock.txt`), frozen run settings (`results/experiments_configuration_frozen_sweeps.json`, synchronized with `experiments/experiments_configuration.json` for the current canonical set), and the script versions that produced them.
 
-Fresh reruns with broad dependencies from `requirements.txt` are expected to preserve the paper conclusions, but exact row-level identity requires `requirements-lock.txt` and the frozen configuration. If dependencies are intentionally upgraded, regenerate the full artifact family under `runs/YYYYMMDD/`, inspect the qualitative claims, then promote that run to `results/` and update `requirements-lock.txt`.
+Fresh reruns with broad dependencies from `requirements.txt` are expected to preserve the paper conclusions, but exact row-level identity requires Python 3.13.4, `requirements-lock.txt`, the frozen configuration, and the same script version. If dependencies are intentionally upgraded, regenerate the full artifact family under `runs/YYYYMMDD/`, inspect the qualitative claims, then promote that run to `results/` and update `requirements-lock.txt`.
 
 ## Paper Table Runbook (Scripts and Commands)
 
