@@ -16,12 +16,8 @@ Ground Truth Causal Structure (10 variables):
   Education -> CognitiveDecline (low education increases risk)
 """
 
-import sys
 import json
 import datetime
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 import os
 import numpy as np

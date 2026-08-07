@@ -11,12 +11,8 @@ Ground Truth Causal Structure (4 variables):
   ImmuneHealth -> AntibodyResponse (co-factor)
 """
 
-import sys
 import json
 import datetime
-from pathlib import Path
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 import numpy as np
 import pandas as pd

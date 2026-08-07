@@ -104,6 +104,7 @@ Total = 400 runs per discovery method
 python -m venv .venv
 . .venv/Scripts/activate  # Windows PowerShell: .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
+pip install -e .
 ```
 
 For exact frozen-artifact reproducibility, use Python 3.13.4 and install the pinned latest-env dependency set instead:
@@ -112,6 +113,8 @@ For exact frozen-artifact reproducibility, use Python 3.13.4 and install the pin
 pip install -r requirements-lock.txt
 ```
 
+Install the repository in editable mode so `src.*` and `experiments.*` imports resolve without per-script path patches. Use `pip install -e . --no-deps` after the lockfile install if you want to keep the frozen dependency set unchanged. Running commands as modules with `python -m ...` from the repository root also works during development.
+
 `requirements.txt` contains broad compatible ranges (any Python 3.9+). `requirements-lock.txt` is a full `pip freeze` from the current canonical latest-env run (Python 3.13.4; generated 2026-08-06) and is the recommended choice when reproducing Tables 1-5.
 
 Exact reproduction path:
@@ -119,7 +122,8 @@ Exact reproduction path:
 ```bash
 python --version  # expected: Python 3.13.4
 pip install -r requirements-lock.txt
-python experiments/run_all_paper_experiments.py
+pip install -e . --no-deps
+python -m experiments.run_all_paper_experiments
 ```
 
 The full pipeline writes fresh artifacts under `runs/YYYYMMDD/`; compare or promote those files against `results/` when refreshing the frozen reference set.
@@ -150,29 +154,29 @@ The topology table is fixed by the SCM generator definitions in `experiments/<da
 This workflow uses `n_train=200` from config by default and writes the flat `table_1_single_run_*.csv` artifact family.
 
 ```bash
-python experiments/generate_single_run_table_artifacts.py
+python -m experiments.generate_single_run_table_artifacts
 ```
 
 For detailed per-dataset logs and DAG PNGs, run the validation scripts:
 
 ```bash
-python experiments/alzheimers/validate_alzheimers.py
-python experiments/stroke_risk/validate_stroke.py
-python experiments/credit_default/validate_credit.py
-python experiments/vaccine_efficacy/validate_vaccine.py
-python experiments/student_success/validate_student_success.py
+python -m experiments.alzheimers.validate_alzheimers
+python -m experiments.stroke_risk.validate_stroke
+python -m experiments.credit_default.validate_credit
+python -m experiments.vaccine_efficacy.validate_vaccine
+python -m experiments.student_success.validate_student_success
 ```
 
 ### Table 3 - PC sensitivity sweep (400 runs)
 
 ```bash
-python experiments/run_sensitivity_sweep.py --method pc
+python -m experiments.run_sensitivity_sweep --method pc
 ```
 
 ### Table 4 - GES robustness sweep (400 runs)
 
 ```bash
-python experiments/run_sensitivity_sweep.py --method ges
+python -m experiments.run_sensitivity_sweep --method ges
 ```
 
 ### Compact PC/GES derived artifacts
@@ -180,13 +184,13 @@ python experiments/run_sensitivity_sweep.py --method ges
 After both full sweeps have run, generate the compact single-seed PC/GES comparison files:
 
 ```bash
-python experiments/generate_compact_pc_ges_artifacts.py
+python -m experiments.generate_compact_pc_ges_artifacts
 ```
 
 ### Table 5 - Student 50-seed robustness
 
 ```bash
-python experiments/student_success/evaluate_student_success_multiseed.py
+python -m experiments.student_success.evaluate_student_success_multiseed
 ```
 
 Fresh outputs are written under `runs/YYYYMMDD/`. Frozen reference artifacts used by the paper stay under `results/`.
@@ -210,27 +214,27 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 To run all paper data-generation scripts in the recommended order (Table 1 topology sources, Table 2 single-run artifacts, Table 3 PC sweep, Table 4 GES sweep, compact PC/GES derived artifacts, Table 5 multiseed), use:
 
 ```bash
-python experiments/run_all_paper_experiments.py
+python -m experiments.run_all_paper_experiments
 ```
 
 Preview the planned commands without running:
 
 ```bash
-python experiments/run_all_paper_experiments.py --dry-run
+python -m experiments.run_all_paper_experiments --dry-run
 ```
 
 Skip parts if needed:
 
 ```bash
-python experiments/run_all_paper_experiments.py --skip-validate
-python experiments/run_all_paper_experiments.py --skip-sweep
-python experiments/run_all_paper_experiments.py --skip-multiseed
+python -m experiments.run_all_paper_experiments --skip-validate
+python -m experiments.run_all_paper_experiments --skip-sweep
+python -m experiments.run_all_paper_experiments --skip-multiseed
 ```
 
 Select methods explicitly (default is both):
 
 ```bash
-python experiments/run_all_paper_experiments.py --methods pc,ges
+python -m experiments.run_all_paper_experiments --methods pc,ges
 ```
 
 ## Parameter quick reference

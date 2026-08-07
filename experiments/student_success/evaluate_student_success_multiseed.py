@@ -14,13 +14,7 @@ import argparse
 import json
 import datetime
 import os
-import sys
 from dataclasses import asdict
-
-# Ensure repo root is on sys.path so "import src.*" and "import experiments.*" resolve locally
-_REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-if _REPO_ROOT not in sys.path:
-    sys.path.insert(0, _REPO_ROOT)
 
 import numpy as np
 import pandas as pd
@@ -37,22 +31,7 @@ from src.runner import run_causal_dag_validation
 from src.encoding.bernoulli import encode_bernoulli_dataframe
 from src.representation.assembly_feature_extraction import extract_assembly_features
 
-# Reuse the SCM + do() generator from the case study implementation without
-# requiring experiments/ to be a Python package.
-import importlib.util
-
-_case_study_path = os.path.join(
-    os.path.dirname(__file__), "validate_student_success.py"
-)
-_spec = importlib.util.spec_from_file_location(
-    "validate_student_success", _case_study_path
-)
-if _spec is None or _spec.loader is None:
-    raise RuntimeError(f"Failed to load case study module at {_case_study_path}")
-_case_study = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(_case_study)
-
-generate_student_data = _case_study.generate_student_data
+from experiments.student_success.validate_student_success import generate_student_data
 
 
 VAR_NAMES = [

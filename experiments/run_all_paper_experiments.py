@@ -7,10 +7,10 @@ This orchestrator executes the full paper pipeline in a fixed order:
 4) Student Success multiseed robustness evaluation (Table 5 family)
 
 Usage:
-  python experiments/run_all_paper_experiments.py
-  python experiments/run_all_paper_experiments.py --dry-run
-  python experiments/run_all_paper_experiments.py --skip-validate
-  python experiments/run_all_paper_experiments.py --methods pc,ges
+  python -m experiments.run_all_paper_experiments
+  python -m experiments.run_all_paper_experiments --dry-run
+  python -m experiments.run_all_paper_experiments --skip-validate
+  python -m experiments.run_all_paper_experiments --methods pc,ges
 """
 
 from __future__ import annotations
@@ -88,27 +88,27 @@ def build_steps(methods: list[str], args: argparse.Namespace) -> list[Step]:
             [
                 Step(
                     "Validate Alzheimer dataset",
-                    ["experiments/alzheimers/validate_alzheimers.py"],
+                    ["-m", "experiments.alzheimers.validate_alzheimers"],
                 ),
                 Step(
                     "Validate Stroke dataset",
-                    ["experiments/stroke_risk/validate_stroke.py"],
+                    ["-m", "experiments.stroke_risk.validate_stroke"],
                 ),
                 Step(
                     "Validate Credit dataset",
-                    ["experiments/credit_default/validate_credit.py"],
+                    ["-m", "experiments.credit_default.validate_credit"],
                 ),
                 Step(
                     "Validate Student Success dataset",
-                    ["experiments/student_success/validate_student_success.py"],
+                    ["-m", "experiments.student_success.validate_student_success"],
                 ),
                 Step(
                     "Validate Vaccine dataset",
-                    ["experiments/vaccine_efficacy/validate_vaccine.py"],
+                    ["-m", "experiments.vaccine_efficacy.validate_vaccine"],
                 ),
                 Step(
                     "Generate single-run benchmark CSV artifacts",
-                    ["experiments/generate_single_run_table_artifacts.py"],
+                    ["-m", "experiments.generate_single_run_table_artifacts"],
                 ),
             ]
         )
@@ -118,14 +118,14 @@ def build_steps(methods: list[str], args: argparse.Namespace) -> list[Step]:
             steps.append(
                 Step(
                     f"Run sensitivity sweep ({method.upper()})",
-                    ["experiments/run_sensitivity_sweep.py", "--method", method],
+                    ["-m", "experiments.run_sensitivity_sweep", "--method", method],
                 )
             )
         if set(methods) == {"pc", "ges"}:
             steps.append(
                 Step(
                     "Generate compact PC/GES comparison CSV artifacts",
-                    ["experiments/generate_compact_pc_ges_artifacts.py"],
+                    ["-m", "experiments.generate_compact_pc_ges_artifacts"],
                 )
             )
 
@@ -133,7 +133,7 @@ def build_steps(methods: list[str], args: argparse.Namespace) -> list[Step]:
         steps.append(
             Step(
                 "Run Student Success multiseed evaluation",
-                ["experiments/student_success/evaluate_student_success_multiseed.py"],
+                ["-m", "experiments.student_success.evaluate_student_success_multiseed"],
             )
         )
 
