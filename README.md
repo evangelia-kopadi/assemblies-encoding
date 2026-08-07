@@ -137,13 +137,13 @@ Fresh reruns with broad dependencies from `requirements.txt` are expected to pre
 
 ## Paper Table Runbook (Scripts and Commands)
 
-Use the repository root first:
+Open a shell at the repository root first, meaning the directory that contains `README.md`, `pyproject.toml`, `src/`, and `experiments/`:
 
 ```bash
-cd "c:\Users\A1110561\OneDrive - BI Norwegian Business School (BIEDU)\Documents\My\PHD\Repos\assemblies-encoding"
+cd path/to/assemblies-encoding
 ```
 
-All defaults are read from `experiments/experiments_configuration.json`.
+Run the `python -m experiments...` commands from this repository root, not from inside `experiments/`; otherwise Python cannot resolve the top-level `experiments` package. All defaults are read from `experiments/experiments_configuration.json`.
 
 ### Table 1 - Benchmark topologies
 
