@@ -8,8 +8,8 @@ call src.runner.run_causal_dag_validation with PC or GES; collect neuron and
 assembly DAG F1 scores; write raw, summary, and overall CSV outputs.
 
 Usage examples:
-  python experiments/run_sensitivity_sweep.py
-  python experiments/run_sensitivity_sweep.py --datasets Credit,Student,Vaccine --method ges --n-samples 800
+  python -m experiments.run_sensitivity_sweep
+  python -m experiments.run_sensitivity_sweep --datasets Credit,Student,Vaccine --method ges --n-samples 800
 """
 
 from __future__ import annotations
@@ -17,13 +17,9 @@ from __future__ import annotations
 import argparse
 import json
 import datetime
-import sys
 from pathlib import Path
 
 import pandas as pd
-
-REPO_ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(REPO_ROOT))
 
 from experiments.experiment_defaults import DEFAULTS, get_output_filepath, _cfg
 from src.runner import run_causal_dag_validation

@@ -7,13 +7,9 @@ runner used by the validation scripts. It evaluates the baseline Bernoulli
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 import pandas as pd
-
-REPO_ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(REPO_ROOT))
 
 from experiments.experiment_defaults import DEFAULTS, get_output_filepath, runner_kwargs
 from experiments.run_sensitivity_sweep import build_datasets

@@ -7,13 +7,9 @@ for a concise PC/GES side-by-side check.
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 
 import pandas as pd
-
-REPO_ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(REPO_ROOT))
 
 from experiments.experiment_defaults import get_output_filepath, get_run_output_dir
 
