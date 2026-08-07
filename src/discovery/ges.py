@@ -10,8 +10,14 @@ and assembly-level DAGs.
 
 from __future__ import annotations
 
+from .errors import CausalDiscoveryBackendError
+from ..logging_configuration import get_logger
 
-def run_ges_algorithm(data_df, var_names, strict=False):
+
+LOGGER = get_logger(__name__)
+
+
+def run_ges_algorithm(data_df, var_names, strict=False, *, raise_on_error=True):
     """
     Run GES (Greedy Equivalence Search) algorithm for causal discovery.
 
@@ -23,10 +29,13 @@ def run_ges_algorithm(data_df, var_names, strict=False):
         data_df: DataFrame with variables as columns
         var_names: List of variable names
         strict: If True, omit undirected CPDAG adjacencies from returned edges
+        raise_on_error: If True, raise CausalDiscoveryBackendError when causal-learn
+            fails instead of returning an empty-edge failure sentinel.
 
     Returns:
         edges: List of (source, target) tuples
-        graph: causal-learn GES record
+        graph: causal-learn GES record, or None only when raise_on_error=False
+            and the backend failed
     """
     try:
         from causallearn.search.ScoreBased.GES import ges
@@ -48,5 +57,8 @@ def run_ges_algorithm(data_df, var_names, strict=False):
         return edges, record
 
     except Exception as exc:
-        print(f"    Warning: GES algorithm failed: {exc}")
+        message = f"GES algorithm failed for variables {list(var_names)!r}: {exc}"
+        if raise_on_error:
+            raise CausalDiscoveryBackendError(message) from exc
+        LOGGER.warning("    Warning: %s", message)
         return [], None

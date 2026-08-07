@@ -7,7 +7,7 @@ neural activity; compute the raw-neuron readout as the within-run baseline; run
 a stand-alone assembly-formation stage; extract the assembly-level readout; run
 PC or GES under matched settings on both readouts; compare both recovered DAGs
 against ground truth; compute MI-based information preservation; optionally
-print observational diagnostics. This file orchestrates methods, while individual
+log observational diagnostics. This file orchestrates methods, while individual
 methods live in their own modules.
 """
 
@@ -19,6 +19,8 @@ from typing import Any, Dict, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
+
+from .logging_configuration import configure_logging, get_logger
 
 from .representation.brain import Brain
 from .encoding.bernoulli import encode_bernoulli_dataframe
@@ -36,6 +38,8 @@ from .discovery.ges import run_ges_algorithm
 from .discovery.pc import run_pc_algorithm
 from .validation.observational.dag_comparison import print_dag_comparison_report
 from .visualization.dag_plotting import visualize_three_dags
+
+LOGGER = get_logger(__name__)
 
 Edge = Tuple[str, str]
 
@@ -60,6 +64,7 @@ class CausalDiscoveryOptions:
     assembly_method: str
     strict_neuron: bool
     strict_assembly: bool
+    raise_on_error: bool
 
 
 @dataclass(frozen=True)
@@ -257,6 +262,7 @@ def _bootstrap_stable_edges(
     method: str,
     alpha: float,
     strict: bool,
+    raise_on_error: bool,
     n_bootstrap: int,
     sample_frac: float,
     threshold: float,
@@ -288,9 +294,20 @@ def _bootstrap_stable_edges(
 
     # Base run (used only for deterministic tie-breaking)
     if method_norm == "pc":
-        base_edges, _ = run_pc_algorithm(data_df, var_names, alpha=alpha, strict=strict)
+        base_edges, _ = run_pc_algorithm(
+            data_df,
+            var_names,
+            alpha=alpha,
+            strict=strict,
+            raise_on_error=raise_on_error,
+        )
     else:
-        base_edges, _ = run_ges_algorithm(data_df, var_names, strict=strict)
+        base_edges, _ = run_ges_algorithm(
+            data_df,
+            var_names,
+            strict=strict,
+            raise_on_error=raise_on_error,
+        )
 
     base_set = set(base_edges)
 
@@ -304,9 +321,20 @@ def _bootstrap_stable_edges(
         df_b = data_df.iloc[idx]
 
         if method_norm == "pc":
-            edges, _ = run_pc_algorithm(df_b, var_names, alpha=alpha, strict=strict)
+            edges, _ = run_pc_algorithm(
+                df_b,
+                var_names,
+                alpha=alpha,
+                strict=strict,
+                raise_on_error=raise_on_error,
+            )
         else:
-            edges, _ = run_ges_algorithm(df_b, var_names, strict=strict)
+            edges, _ = run_ges_algorithm(
+                df_b,
+                var_names,
+                strict=strict,
+                raise_on_error=raise_on_error,
+            )
 
         for u, v in edges:
             if u == v:
@@ -346,16 +374,16 @@ def _print_pipeline_header(
     var_names: Sequence[str],
     ground_truth_edges: Sequence[Edge],
 ) -> None:
-    print()
-    print("=" * 70)
-    print("CAUSAL STRUCTURE PRESERVATION PIPELINE")
-    print("=" * 70)
-    print(f"  Dataset: {len(df)} samples, {len(var_names)} variables")
-    print(f"  Ground Truth Edges: {len(ground_truth_edges)}")
-    print("  Paper flow: Stage I SCM observations (input) -> Stage II neural encoding")
-    print("              -> Stage III raw-neuron baseline readout")
-    print("              -> Stage IV assembly formation")
-    print("              -> Stage V assembly readout -> Stage VI PC/GES graph recovery")
+    LOGGER.info("")
+    LOGGER.info("=" * 70)
+    LOGGER.info("CAUSAL STRUCTURE PRESERVATION PIPELINE")
+    LOGGER.info("=" * 70)
+    LOGGER.info(f"  Dataset: {len(df)} samples, {len(var_names)} variables")
+    LOGGER.info(f"  Ground Truth Edges: {len(ground_truth_edges)}")
+    LOGGER.info("  Paper flow: Stage I SCM observations (input) -> Stage II neural encoding")
+    LOGGER.info("              -> Stage III raw-neuron baseline readout")
+    LOGGER.info("              -> Stage IV assembly formation")
+    LOGGER.info("              -> Stage V assembly readout -> Stage VI PC/GES graph recovery")
 
 
 def _encode_observations(
@@ -373,8 +401,8 @@ def _encode_observations(
     deterministic_k_step: int,
     seed: int,
 ) -> EncodingStageResult:
-    print()
-    print("[STAGE II] Neural Encoding...")
+    LOGGER.info("")
+    LOGGER.info("[STAGE II] Neural Encoding...")
 
     if deterministic_k_encoding:
         allowed = {"positive_subset_mean", "pool_mean"}
@@ -397,7 +425,7 @@ def _encode_observations(
             stimulus_k_map=stimulus_k_map,
             seed=seed,
         )
-        print(
+        LOGGER.info(
             f"  Encoded {len(df)} samples to {neural_data.shape[1]:,} neurons "
             f"(deterministic-k, base={stimulus_k_used}, step={deterministic_k_step})"
         )
@@ -417,7 +445,7 @@ def _encode_observations(
         negative_prob=negative_prob,
         seed=seed,
     )
-    print(f"  Encoded {len(df)} samples to {neural_data.shape[1]:,} neurons (Bernoulli)")
+    LOGGER.info(f"  Encoded {len(df)} samples to {neural_data.shape[1]:,} neurons (Bernoulli)")
     return EncodingStageResult(
         neural_data_for_neurons=neural_data,
         neural_data_for_brain=neural_data,
@@ -436,8 +464,8 @@ def _extract_neuron_readout(
     deterministic_k_readout_mode: str,
     pca_per_var: bool,
 ) -> pd.DataFrame:
-    print()
-    print("[STAGE III] Raw-neuron baseline readout...")
+    LOGGER.info("")
+    LOGGER.info("[STAGE III] Raw-neuron baseline readout...")
     neuron_df = _extract_variable_features(
         encoded.neural_data_for_neurons,
         var_names,
@@ -447,7 +475,7 @@ def _extract_neuron_readout(
         deterministic_k_readout_mode=deterministic_k_readout_mode,
         pca_per_var=pca_per_var,
     )
-    print(f"  Raw-neuron readout features extracted: {neuron_df.shape}")
+    LOGGER.info(f"  Raw-neuron readout features extracted: {neuron_df.shape}")
     return neuron_df
 
 
@@ -465,8 +493,8 @@ def _train_assembly_stage(
     disable_plasticity_control: bool,
     brain_max_support_ratio: float | None,
 ) -> AssemblyStageResult:
-    print()
-    print("[STAGE IV] Assembly Formation (Neural Assemblies Brain)...")
+    LOGGER.info("")
+    LOGGER.info("[STAGE IV] Assembly Formation (Neural Assemblies Brain)...")
 
     brain = Brain(
         p=beta,
@@ -479,13 +507,13 @@ def _train_assembly_stage(
     )
     if disable_plasticity_control:
         brain.disable_plasticity = True
-        print("  Control: plasticity disabled (Hebbian updates off)")
+        LOGGER.info("  Control: plasticity disabled (Hebbian updates off)")
 
     if shuffled_mapping_control:
         target_area_by_var_name = _make_shuffled_mapping(var_names, seed=seed)
-        print("  Control: shuffled stimulus->area mapping enabled")
+        LOGGER.info("  Control: shuffled stimulus->area mapping enabled")
         for src, dst in target_area_by_var_name.items():
-            print(f"    {src} -> {dst}")
+            LOGGER.info(f"    {src} -> {dst}")
     else:
         target_area_by_var_name = {v: v for v in var_names}
 
@@ -504,17 +532,17 @@ def _train_assembly_stage(
     )
 
     effective_n_train = min(n_train, encoded.neural_data_for_brain.shape[0])
-    print(
+    LOGGER.info(
         f"  Training: {effective_n_train} samples/var, {n_presentations} rounds -> {effective_n_train * n_presentations} projections per area"
     )
-    print(
+    LOGGER.info(
         f"  Assembly params: k={assembly_k} winners/projection; w=support size (union of winners)"
     )
 
     for var_name in var_names:
         area = brain.area_by_name[var_name]
         winners_now = len(area.winners) if area.winners else 0
-        print(
+        LOGGER.info(
             f"    {var_name}: k={area.k}, winners_now={winners_now}, support_w={area.w}/{area.n}"
         )
 
@@ -531,8 +559,8 @@ def _extract_assembly_readout(
     var_names: list[str],
     neurons_per_var: int,
 ) -> pd.DataFrame:
-    print()
-    print("[STAGE V] Assembly-level readout...")
+    LOGGER.info("")
+    LOGGER.info("[STAGE V] Assembly-level readout...")
 
     source_var_by_target_area_name = {
         dst: src for src, dst in assembly_stage.target_area_by_var_name.items()
@@ -549,7 +577,7 @@ def _extract_assembly_readout(
         k: v for k, v in assembly_features.items() if "_x_" not in k
     }
     assembly_df = pd.DataFrame(assembly_features_base)
-    print(f"  Assembly readout features extracted: {assembly_df.shape}")
+    LOGGER.info(f"  Assembly readout features extracted: {assembly_df.shape}")
     return assembly_df
 
 
@@ -568,7 +596,7 @@ def _apply_feature_jitter(
     assembly_df[:] = assembly_df.to_numpy() + rng.normal(
         0.0, jitter_std, assembly_df.shape
     )
-    print(f"  Applied deterministic jitter std={jitter_std} to features")
+    LOGGER.info(f"  Applied deterministic jitter std={jitter_std} to features")
 
 
 def _compute_compression(
@@ -597,6 +625,7 @@ def _normalize_causal_discovery_options(
     strict_causal_discovery: bool,
     strict_neuron_causal_discovery: bool | None,
     strict_assembly_causal_discovery: bool | None,
+    raise_on_causal_discovery_error: bool,
 ) -> CausalDiscoveryOptions:
     strict_neuron = (
         strict_causal_discovery
@@ -626,6 +655,7 @@ def _normalize_causal_discovery_options(
         assembly_method=assembly_method_norm,
         strict_neuron=bool(strict_neuron),
         strict_assembly=bool(strict_assembly),
+        raise_on_error=bool(raise_on_causal_discovery_error),
     )
 
 
@@ -636,13 +666,25 @@ def _run_causal_discovery_on_features(
     var_names: list[str],
     alpha_pc: float,
     strict: bool,
+    raise_on_error: bool,
 ) -> tuple[list[Edge], object | None]:
     if len(var_names) < 2:
         return [], None
 
     if method == "pc":
-        return run_pc_algorithm(data_df, var_names, alpha=alpha_pc, strict=strict)
-    return run_ges_algorithm(data_df, var_names, strict=strict)
+        return run_pc_algorithm(
+            data_df,
+            var_names,
+            alpha=alpha_pc,
+            strict=strict,
+            raise_on_error=raise_on_error,
+        )
+    return run_ges_algorithm(
+        data_df,
+        var_names,
+        strict=strict,
+        raise_on_error=raise_on_error,
+    )
 
 
 def _prepare_assembly_features_for_causal_discovery(
@@ -668,14 +710,14 @@ def _prepare_assembly_features_for_causal_discovery(
 
     if dropped_vars:
         if guard_mode == "drop":
-            print(
+            LOGGER.info(
                 "    Variance-guard: dropping "
                 f"{len(dropped_vars)} near-constant/non-finite assembly feature(s) "
                 f"(eps={assembly_variance_guard_eps:g}): "
                 + ", ".join(dropped_vars)
             )
         else:
-            print(
+            LOGGER.info(
                 "    Variance-guard: detected "
                 f"{len(dropped_vars)} near-constant/non-finite assembly feature(s) "
                 f"(eps={assembly_variance_guard_eps:g}); applying deterministic jitter std={assembly_variance_guard_jitter_std:g}"
@@ -683,7 +725,7 @@ def _prepare_assembly_features_for_causal_discovery(
                 + ", ".join(dropped_vars)
             )
     else:
-        print(f"    Variance-guard: OK (eps={assembly_variance_guard_eps:g})")
+        LOGGER.info(f"    Variance-guard: OK (eps={assembly_variance_guard_eps:g})")
 
     if guard_mode == "drop":
         guarded_names = kept_names
@@ -725,15 +767,18 @@ def _run_assembly_discovery_once(
     method: str,
     alpha_pc: float,
     strict: bool,
+    raise_on_error: bool,
     jitter_std: float,
     seed: int,
 ) -> tuple[list[Edge], object | None]:
+    first_attempt_raise_on_error = not (method == "pc" and len(var_names) >= 2)
     edges, graph = _run_causal_discovery_on_features(
         method=method,
         data_df=df_for_cd,
         var_names=var_names,
         alpha_pc=alpha_pc,
         strict=strict,
+        raise_on_error=raise_on_error and first_attempt_raise_on_error,
     )
 
     if method == "pc" and len(var_names) >= 2 and graph is None:
@@ -741,7 +786,7 @@ def _run_assembly_discovery_once(
         rng = np.random.default_rng(seed=seed + 12345)
         arr = df_for_cd.to_numpy() + rng.normal(0.0, retry_jitter, df_for_cd.shape)
         df_retry = pd.DataFrame(arr, columns=df_for_cd.columns)
-        print(
+        LOGGER.info(
             f"    Retrying PC on assembly features with deterministic jitter std={retry_jitter}"
         )
         edges, graph = run_pc_algorithm(
@@ -749,6 +794,7 @@ def _run_assembly_discovery_once(
             var_names,
             alpha=alpha_pc,
             strict=strict,
+            raise_on_error=raise_on_error,
         )
 
     return edges, graph
@@ -772,8 +818,8 @@ def _run_assembly_causal_discovery(
     assembly_stability_threshold: float,
     assembly_stability_seed_offset: int,
 ) -> tuple[list[Edge], object | None, dict[str, Any]]:
-    print()
-    print(
+    LOGGER.info("")
+    LOGGER.info(
         f"  [DAG 3] Running {options.assembly_method.upper()} on assembly readout features..."
     )
 
@@ -792,6 +838,7 @@ def _run_assembly_causal_discovery(
         method=options.assembly_method,
         alpha_pc=alpha_pc,
         strict=options.strict_assembly,
+        raise_on_error=options.raise_on_error,
         jitter_std=jitter_std,
         seed=seed,
     )
@@ -805,10 +852,10 @@ def _run_assembly_causal_discovery(
 
     if need_stability:
         if len(guard.guarded_names) < 2:
-            print("    Stability selection: skipped (too few non-degenerate variables)")
+            LOGGER.info("    Stability selection: skipped (too few non-degenerate variables)")
         else:
             assembly_stability_used = True
-            print(
+            LOGGER.info(
                 "    Stability selection: "
                 f"bootstrapping n={assembly_stability_n_bootstrap}, "
                 f"frac={assembly_stability_frac:.2f}, "
@@ -821,6 +868,7 @@ def _run_assembly_causal_discovery(
                 method=options.assembly_method,
                 alpha=alpha_pc,
                 strict=options.strict_assembly,
+                raise_on_error=options.raise_on_error,
                 n_bootstrap=assembly_stability_n_bootstrap,
                 sample_frac=assembly_stability_frac,
                 threshold=assembly_stability_threshold,
@@ -835,13 +883,14 @@ def _run_assembly_causal_discovery(
                 "seed": int(seed + int(assembly_stability_seed_offset)),
             }
 
-    print(f"    Discovered {len(assembly_edges)} edges")
+    LOGGER.info(f"    Discovered {len(assembly_edges)} edges")
     for source, target in assembly_edges:
-        print(f"    {source} -> {target}")
+        LOGGER.info(f"    {source} -> {target}")
 
     summary = dict(guard.summary)
     summary.update(
         {
+            "raise_on_error": bool(options.raise_on_error),
             "stability_used": bool(assembly_stability_used),
             "stability": assembly_stability_details,
         }
@@ -863,6 +912,7 @@ def _run_matched_causal_discovery(
     strict_causal_discovery: bool,
     strict_neuron_causal_discovery: bool | None,
     strict_assembly_causal_discovery: bool | None,
+    raise_on_causal_discovery_error: bool,
     skip_neuron_dag: bool,
     assembly_variance_guard_eps: float,
     assembly_variance_guard_mode: str,
@@ -874,8 +924,8 @@ def _run_matched_causal_discovery(
     assembly_stability_threshold: float,
     assembly_stability_seed_offset: int,
 ) -> DiscoveryStageResult:
-    print()
-    print("[STAGE VI] Matched causal discovery...")
+    LOGGER.info("")
+    LOGGER.info("[STAGE VI] Matched causal discovery...")
 
     options = _normalize_causal_discovery_options(
         method=method,
@@ -883,31 +933,33 @@ def _run_matched_causal_discovery(
         strict_causal_discovery=strict_causal_discovery,
         strict_neuron_causal_discovery=strict_neuron_causal_discovery,
         strict_assembly_causal_discovery=strict_assembly_causal_discovery,
+        raise_on_causal_discovery_error=raise_on_causal_discovery_error,
     )
 
-    print()
-    print("  [DAG 1] Ground Truth:")
+    LOGGER.info("")
+    LOGGER.info("  [DAG 1] Ground Truth:")
     for source, target in ground_truth_edges:
-        print(f"    {source} -> {target}")
+        LOGGER.info(f"    {source} -> {target}")
 
     if skip_neuron_dag:
         neuron_edges, neuron_graph = [], None
-        print()
-        print("  [DAG 2] Skipped neuron causal discovery (skip_neuron_dag=True)")
+        LOGGER.info("")
+        LOGGER.info("  [DAG 2] Skipped neuron causal discovery (skip_neuron_dag=True)")
     else:
-        print()
-        print(f"  [DAG 2] Running {options.method.upper()} on raw-neuron readout features...")
+        LOGGER.info("")
+        LOGGER.info(f"  [DAG 2] Running {options.method.upper()} on raw-neuron readout features...")
         neuron_edges, neuron_graph = _run_causal_discovery_on_features(
             method=options.method,
             data_df=neuron_df,
             var_names=var_names,
             alpha_pc=alpha_pc,
             strict=options.strict_neuron,
+            raise_on_error=options.raise_on_error,
         )
 
-        print(f"    Discovered {len(neuron_edges)} edges")
+        LOGGER.info(f"    Discovered {len(neuron_edges)} edges")
         for source, target in neuron_edges:
-            print(f"    {source} -> {target}")
+            LOGGER.info(f"    {source} -> {target}")
 
     assembly_edges, assembly_graph, assembly_causal_discovery = (
         _run_assembly_causal_discovery(
@@ -945,8 +997,8 @@ def _compare_recovered_graphs(
     var_names: list[str],
     skip_neuron_dag: bool,
 ) -> dict[str, Any]:
-    print()
-    print("[EVALUATION] Comparing recovered graphs and MI preservation...")
+    LOGGER.info("")
+    LOGGER.info("[EVALUATION] Comparing recovered graphs and MI preservation...")
 
     if skip_neuron_dag:
         gt_set = set(ground_truth_edges)
@@ -971,8 +1023,8 @@ def _compare_recovered_graphs(
             "assembly_vs_neuron": None,
             "preservation_score": None,
         }
-        print("  (Neuron DAG skipped; reporting assembly vs ground truth only)")
-        print(f"  Assembly precision={prec:.3f}, recall={rec:.3f}, f1={f1:.3f}")
+        LOGGER.info("  (Neuron DAG skipped; reporting assembly vs ground truth only)")
+        LOGGER.info(f"  Assembly precision={prec:.3f}, recall={rec:.3f}, f1={f1:.3f}")
         return comparison_results
 
     return print_dag_comparison_report(
@@ -1052,6 +1104,7 @@ def run_causal_dag_validation(
     strict_causal_discovery: bool = True,
     strict_neuron_causal_discovery: bool | None = None,
     strict_assembly_causal_discovery: bool | None = None,
+    raise_on_causal_discovery_error: bool = True,
     skip_causal_discovery: bool = False,
     skip_neuron_dag: bool = False,
     shuffled_mapping_control: bool = False,
@@ -1068,12 +1121,24 @@ def run_causal_dag_validation(
     assembly_stability_threshold: float = 0.70,
     assembly_stability_seed_offset: int = 4242,
     brain_max_support_ratio: float | None = None,
+    quiet: bool = False,
+    log_level: int | str | None = None,
+    log_file: str | None = None,
 ) -> CausalDAGValidationResult:
     """Run the paper-aligned causal-structure preservation validation.
 
-    strict_causal_discovery=True makes causal discovery failures raise
-    instead of being silently converted into empty-edge graphs.
+    strict_causal_discovery controls whether undirected CPDAG adjacencies
+    are omitted unless per-DAG strict overrides are supplied.
+    raise_on_causal_discovery_error=True makes backend failures raise instead
+    of being silently converted into empty-edge graphs.
+    quiet=True suppresses INFO-level progress logs. log_level and log_file can
+    be used for debug/quiet modes or persistent logs in long sweeps.
     """
+
+    if quiet:
+        configure_logging(level="WARNING", log_file=log_file)
+    elif log_level is not None or log_file is not None:
+        configure_logging(level=log_level or "INFO", log_file=log_file)
 
     var_list = list(var_names)
     ground_truth_list = list(ground_truth_edges)
@@ -1160,6 +1225,7 @@ def run_causal_dag_validation(
         strict_causal_discovery=strict_causal_discovery,
         strict_neuron_causal_discovery=strict_neuron_causal_discovery,
         strict_assembly_causal_discovery=strict_assembly_causal_discovery,
+        raise_on_causal_discovery_error=raise_on_causal_discovery_error,
         skip_neuron_dag=skip_neuron_dag,
         assembly_variance_guard_eps=assembly_variance_guard_eps,
         assembly_variance_guard_mode=assembly_variance_guard_mode,

@@ -7,6 +7,11 @@ side-by-side with a shared hierarchical layout and optional PNG export.
 import matplotlib.pyplot as plt
 import networkx as nx
 
+from ..logging_configuration import get_logger
+
+
+LOGGER = get_logger(__name__)
+
 
 def visualize_three_dags(
     ground_truth_edges,
@@ -211,7 +216,7 @@ def visualize_three_dags(
 
     if save_path:
         plt.savefig(save_path, dpi=300, bbox_inches="tight")
-        print(f"\n  DAG comparison saved to: {save_path}")
+        LOGGER.info(f"\n  DAG comparison saved to: {save_path}")
 
     return fig
 

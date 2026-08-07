@@ -29,7 +29,11 @@ from scipy.stats import norm
 import math
 import types
 
+from ..logging_configuration import get_logger
+
 EMPTY_MAPPING = types.MappingProxyType({})
+
+LOGGER = get_logger(__name__)
 
 
 class Area:
@@ -361,7 +365,7 @@ class Brain:
         rng = self._rng
         area_by_name = self.area_by_name
         if verbose >= 1:
-            print(
+            LOGGER.info(
                 f"Projecting {', '.join(from_stimuli)} "
                 f" and {', '.join(from_areas)} into {target_area.name}"
             )
@@ -392,7 +396,7 @@ class Brain:
                     prev_winner_inputs += connectome[w]
 
             if verbose >= 2:
-                print("prev_winner_inputs:", prev_winner_inputs)
+                LOGGER.info("prev_winner_inputs: %s", prev_winner_inputs)
 
             # simulate area.k potential new winners if the area is not explicit
             if not target_area.explicit:
@@ -421,7 +425,7 @@ class Brain:
 
                 total_k = sum(input_size_by_from_area_index)
                 if verbose >= 2:
-                    print(f"{total_k=} and {input_size_by_from_area_index=}")
+                    LOGGER.info(f"{total_k=} and {input_size_by_from_area_index=}")
 
                 effective_n = target_area.n - target_area.w
                 if effective_n <= target_area.k:
@@ -442,7 +446,7 @@ class Brain:
                     # brain area but all incoming areas' p must be the same
                     alpha = binom.ppf(quantile, total_k, self.p)
                 if verbose >= 2:
-                    print(f"Alpha = {alpha}")
+                    LOGGER.info(f"Alpha = {alpha}")
                 # use normal approximation, between alpha and total_k, round to integer
                 # create k potential_new_winners
                 if False:  # to update to: self._use_normal_ppf:
@@ -464,7 +468,7 @@ class Brain:
                         potential_new_winner_inputs[i] = total_k
 
                 if verbose >= 2:
-                    print(f"potential_new_winner_inputs: {potential_new_winner_inputs}")
+                    LOGGER.info(f"potential_new_winner_inputs: {potential_new_winner_inputs}")
 
                 # take max among prev_winner_inputs, potential_new_winner_inputs
                 # get num_first_winners (think something small)
@@ -521,7 +525,7 @@ class Brain:
                 ]
 
             if verbose >= 2:
-                print(f"new_winners: {target_area._new_winners}")
+                LOGGER.info(f"new_winners: {target_area._new_winners}")
 
             # for i in num_first_winners
             # generate where input came from
@@ -545,7 +549,7 @@ class Brain:
                     total_so_far += input_size_by_from_area_index[j]
                 inputs_by_first_winner_index[i] = num_connections_by_input_index
                 if verbose >= 2:
-                    print(
+                    LOGGER.info(
                         f"For first_winner # {i} with input "
                         f"{first_winner_inputs[i]} split as so: "
                         f"{num_connections_by_input_index}"
@@ -574,8 +578,8 @@ class Brain:
             for i in target_area._new_winners:
                 target_connectome[i] *= 1 + stim_to_area_beta
             if verbose >= 2:
-                print(f"{stim} now looks like: ")
-                print(self.connectomes_by_stimulus[stim][target_area_name])
+                LOGGER.info(f"{stim} now looks like: ")
+                LOGGER.info(self.connectomes_by_stimulus[stim][target_area_name])
             num_inputs_processed += 1
 
         # update connectomes from stimuli that were not fired this round into the area.
@@ -625,7 +629,7 @@ class Brain:
                 for j in from_area_winners:
                     the_connectome[j, i] *= 1.0 + area_to_area_beta
             if verbose >= 2:
-                print(
+                LOGGER.info(
                     f"Connectome of {from_area_name} to {target_area_name} is now:",
                     the_connectome,
                 )
@@ -667,7 +671,7 @@ class Brain:
                 ),
             )
             if verbose >= 2:
-                print(
+                LOGGER.info(
                     f"Connectome of {target_area_name!r} to {other_area_name!r} "
                     "is now:",
                     self.connectomes[target_area_name][other_area_name],
