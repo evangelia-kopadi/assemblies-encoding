@@ -13,6 +13,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Sequence
 
+from .errors import CausalDiscoveryBackendError
+from ..logging_configuration import get_logger
+
 
 @dataclass(frozen=True)
 class CPDAGEdge:
@@ -22,7 +25,10 @@ class CPDAGEdge:
     # For kind == "directed", direction is u -> v.
 
 
-def run_pc_algorithm(data_df, var_names, alpha=0.05, strict=False):
+LOGGER = get_logger(__name__)
+
+
+def run_pc_algorithm(data_df, var_names, alpha=0.05, strict=False, *, raise_on_error=True):
     """
     Run PC algorithm for causal discovery on a dataset.
 
@@ -31,10 +37,13 @@ def run_pc_algorithm(data_df, var_names, alpha=0.05, strict=False):
         var_names: List of variable names
         alpha: Significance level for independence tests
         strict: If True, omit undirected CPDAG adjacencies from returned edges
+        raise_on_error: If True, raise CausalDiscoveryBackendError when causal-learn
+            fails instead of returning an empty-edge failure sentinel.
 
     Returns:
         edges: List of (source, target) tuples
-        graph: causal-learn graph object
+        graph: causal-learn graph object, or None only when raise_on_error=False
+            and the backend failed
     """
     try:
         from causallearn.search.ConstraintBased.PC import pc
@@ -63,7 +72,10 @@ def run_pc_algorithm(data_df, var_names, alpha=0.05, strict=False):
         return edges, cg
 
     except Exception as exc:
-        print(f"    Warning: PC algorithm failed: {exc}")
+        message = f"PC algorithm failed for variables {list(var_names)!r}: {exc}"
+        if raise_on_error:
+            raise CausalDiscoveryBackendError(message) from exc
+        LOGGER.warning("    Warning: %s", message)
         return [], None
 
 

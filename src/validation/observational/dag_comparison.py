@@ -7,6 +7,11 @@ SCM ground-truth edge lists; compute precision, recall, F1, skeleton metrics,
 missing edges, and spurious edges; and produce text reports.
 """
 
+from ...logging_configuration import get_logger
+
+
+LOGGER = get_logger(__name__)
+
 
 def _edge_skeleton(edges):
     """Return undirected skeleton edges as a set of frozensets({u,v})."""
@@ -16,16 +21,16 @@ def _edge_skeleton(edges):
 def print_dag_as_tree(edges, var_names, title="DAG", ground_truth_edges=None):
     """Print DAG in a hierarchical tree format with difference highlighting."""
     if not edges:
-        print(f"\n{title}: No edges discovered")
+        LOGGER.info(f"\n{title}: No edges discovered")
         return
 
     edge_set = set(edges)
     gt_set = set(ground_truth_edges) if ground_truth_edges else set()
 
-    print(f"\n{title}:")
-    print("=" * 70)
+    LOGGER.info(f"\n{title}:")
+    LOGGER.info("=" * 70)
 
-    print("\nEdges:")
+    LOGGER.info("\nEdges:")
     for source, target in sorted(edges):
         edge = (source, target)
         if ground_truth_edges:
@@ -33,26 +38,26 @@ def print_dag_as_tree(edges, var_names, title="DAG", ground_truth_edges=None):
                 status = "OK CORRECT"
             else:
                 status = "X SPURIOUS (not in ground truth)"
-            print(f"  {source:20} -> {target:20}  {status}")
+            LOGGER.info(f"  {source:20} -> {target:20}  {status}")
         else:
-            print(f"  {source:20} -> {target}")
+            LOGGER.info(f"  {source:20} -> {target}")
 
     if ground_truth_edges:
         missing = gt_set - edge_set
         if missing:
-            print("\nMissing Edges (in ground truth but not discovered):")
+            LOGGER.info("\nMissing Edges (in ground truth but not discovered):")
             for source, target in sorted(missing):
-                print(f"  {source:20} -> {target:20}  X FALSE NEGATIVE")
+                LOGGER.info(f"  {source:20} -> {target:20}  X FALSE NEGATIVE")
 
-    print(f"\nTotal Edges: {len(edges)}")
+    LOGGER.info(f"\nTotal Edges: {len(edges)}")
 
     if ground_truth_edges:
         tp = len(edge_set & gt_set)
         fp = len(edge_set - gt_set)
         fn = len(gt_set - edge_set)
-        print(f"  OK Correct: {tp}  |  X Spurious: {fp}  |  X Missing: {fn}")
+        LOGGER.info(f"  OK Correct: {tp}  |  X Spurious: {fp}  |  X Missing: {fn}")
 
-    print("=" * 70)
+    LOGGER.info("=" * 70)
 
 
 def compare_dags(ground_truth_edges, discovered_edges, var_names):
@@ -115,17 +120,17 @@ def print_dag_comparison_report(
     ground_truth_edges, neuron_edges, assembly_edges, var_names
 ):
     """Print detailed comparison report for the three DAGs."""
-    print("\n" + "=" * 70)
-    print("CAUSAL DAG COMPARISON REPORT")
-    print("=" * 70)
+    LOGGER.info("\n" + "=" * 70)
+    LOGGER.info("CAUSAL DAG COMPARISON REPORT")
+    LOGGER.info("=" * 70)
 
     print_dag_as_tree(ground_truth_edges, var_names, "GROUND TRUTH DAG", None)
     print_dag_as_tree(neuron_edges, var_names, "NEURON DAG", ground_truth_edges)
     print_dag_as_tree(assembly_edges, var_names, "ASSEMBLY DAG", ground_truth_edges)
 
-    print("\n" + "=" * 70)
-    print("EDGE-BY-EDGE COMPARISON")
-    print("=" * 70)
+    LOGGER.info("\n" + "=" * 70)
+    LOGGER.info("EDGE-BY-EDGE COMPARISON")
+    LOGGER.info("=" * 70)
 
     gt_set = set(ground_truth_edges)
     neuron_set = set(neuron_edges)
@@ -133,37 +138,37 @@ def print_dag_comparison_report(
 
     neuron_spurious = neuron_set - gt_set
     if neuron_spurious:
-        print("\n[WARN] SPURIOUS EDGES IN NEURON DAG:")
+        LOGGER.info("\n[WARN] SPURIOUS EDGES IN NEURON DAG:")
         for source, target in sorted(neuron_spurious):
-            print(f"  {source} -> {target}")
-            print("    -> This edge is NOT in ground truth!")
-            print("    -> Likely due to confounding/correlation vs causation")
+            LOGGER.info(f"  {source} -> {target}")
+            LOGGER.info("    -> This edge is NOT in ground truth!")
+            LOGGER.info("    -> Likely due to confounding/correlation vs causation")
 
     assembly_spurious = assembly_set - gt_set
     if assembly_spurious:
-        print("\n[WARN] SPURIOUS EDGES IN ASSEMBLY DAG:")
+        LOGGER.info("\n[WARN] SPURIOUS EDGES IN ASSEMBLY DAG:")
         for source, target in sorted(assembly_spurious):
-            print(f"  {source} -> {target}")
+            LOGGER.info(f"  {source} -> {target}")
     else:
-        print("\nOK ASSEMBLY DAG: No spurious edges!")
+        LOGGER.info("\nOK ASSEMBLY DAG: No spurious edges!")
 
     neuron_missing = gt_set - neuron_set
     if neuron_missing:
-        print("\nX MISSING EDGES IN NEURON DAG:")
+        LOGGER.info("\nX MISSING EDGES IN NEURON DAG:")
         for source, target in sorted(neuron_missing):
-            print(f"  {source} -> {target}")
+            LOGGER.info(f"  {source} -> {target}")
 
     assembly_missing = gt_set - assembly_set
     if assembly_missing:
-        print("\nX MISSING EDGES IN ASSEMBLY DAG:")
+        LOGGER.info("\nX MISSING EDGES IN ASSEMBLY DAG:")
         for source, target in sorted(assembly_missing):
-            print(f"  {source} -> {target}")
+            LOGGER.info(f"  {source} -> {target}")
     else:
-        print("\nOK ASSEMBLY DAG: No missing edges!")
+        LOGGER.info("\nOK ASSEMBLY DAG: No missing edges!")
 
     removed_by_assembly = neuron_set - assembly_set
     if removed_by_assembly:
-        print("\n[TARGET] EDGES REMOVED BY ASSEMBLY COMPRESSION:")
+        LOGGER.info("\n[TARGET] EDGES REMOVED BY ASSEMBLY COMPRESSION:")
         for source, target in sorted(removed_by_assembly):
             is_spurious = (source, target) in neuron_spurious
             status = (
@@ -171,39 +176,39 @@ def print_dag_comparison_report(
                 if is_spurious
                 else "(BAD - removed true edge)"
             )
-            print(f"  {source} -> {target}  {status}")
+            LOGGER.info(f"  {source} -> {target}  {status}")
 
     neuron_comparison = compare_dags(ground_truth_edges, neuron_edges, var_names)
     assembly_comparison = compare_dags(ground_truth_edges, assembly_edges, var_names)
     neuron_to_assembly = compare_dags(neuron_edges, assembly_edges, var_names)
 
-    print("\n" + "=" * 70)
-    print("QUANTITATIVE METRICS")
-    print("=" * 70)
-    print("\n[1] NEURON DAG vs GROUND TRUTH:")
-    print(f"  Precision: {neuron_comparison['precision']:.3f}")
-    print(f"  Recall: {neuron_comparison['recall']:.3f}")
-    print(f"  F1 Score: {neuron_comparison['f1']:.3f}")
-    print(
+    LOGGER.info("\n" + "=" * 70)
+    LOGGER.info("QUANTITATIVE METRICS")
+    LOGGER.info("=" * 70)
+    LOGGER.info("\n[1] NEURON DAG vs GROUND TRUTH:")
+    LOGGER.info(f"  Precision: {neuron_comparison['precision']:.3f}")
+    LOGGER.info(f"  Recall: {neuron_comparison['recall']:.3f}")
+    LOGGER.info(f"  F1 Score: {neuron_comparison['f1']:.3f}")
+    LOGGER.info(
         f"  Skeleton F1: {neuron_comparison['skel_f1']:.3f} "
         f"(P={neuron_comparison['skel_precision']:.3f}, R={neuron_comparison['skel_recall']:.3f})"
     )
 
-    print("\n[2] ASSEMBLY DAG vs GROUND TRUTH:")
-    print(f"  Precision: {assembly_comparison['precision']:.3f}")
-    print(f"  Recall: {assembly_comparison['recall']:.3f}")
-    print(f"  F1 Score: {assembly_comparison['f1']:.3f}")
-    print(
+    LOGGER.info("\n[2] ASSEMBLY DAG vs GROUND TRUTH:")
+    LOGGER.info(f"  Precision: {assembly_comparison['precision']:.3f}")
+    LOGGER.info(f"  Recall: {assembly_comparison['recall']:.3f}")
+    LOGGER.info(f"  F1 Score: {assembly_comparison['f1']:.3f}")
+    LOGGER.info(
         f"  Skeleton F1: {assembly_comparison['skel_f1']:.3f} "
         f"(P={assembly_comparison['skel_precision']:.3f}, R={assembly_comparison['skel_recall']:.3f})"
     )
 
-    print("\n[3] ASSEMBLY DAG vs NEURON DAG:")
-    print(f"  Agreement: {neuron_to_assembly['precision']:.3f}")
+    LOGGER.info("\n[3] ASSEMBLY DAG vs NEURON DAG:")
+    LOGGER.info(f"  Agreement: {neuron_to_assembly['precision']:.3f}")
 
-    print("\n" + "=" * 70)
-    print("PRESERVATION ASSESSMENT:")
-    print("=" * 70)
+    LOGGER.info("\n" + "=" * 70)
+    LOGGER.info("PRESERVATION ASSESSMENT:")
+    LOGGER.info("=" * 70)
 
     preservation_score = (
         assembly_comparison["f1"] + neuron_to_assembly["precision"]
@@ -222,9 +227,9 @@ def print_dag_comparison_report(
         status = "POOR"
         symbol = "X"
 
-    print(f"  {symbol} Overall Preservation: {preservation_score:.3f} - {status}")
-    print(f"  Assembly F1 vs GT: {assembly_comparison['f1']:.3f}")
-    print(f"  Assembly-Neuron Agreement: {neuron_to_assembly['precision']:.3f}")
+    LOGGER.info(f"  {symbol} Overall Preservation: {preservation_score:.3f} - {status}")
+    LOGGER.info(f"  Assembly F1 vs GT: {assembly_comparison['f1']:.3f}")
+    LOGGER.info(f"  Assembly-Neuron Agreement: {neuron_to_assembly['precision']:.3f}")
 
     return {
         "neuron_vs_gt": neuron_comparison,
