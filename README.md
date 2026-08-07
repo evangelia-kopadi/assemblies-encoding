@@ -126,7 +126,7 @@ pip install -e . --no-deps
 python -m experiments.run_all_paper_experiments
 ```
 
-The full pipeline writes fresh artifacts under `runs/YYYYMMDD/`; compare or promote those files against `results/` when refreshing the frozen reference set.
+The full pipeline writes fresh artifacts under `runs/YYYYMMDD/`; compare or promote those files against `results/` when refreshing the frozen reference set. Each run directory also includes `experiments_configuration.json` and `run_metadata.json`, recording the git commit SHA, Python version, dependency mode, timestamps, working directory, and command arguments for scripts that wrote artifacts there. Set `ASSEMBLIES_ENCODING_DEPENDENCY_MODE=requirements-lock.txt` or `requirements.txt` to override dependency-mode inference.
 
 
 ## What "reproducibility" means in this repository
