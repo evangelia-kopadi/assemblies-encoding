@@ -461,7 +461,14 @@ class Brain:
                 # truncnorm approximation gave something > total_k
                 # however, this may be less likely to sample large inputs than the true binomial distribution
                 potential_new_winner_inputs = (
-                    mu + truncnorm.rvs(a, np.inf, scale=std, size=target_area.k)
+                    mu
+                    + truncnorm.rvs(
+                        a,
+                        np.inf,
+                        scale=std,
+                        size=target_area.k,
+                        random_state=rng,
+                    )
                 ).round(0)
                 for i in range(len(potential_new_winner_inputs)):
                     if potential_new_winner_inputs[i] > total_k:
