@@ -2,11 +2,17 @@
 
 This script writes the table_1_single_run_* artifact family from the same
 runner used by the validation scripts. It evaluates the baseline Bernoulli
-(0.30/0.10) setting and deterministic-k step 10 once per benchmark dataset.
+(0.30/0.10) setting and deterministic-k step 10 once per benchmark dataset,
+for a given causal discovery method (PC or GES).
+
+Usage:
+  python -m experiments.generate_single_run_table_artifacts
+  python -m experiments.generate_single_run_table_artifacts --method ges
 """
 
 from __future__ import annotations
 
+import argparse
 from pathlib import Path
 
 import pandas as pd
@@ -52,6 +58,17 @@ CONFIGS = [
 ]
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Generate single-run table artifacts")
+    parser.add_argument(
+        "--method",
+        choices=["pc", "ges"],
+        default="pc",
+        help="Causal discovery method (default: pc)",
+    )
+    return parser.parse_args()
+
+
 def _metrics(result: dict, comparison_key: str) -> dict:
     metrics = result["comparison"][comparison_key]
     return {
@@ -65,7 +82,18 @@ def _round(value: float) -> float:
     return round(float(value), 3)
 
 
+def _file_prefix(method: str) -> str:
+    # PC keeps the original flat name for backward compatibility.
+    return "table_1_single_run" if method == "pc" else f"table_1_{method}_single_run"
+
+
 def main() -> None:
+    args = parse_args()
+    method = args.method
+    prefix = _file_prefix(method)
+
+    print(f"Running single-run benchmark with method={method.upper()}")
+
     datasets = build_datasets(DEFAULTS.n_samples)
     rows: list[dict] = []
 
@@ -80,6 +108,7 @@ def main() -> None:
 
             df, ground_truth_edges = dataset["gen"](DEFAULTS.seed)
             result = run_causal_dag_validation(
+                method=method,
                 df=df,
                 var_names=dataset["var_names"],
                 ground_truth_edges=ground_truth_edges,
@@ -94,12 +123,14 @@ def main() -> None:
 
             rows.append(
                 {
+                    "Method": method.upper(),
                     "Config": config_name,
                     "Dataset": DATASET_DISPLAY[dataset_name],
                     "Domain": DATASET_DOMAIN[dataset_name],
                     "GT Edges": len(ground_truth_edges),
                     "Assembly F1": _round(assembly["f1"]),
                     "Neuron F1": _round(neuron["f1"]),
+                    "A-N Gap": _round(assembly["f1"] - neuron["f1"]),
                     "Recall (Assembly vs GT)": _round(assembly["recall"]),
                     "Precision (Assembly vs GT)": _round(assembly["precision"]),
                     "Recall (Neuron vs GT)": _round(neuron["recall"]),
@@ -108,7 +139,7 @@ def main() -> None:
             )
 
     metrics_df = pd.DataFrame(rows)
-    metrics_path = Path(get_output_filepath("table_1_single_run_metrics.csv"))
+    metrics_path = Path(get_output_filepath(f"{prefix}_metrics.csv"))
     metrics_df.to_csv(metrics_path, index=False)
 
     means = (
@@ -116,6 +147,7 @@ def main() -> None:
             [
                 "Assembly F1",
                 "Neuron F1",
+                "A-N Gap",
                 "Recall (Assembly vs GT)",
                 "Precision (Assembly vs GT)",
                 "Recall (Neuron vs GT)",
@@ -125,7 +157,8 @@ def main() -> None:
         .mean()
         .round(3)
     )
-    means_path = Path(get_output_filepath("table_1_single_run_means.csv"))
+    means["Method"] = method.upper()
+    means_path = Path(get_output_filepath(f"{prefix}_means.csv"))
     means.to_csv(means_path, index=False)
 
     print(f"Saved metrics: {metrics_path}")

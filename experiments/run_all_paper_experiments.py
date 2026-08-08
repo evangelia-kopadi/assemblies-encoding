@@ -111,8 +111,12 @@ def build_steps(methods: list[str], args: argparse.Namespace) -> list[Step]:
                     ["-m", "experiments.vaccine_efficacy.validate_vaccine"],
                 ),
                 Step(
-                    "Generate single-run benchmark CSV artifacts",
-                    ["-m", "experiments.generate_single_run_table_artifacts"],
+                    "Generate single-run benchmark CSV artifacts (PC)",
+                    ["-m", "experiments.generate_single_run_table_artifacts", "--method", "pc"],
+                ),
+                Step(
+                    "Generate single-run benchmark CSV artifacts (GES)",
+                    ["-m", "experiments.generate_single_run_table_artifacts", "--method", "ges"],
                 ),
             ]
         )
