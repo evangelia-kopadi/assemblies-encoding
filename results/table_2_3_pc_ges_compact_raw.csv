@@ -1,9 +1,9 @@
 Dataset,Seed,Method,Config,Neuron_F1,Assembly_F1,Gap
 Alzheimers,42,ges,Bernoulli baseline,0.9,0.3478260869565217,-0.5521739130434784
 Alzheimers,42,ges,Deterministic-k,0.9,0.9,0.0
-Credit,42,ges,Bernoulli baseline,0.75,0.4444444444444445,-0.3055555555555555
+Credit,42,ges,Bernoulli baseline,0.75,0.6,-0.15000000000000002
 Credit,42,ges,Deterministic-k,0.75,0.75,0.0
-Stroke,42,ges,Bernoulli baseline,1.0,0.5454545454545454,-0.4545454545454546
+Stroke,42,ges,Bernoulli baseline,1.0,0.4000000000000001,-0.5999999999999999
 Stroke,42,ges,Deterministic-k,1.0,1.0,0.0
 Student,42,ges,Bernoulli baseline,0.888888888888889,0.888888888888889,0.0
 Student,42,ges,Deterministic-k,1.0,0.8571428571428571,-0.1428571428571429
