@@ -98,42 +98,81 @@ Total = 400 runs per discovery method
 
 ## Quick start
 
-**Python 3.9 or later is required** (developed and tested on Python 3.13).
+**Python 3.9 or later is required** for general use. The frozen paper artifacts were produced with **Python 3.13.4**.
+
+The `.venv/` directory is intentionally not committed. Create a local virtual environment first, then install either the exact reproduction dependencies or the broader development dependencies.
+
+Create and activate a local environment on Windows PowerShell:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
+
+On Git Bash, macOS, or Linux:
 
 ```bash
 python -m venv .venv
-. .venv/Scripts/activate  # Windows PowerShell: .\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-pip install -e .
+source .venv/bin/activate
 ```
 
-For exact frozen-artifact reproducibility, use Python 3.13.4 and install the pinned latest-env dependency set instead:
+For exact frozen-artifact reproduction of Tables 1-5, use Python 3.13.4 and the pinned lockfile:
 
-```bash
-pip install -r requirements-lock.txt
-```
-
-Install the repository in editable mode so `src.*` and `experiments.*` imports resolve without per-script path patches. Use `pip install -e . --no-deps` after the lockfile install if you want to keep the frozen dependency set unchanged. Running commands as modules with `python -m ...` from the repository root also works during development.
-
-`requirements.txt` contains broad compatible ranges (any Python 3.9+). `requirements-lock.txt` is a full `pip freeze` from the current canonical latest-env run (Python 3.13.4; generated 2026-08-06) and is the recommended choice when reproducing Tables 1-5.
-
-Exact reproduction path:
-
-```bash
+```powershell
 python --version  # expected: Python 3.13.4
 pip install -r requirements-lock.txt
 pip install -e . --no-deps
 python -m experiments.run_all_paper_experiments
 ```
 
-The full pipeline writes fresh artifacts under `runs/YYYYMMDD/`; compare or promote those files against `results/` when refreshing the frozen reference set. Each run directory also includes `experiments_configuration.json` and `run_metadata.json`, recording the git commit SHA, Python version, dependency mode, timestamps, working directory, and command arguments for scripts that wrote artifacts there. Set `ASSEMBLIES_ENCODING_DEPENDENCY_MODE=requirements-lock.txt` or `requirements.txt` to override dependency-mode inference.
+`requirements-lock.txt` is a full `pip freeze` from the canonical latest-env run (Python 3.13.4; generated 2026-08-06). The `--no-deps` flag keeps pip from changing those pinned versions while installing this repository in editable mode, so `src.*` and `experiments.*` imports resolve.
 
+For general development or extension work on Python 3.9+:
+
+```powershell
+pip install -r requirements.txt
+pip install -e .
+```
+
+`requirements.txt` contains broad compatible ranges. It should preserve the paper conclusions, but exact row-level identity with `results/` requires Python 3.13.4, `requirements-lock.txt`, the frozen configuration, and the same script version.
+
+The full pipeline writes fresh artifacts under `runs/YYYYMMDD_HHMMSS/`, where the timestamp is fixed at script start; reruns on the same day therefore create separate folders. Compare or promote those files against `results/` when refreshing the frozen reference set. Each run directory also includes `experiments_configuration.json` and `run_metadata.json`, recording the git commit SHA, Python version, dependency mode, timestamps, working directory, and command arguments for scripts that wrote artifacts there. Set `ASSEMBLIES_ENCODING_DEPENDENCY_MODE=requirements-lock.txt` or `requirements.txt` to override dependency-mode inference.
+
+
+### Runtime and hardware expectations
+
+The full paper pipeline is CPU-bound and does not require a GPU. Runtime depends mainly on CPU speed, available cores, memory bandwidth, and the installed numerical stack. The PC/GES sensitivity sweeps dominate the wall-clock time because they run the five-dataset, ten-seed encoding grid for both discovery methods.
+
+Practical baseline for a reasonable local run:
+
+- Python 3.13.4 with `requirements-lock.txt` for exact frozen-artifact reproduction.
+- Modern 4-core CPU or better; 8 cores / 16 threads is a more comfortable target for full reruns.
+- 16 GB RAM is recommended; 8 GB can work for smaller/partial runs but may be less comfortable while other applications are open.
+- SSD-backed working directory, because each run writes CSV, text, metadata, and figure artifacts under `runs/YYYYMMDD_HHMMSS/`.
+
+The one-command orchestrator prints elapsed time for each step and the total runtime. To record an external wall-clock measurement on your own machine, wrap the full command in a shell timer:
+
+```powershell
+Measure-Command { python -m experiments.run_all_paper_experiments }
+```
+
+```bash
+time python -m experiments.run_all_paper_experiments
+```
+
+For a quicker smoke test or for machines with limited CPU/RAM, run selected parts first with `--skip-sweep`, `--skip-multiseed`, or `--methods pc` / `--methods ges`.
 
 ## What "reproducibility" means in this repository
 
 The frozen artifacts under `results/` are tied to three things: the pinned latest-env environment (`requirements-lock.txt`), frozen run settings (`results/experiments_configuration_frozen_sweeps.json`, synchronized with `experiments/experiments_configuration.json` for the current canonical set), and the script versions that produced them.
 
 Fresh reruns with broad dependencies from `requirements.txt` are expected to preserve the paper conclusions, but exact row-level identity requires Python 3.13.4, `requirements-lock.txt`, the frozen configuration, and the same script version.
+
+## Local generated artifacts
+
+Experiment scripts write local outputs through `experiments/experiment_defaults.py`. Each script process uses a run folder named `runs/YYYYMMDD_HHMMSS/`; the one-command orchestrator fixes this timestamp at startup and passes the same run id to every child script, so all artifacts from one pipeline run land in the same folder.
+
+These local run folders contain generated CSV, text, figure, configuration-snapshot, and `run_metadata.json` files. They are intentionally excluded from version control by `.gitignore` via `runs/`. Keep local reruns there, and only copy/promote selected files into `results/` when intentionally refreshing the frozen paper reference artifacts.
 
 ## Paper Table Runbook (Scripts and Commands)
 
@@ -193,7 +232,7 @@ python -m experiments.generate_compact_pc_ges_artifacts
 python -m experiments.student_success.evaluate_student_success_multiseed
 ```
 
-Fresh outputs are written under `runs/YYYYMMDD/`. Frozen reference artifacts used by the paper stay under `results/`.
+Fresh outputs are written under `runs/YYYYMMDD_HHMMSS/`. Frozen reference artifacts used by the paper stay under `results/`.
 
 ## Notes for extension
 
@@ -270,5 +309,5 @@ Student multiseed parameters (experiments/student_success/evaluate_student_succe
 - --verbose: print per-seed logs.
 
 Output location:
-- New run artifacts are written under runs/YYYYMMDD via get_output_filepath.
+- New run artifacts are written under runs/YYYYMMDD_HHMMSS via get_output_filepath.
 - Frozen paper reference artifacts remain under results.

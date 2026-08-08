@@ -1,15 +1,19 @@
 import json
 from pathlib import Path
 
+import pytest
+
 import experiments.experiment_defaults as defaults
 
 
 def _reset_output_state(monkeypatch, tmp_path):
     config_file = tmp_path / "experiments_configuration.json"
     config_file.write_text(json.dumps({"example": True}), encoding="utf-8")
+    monkeypatch.delenv(defaults.RUN_ID_ENV_VAR, raising=False)
     monkeypatch.setattr(defaults, "_out", {"results_root": str(tmp_path / "runs")})
     monkeypatch.setattr(defaults, "_CFG_FILE", str(config_file))
     monkeypatch.setattr(defaults, "_CONFIG_COPIED", False)
+    monkeypatch.setattr(defaults, "_DEFAULT_RUN_ID", "20260102_030405")
     defaults._RUN_METADATA_RECORDED_DIRS.clear()
     monkeypatch.setattr(
         defaults,
@@ -35,9 +39,11 @@ def test_get_output_filepath_writes_config_snapshot_and_run_metadata(tmp_path, m
     run_dir = artifact_path.parent
 
     assert artifact_path.name == "artifact.csv"
+    assert run_dir.name == "20260102_030405"
     assert (run_dir / "experiments_configuration.json").exists()
 
     metadata = json.loads((run_dir / "run_metadata.json").read_text(encoding="utf-8"))
+    assert metadata["run_id"] == "20260102_030405"
     assert metadata["run_directory"] == str(run_dir)
     assert metadata["config_snapshot"] == "experiments_configuration.json"
     assert metadata["git"] == {
@@ -70,3 +76,23 @@ def test_run_metadata_appends_command_for_new_process_invocation(tmp_path, monke
         ["first.py"],
         ["second.py", "--method", "ges"],
     ]
+
+
+def test_get_output_filepath_uses_run_id_environment_override(tmp_path, monkeypatch):
+    _reset_output_state(monkeypatch, tmp_path)
+    monkeypatch.setenv(defaults.RUN_ID_ENV_VAR, "20261231_235959")
+
+    artifact_path = Path(defaults.get_output_filepath("artifact.csv"))
+    run_dir = artifact_path.parent
+
+    assert run_dir == tmp_path / "runs" / "20261231_235959"
+    metadata = json.loads((run_dir / "run_metadata.json").read_text(encoding="utf-8"))
+    assert metadata["run_id"] == "20261231_235959"
+
+
+def test_run_id_environment_override_rejects_path_segments(tmp_path, monkeypatch):
+    _reset_output_state(monkeypatch, tmp_path)
+    monkeypatch.setenv(defaults.RUN_ID_ENV_VAR, "../bad")
+
+    with pytest.raises(ValueError, match=defaults.RUN_ID_ENV_VAR):
+        defaults.get_run_output_dir()
