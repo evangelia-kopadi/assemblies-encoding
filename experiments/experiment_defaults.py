@@ -76,6 +76,29 @@ _CFG_FILE = os.path.join(
 )
 _CONFIG_COPIED = False
 _RUN_METADATA_RECORDED_DIRS: set[str] = set()
+RUN_ID_ENV_VAR = "ASSEMBLIES_ENCODING_RUN_ID"
+_DEFAULT_RUN_ID = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+_RUN_ID_ALLOWED_CHARS = frozenset(
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-"
+)
+
+
+def _validate_run_id(run_id: str) -> str:
+    clean_run_id = run_id.strip()
+    if not clean_run_id or any(
+        char not in _RUN_ID_ALLOWED_CHARS for char in clean_run_id
+    ):
+        raise ValueError(
+            f"{RUN_ID_ENV_VAR} must contain only letters, numbers, underscores, "
+            "and hyphens"
+        )
+    return clean_run_id
+
+
+def get_run_id() -> str:
+    """Return the stable output run identifier for this process."""
+    env_run_id = os.environ.get(RUN_ID_ENV_VAR)
+    return _validate_run_id(env_run_id if env_run_id is not None else _DEFAULT_RUN_ID)
 
 
 def get_results_root() -> str:
@@ -93,13 +116,12 @@ def get_results_root() -> str:
 
 
 def get_run_output_dir() -> str:
-    """Return absolute daily run directory under configured results root.
+    """Return absolute timestamped run directory under configured results root.
 
-    Layout: <results_root>/YYYYMMDD
+    Layout: <results_root>/YYYYMMDD_HHMMSS
     """
     results_root = get_results_root()
-    date_str = datetime.datetime.now().strftime("%Y%m%d")
-    return os.path.join(results_root, date_str)
+    return os.path.join(results_root, get_run_id())
 
 
 def _utc_now_iso() -> str:
@@ -203,6 +225,7 @@ def _write_run_metadata(run_output_dir: str) -> None:
         metadata = {
             "schema_version": 1,
             "created_at_utc": now,
+            "run_id": get_run_id(),
             "run_directory": run_output_dir,
             "config_snapshot": os.path.basename(_CFG_FILE),
             "git": _get_git_metadata(),
@@ -228,9 +251,9 @@ def _write_run_metadata(run_output_dir: str) -> None:
 
 
 def _ensure_results_dir_and_config() -> str:
-    """Ensure daily run directory exists and copy config there once.
+    """Ensure timestamped run directory exists and copy config there once.
 
-    Returns the daily run directory path.
+    Returns the timestamped run directory path.
     """
     global _CONFIG_COPIED
     run_output_dir = get_run_output_dir()
@@ -249,15 +272,15 @@ def _ensure_results_dir_and_config() -> str:
 
 
 def get_output_filepath(filename: str) -> str:
-    """Get absolute path for an output file in runs/YYYYMMDD."""
+    """Get absolute path for an output file in runs/YYYYMMDD_HHMMSS."""
     run_output_dir = _ensure_results_dir_and_config()
     return os.path.join(run_output_dir, filename)
 
 
 def make_run_output_dir(script_name: str) -> str:
-    """Backward-compatible alias that returns runs/YYYYMMDD.
+    """Backward-compatible alias that returns runs/YYYYMMDD_HHMMSS.
 
-    script_name is ignored to enforce the single daily folder layout.
+    script_name is ignored to enforce the single run folder layout.
     """
     _ = script_name
     return _ensure_results_dir_and_config()

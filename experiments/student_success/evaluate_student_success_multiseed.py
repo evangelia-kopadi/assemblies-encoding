@@ -2,7 +2,7 @@
 
 Runs many random seeds to move from a single-run demo to aggregate statistics.
 
-Outputs (all under runs/YYYYMMDD):
+Outputs (all under runs/YYYYMMDD_HHMMSS):
 - summary.csv
 - dodeltas.csv
 - report.md
