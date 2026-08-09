@@ -3,7 +3,6 @@
 This orchestrator executes the full paper pipeline in a fixed order:
 1) Single-run dataset validations and flat CSV artifacts
 2) Sensitivity sweeps for both methods (PC and GES)
-3) Compact PC/GES derived CSV artifacts when both methods are run
 4) Student Success multiseed robustness evaluation (Table 5 family)
 
 Usage:
@@ -129,13 +128,7 @@ def build_steps(methods: list[str], args: argparse.Namespace) -> list[Step]:
                     ["-m", "experiments.run_sensitivity_sweep", "--method", method],
                 )
             )
-        if set(methods) == {"pc", "ges"}:
-            steps.append(
-                Step(
-                    "Generate compact PC/GES comparison CSV artifacts",
-                    ["-m", "experiments.generate_compact_pc_ges_artifacts"],
-                )
-            )
+
 
     if not args.skip_multiseed:
         steps.append(

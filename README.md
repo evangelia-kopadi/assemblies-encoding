@@ -34,9 +34,9 @@ This repository accompanies the SUM 2026 manuscript **"Causal Structure Preserva
 - `experiments/run_sensitivity_sweep.py`: PC/GES encoding sensitivity sweep runner.
 - `experiments/student_success/evaluate_student_success_multiseed.py`: Student Success multi-seed graph and intervention robustness check used for the Student Success validation study.
 - `results/`: frozen single-run benchmark artifacts under flat compatibility filenames for the manuscript's single-run benchmark table (for example, `table_1_single_run_means.csv` and `table_1_single_run_metrics.csv`).
-- `results/`: frozen multi-run PC/GES sensitivity sweep artifacts with paper-mapped filenames: `table_2_3_pc_sensitivity_*.csv` and `table_4_ges_sensitivity_*.csv`.
-- `results/`: compact table-summary CSV/TXT files derived from the frozen runs, named to match the relevant paper tables.
-- `results/`: frozen Student Success 50-seed robustness artifacts under flat names such as `table_5_student_summary.csv`, `table_5_student_dodeltas.csv`, and `table_5_student_report.md`.
+- `results/`: frozen multi-run PC/GES sensitivity sweep artifacts with paper-mapped filenames: `table_3_pc_*.csv` and `table_4_ges_sensitivity_*.csv`.
+- `results/`: sensitivity sweep raw, summary, and overall CSV files for PC (Table 3) and GES (Table 4).
+- `results/`: frozen Student Success 50-seed robustness artifacts under flat names such as `table_4_student_summary.csv`, `table_4_student_dodeltas.csv`, and `table_4_student_report.md`.
 - `figures/`: figures referenced by the paper source.
 - `paper/`: editable paper source, bibliography, and build script.
 
@@ -54,9 +54,9 @@ The Student Success multi-seed experiment (`results/`) is a separate 50-seed rob
 
 - Topology benchmark (paper Table 1) -> generator definitions in `experiments/<dataset>/validate_*.py` and `experiments/run_sensitivity_sweep.py`
 - Single-run benchmark (paper Table 2; flat compatibility filenames) -> `results/table_1_single_run_*.csv`
-- PC sensitivity sweep (paper Table 3) -> `results/table_2_3_pc_sensitivity_*.csv`
-- GES robustness sweep (paper Table 4) -> `results/table_4_ges_sensitivity_*.csv`
-- Student Success validation (paper Table 5) -> `results/table_5_student_*.csv`
+- Encoding ablation PC (paper Table 3) -> `results/table_3_pc_*.csv`
+- Encoding ablation GES (paper Table 3) -> `results/table_3_ges_*.csv`
+- Student Success validation (paper Table 5) -> `results/table_4_student_*.csv`
 
 
 ## Encoding grid used in the paper

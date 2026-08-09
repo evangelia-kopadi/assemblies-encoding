@@ -1,6 +1,6 @@
 """Generate flat single-run benchmark CSV artifacts.
 
-This script writes the table_1_single_run_* artifact family from the same
+This script writes the table_2_single_run_pc/ges artifact family from the same
 runner used by the validation scripts. It evaluates the baseline Bernoulli
 (0.30/0.10) setting and deterministic-k step 10 once per benchmark dataset,
 for a given causal discovery method (PC or GES).
@@ -83,8 +83,7 @@ def _round(value: float) -> float:
 
 
 def _file_prefix(method: str) -> str:
-    # PC keeps the original flat name for backward compatibility.
-    return "table_1_single_run" if method == "pc" else f"table_1_{method}_single_run"
+    return f"table_2_single_run_{method}"
 
 
 def main() -> None:

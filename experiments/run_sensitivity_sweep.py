@@ -282,13 +282,13 @@ def main() -> None:
                 )
 
     if args.method == "pc":
-        raw_name = "table_2_3_pc_sensitivity_raw.csv"
-        summary_name = "table_2_3_pc_sensitivity_summary.csv"
-        overall_name = "table_2_3_pc_sensitivity_overall.csv"
+        raw_name = "table_3_pc_raw.csv"
+        summary_name = "table_3_pc_summary.csv"
+        overall_name = "table_3_pc_overall.csv"
     else:
-        raw_name = "table_4_ges_sensitivity_raw.csv"
-        summary_name = "table_4_ges_sensitivity_summary.csv"
-        overall_name = "table_4_ges_sensitivity_overall.csv"
+        raw_name = "table_3_ges_raw.csv"
+        summary_name = "table_3_ges_summary.csv"
+        overall_name = "table_3_ges_overall.csv"
     df_all = pd.DataFrame(rows)
     all_path = Path(get_output_filepath(raw_name))
     df_all.to_csv(all_path, index=False)

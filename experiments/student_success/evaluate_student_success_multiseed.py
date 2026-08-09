@@ -434,8 +434,8 @@ def write_report(
 
     lines.append("## Artifacts")
     lines.append("")
-    lines.append("- Summary CSV: `table_5_student_summary.csv`")
-    lines.append("- do() deltas CSV: `table_5_student_dodeltas.csv`")
+    lines.append("- Summary CSV: `table_4_student_summary.csv`")
+    lines.append("- do() deltas CSV: `table_4_student_dodeltas.csv`")
     lines.append("")
 
     os.makedirs(os.path.dirname(out_md), exist_ok=True)
@@ -567,12 +567,12 @@ def main() -> int:
     summary_df = pd.DataFrame(summaries).sort_values("seed")
     do_df = pd.DataFrame(do_rows).sort_values(["seed", "intervention"])
 
-    summary_csv = get_output_filepath("table_5_student_summary.csv")
-    do_csv = get_output_filepath("table_5_student_dodeltas.csv")
+    summary_csv = get_output_filepath("table_4_student_summary.csv")
+    do_csv = get_output_filepath("table_4_student_dodeltas.csv")
     summary_df.to_csv(summary_csv, index=False)
     do_df.to_csv(do_csv, index=False)
 
-    out_md = get_output_filepath("table_5_student_report.md")
+    out_md = get_output_filepath("table_4_student_report.md")
     write_report(
         summary_df=summary_df,
         do_df=do_df,
