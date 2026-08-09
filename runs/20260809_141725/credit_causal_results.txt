@@ -1,0 +1,51 @@
+======================================================================
+CREDIT DEFAULT - 3-DAG CAUSAL VALIDATION RESULTS
+======================================================================
+
+GROUND TRUTH EDGES:
+  Income -> CreditUtilization
+  PaymentHistory -> Default
+  CreditUtilization -> Default
+  DebtToIncome -> Default
+
+NEURON DAG EDGES (3 discovered):
+  PaymentHistory -> Default
+  CreditUtilization -> Default
+  DebtToIncome -> Default
+
+ASSEMBLY DAG EDGES (3 discovered):
+  PaymentHistory -> Default
+  CreditUtilization -> Default
+  DebtToIncome -> Default
+
+======================================================================
+VALIDATION METRICS:
+======================================================================
+
+Neuron DAG vs Ground Truth:
+  Precision: 1.000
+  Recall: 0.750
+  F1 Score: 0.857
+
+Assembly DAG vs Ground Truth:
+  Precision: 1.000
+  Recall: 0.750
+  F1 Score: 0.857
+
+Assembly vs Neuron Agreement:
+  Similarity: 1.000
+
+Overall Preservation Score: 0.929
+Compression Ratio: 5.6x
+
+======================================================================
+INTERVENTION SIGN-MATCH (do operator):
+======================================================================
+Sign-match rate (directional): Neuron=5/5 (100.0%), Assembly=5/5 (100.0%)
+
+======================================================================
+DATA STATISTICS:
+======================================================================
+Sample Size: 5000 customers
+Default Rate: 35.5%
+High Credit Utilization: 36.8%
