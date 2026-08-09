@@ -1,0 +1,214 @@
+Generated: 2026-08-09T12:12:21
+Student Success - step-by-step run log
+
+
+======================================================================
+STUDENT SUCCESS - 3-DAG CAUSAL VALIDATION
+======================================================================
+  Research Question: Are causal relationships preserved in assemblies?
+  Method: Compare 3 DAGs (Ground Truth, Neurons, Assemblies)
+
+======================================================================
+PEARL-STYLE SCM (STRUCTURAL CAUSAL MODEL)
+======================================================================
+  Exogenous noise: U_Prior, U_Att, U_Hours, U_Exam, U_Grade ~ Uniform(0,1)
+  Structural equations (deterministic given U):
+    PriorGPA        := f_prior(U_Prior)
+    Attendance      := f_att(U_Att)
+    StudyHours      := f_hours(U_Hours)
+    FinalExamScore  := (U_Exam  < p_exam(Attendance, StudyHours)) ? Excellent : Pass
+    FinalGrade      := (U_Grade < p_grade(FinalExamScore, PriorGPA)) ? Excellent : Pass
+  do(X=x) intervention: replace X-equation with X := x (override mechanism)
+
+======================================================================
+GENERATING STUDENT SUCCESS DATA
+======================================================================
+  Cohort size: 5000 students
+  Variables: 5 (PriorGPA, Attendance, StudyHours, FinalExamScore, FinalGrade)
+
+  Student Distribution:
+    Excellent Exam: 2602 (52.0%)
+    Excellent Grade: 2314 (46.3%)
+
+  Ground Truth Causal Edges:
+    PriorGPA -> FinalGrade
+    Attendance -> FinalExamScore
+    StudyHours -> FinalExamScore
+    FinalExamScore -> FinalGrade
+
+======================================================================
+DIAGNOSTIC: Original Data Correlations
+======================================================================
+
+Correlation Matrix (Original Data):
+                PriorGPA  Attendance  StudyHours  FinalExamScore  FinalGrade
+PriorGPA        1.000000   -0.016683   -0.018211        0.022438    0.094529
+Attendance     -0.016683    1.000000   -0.018406        0.328791    0.148697
+StudyHours     -0.018211   -0.018406    1.000000        0.412599    0.180369
+FinalExamScore  0.022438    0.328791    0.412599        1.000000    0.488796
+FinalGrade      0.094529    0.148697    0.180369        0.488796    1.000000
+
+Partial Correlation Matrix (Label-Encoded; controls for other variables):
+                PriorGPA  Attendance  StudyHours  FinalExamScore  FinalGrade
+PriorGPA        1.000000   -0.029674   -0.032616       -0.003891    0.094523
+Attendance     -0.029674    1.000000   -0.180357        0.339762   -0.016808
+StudyHours     -0.032616   -0.180357    1.000000        0.410491   -0.026679
+FinalExamScore -0.003891    0.339762    0.410491        1.000000    0.439935
+FinalGrade      0.094523   -0.016808   -0.026679        0.439935    1.000000
+
+DIAGNOSTIC: Edge-wise correlation vs partial correlation (label-encoded)
+  PriorGPA -> FinalGrade: corr= 0.095, partial= 0.095
+  Attendance -> FinalExamScore: corr= 0.329, partial= 0.340
+  StudyHours -> FinalExamScore: corr= 0.413, partial= 0.410
+  FinalExamScore -> FinalGrade: corr= 0.489, partial= 0.440
+
+Top correlated non-edges (may be confounding/mediation):
+  StudyHours -- FinalGrade: corr= 0.180, partial=-0.027
+  Attendance -- FinalGrade: corr= 0.149, partial=-0.017
+  PriorGPA -- FinalExamScore: corr= 0.022, partial=-0.004
+  Attendance -- StudyHours: corr=-0.018, partial=-0.180
+  PriorGPA -- StudyHours: corr=-0.018, partial=-0.033
+
+======================================================================
+Running PC algorithm with alpha=0.1 (more permissive)
+======================================================================
+Using feature extraction: MEAN (rate feature)
+======================================================================
+
+======================================================================
+SCM INTERVENTION EVALUATION (do-operator)
+======================================================================
+  Goal: check whether interventional effect directions are preserved
+  Note: we reuse the trained Brain from the baseline run (no retraining)
+
+======================================================================
+GENERATING STUDENT SUCCESS DATA
+======================================================================
+  Cohort size: 2000 students
+  Variables: 5 (PriorGPA, Attendance, StudyHours, FinalExamScore, FinalGrade)
+
+  Student Distribution:
+    Excellent Exam: 1001 (50.0%)
+    Excellent Grade: 865 (43.2%)
+
+  Ground Truth Causal Edges:
+    PriorGPA -> FinalGrade
+    Attendance -> FinalExamScore
+    StudyHours -> FinalExamScore
+    FinalExamScore -> FinalGrade
+  Eval cohort size: 2000 (seed=165)
+  Feature method: MEAN
+  Baseline: P(Exam=Excellent)=0.500, P(Grade=Excellent)=0.432
+           Neuron mean(Exam)=0.200, mean(Grade)=0.186
+           Assembly mean(Exam)=0.200, mean(Grade)=0.186
+
+Intervention effect deltas (do - baseline)
+Intervention                | rawΔExam  rawΔGrade | neuronΔExam neuronΔGrade | asmΔExam  asmΔGrade | sign match (Exam/Grade)
+  Interpretation: For each outcome (Exam / Grade), N:Y/A:Y => same direction as raw delta (intervention effect preserved directionally); N:N or A:N => mismatch. Magnitudes can differ due to different scales.
+----------------------------------------------------------------------------------------------------------------------
+
+======================================================================
+GENERATING STUDENT SUCCESS DATA
+======================================================================
+  Cohort size: 2000 students
+  Variables: 5 (PriorGPA, Attendance, StudyHours, FinalExamScore, FinalGrade)
+  Intervention: do({'Attendance': 'Good'})
+
+  Student Distribution:
+    Excellent Exam: 1273 (63.6%)
+    Excellent Grade: 1010 (50.5%)
+
+  Ground Truth Causal Edges:
+    PriorGPA -> FinalGrade
+    Attendance -> FinalExamScore
+    StudyHours -> FinalExamScore
+    FinalExamScore -> FinalGrade
+do(Attendance=Good)         | +0.136  +0.073 | +0.027     +0.015 | +0.027   +0.015 | N:Y/A:Y / N:Y/A:Y
+
+======================================================================
+GENERATING STUDENT SUCCESS DATA
+======================================================================
+  Cohort size: 2000 students
+  Variables: 5 (PriorGPA, Attendance, StudyHours, FinalExamScore, FinalGrade)
+  Intervention: do({'StudyHours': 'High'})
+
+  Student Distribution:
+    Excellent Exam: 1411 (70.5%)
+    Excellent Grade: 1087 (54.4%)
+
+  Ground Truth Causal Edges:
+    PriorGPA -> FinalGrade
+    Attendance -> FinalExamScore
+    StudyHours -> FinalExamScore
+    FinalExamScore -> FinalGrade
+do(StudyHours=High)         | +0.205  +0.111 | +0.041     +0.022 | +0.041   +0.022 | N:Y/A:Y / N:Y/A:Y
+
+======================================================================
+GENERATING STUDENT SUCCESS DATA
+======================================================================
+  Cohort size: 2000 students
+  Variables: 5 (PriorGPA, Attendance, StudyHours, FinalExamScore, FinalGrade)
+  Intervention: do({'PriorGPA': 'High'})
+
+  Student Distribution:
+    Excellent Exam: 1001 (50.0%)
+    Excellent Grade: 1187 (59.4%)
+
+  Ground Truth Causal Edges:
+    PriorGPA -> FinalGrade
+    Attendance -> FinalExamScore
+    StudyHours -> FinalExamScore
+    FinalExamScore -> FinalGrade
+do(PriorGPA=High)           | +0.000  +0.161 | +0.000     +0.032 | +0.000   +0.032 | N:Y/A:Y / N:Y/A:Y
+
+======================================================================
+GENERATING STUDENT SUCCESS DATA
+======================================================================
+  Cohort size: 2000 students
+  Variables: 5 (PriorGPA, Attendance, StudyHours, FinalExamScore, FinalGrade)
+  Intervention: do({'FinalExamScore': 'Excellent'})
+
+  Student Distribution:
+    Excellent Exam: 2000 (100.0%)
+    Excellent Grade: 1357 (67.8%)
+
+  Ground Truth Causal Edges:
+    PriorGPA -> FinalGrade
+    Attendance -> FinalExamScore
+    StudyHours -> FinalExamScore
+    FinalExamScore -> FinalGrade
+do(FinalExamScore=Excellent) | +0.500  +0.246 | +0.100     +0.049 | +0.100   +0.049 | N:Y/A:Y / N:Y/A:Y
+
+  Sign-match rate (directional): Exam N=4/4 (100.0%), A=4/4 (100.0%); Grade N=4/4 (100.0%), A=4/4 (100.0%)
+
+======================================================================
+EXPERIMENT COMPLETE
+======================================================================
+
+  Compression: 5.0x
+  Neuron DAG F1: 1.000
+  Assembly DAG F1: 0.857
+  Overall Preservation: 0.929
+
+======================================================================
+DIAGNOSTIC: Feature Variance
+======================================================================
+
+Neuron Features (std dev):
+PriorGPA          0.004973
+Attendance        0.002931
+StudyHours        0.003001
+FinalExamScore    0.002999
+FinalGrade        0.002993
+
+Assembly Features (std dev):
+PriorGPA          2.015722e+07
+Attendance        4.915037e+08
+StudyHours        4.374982e+06
+FinalExamScore    1.714194e+07
+FinalGrade        1.115617e+07
+
+  Results saved to: student_success_causal_results.txt
+  DAG visualization saved to: student_success_3dag_comparison.png
+
+  Analysis log saved to: table_1_student_causal_results_analysis.txt
