@@ -8,7 +8,6 @@ __pycache__/
 Thumbs.db
 *.egg-info/
 
-runs/
 
 # Paper build intermediates
 paper/*.aux
