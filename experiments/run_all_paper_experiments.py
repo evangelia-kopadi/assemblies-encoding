@@ -3,7 +3,6 @@
 This orchestrator executes the full paper pipeline in a fixed order:
 1) Single-run dataset validations and flat CSV artifacts
 2) Sensitivity sweeps for both methods (PC and GES)
-4) Student Success multiseed robustness evaluation (Table 5 family)
 
 Usage:
   python -m experiments.run_all_paper_experiments
@@ -53,11 +52,6 @@ def parse_args() -> argparse.Namespace:
         "--skip-sweep",
         action="store_true",
         help="Skip sensitivity sweeps and compact PC/GES artifact generation",
-    )
-    parser.add_argument(
-        "--skip-multiseed",
-        action="store_true",
-        help="Skip Student Success multiseed evaluation",
     )
     parser.add_argument(
         "--dry-run",
@@ -131,13 +125,6 @@ def build_steps(methods: list[str], args: argparse.Namespace) -> list[Step]:
             )
 
 
-    if not args.skip_multiseed:
-        steps.append(
-            Step(
-                "Run Student Success multiseed evaluation",
-                ["-m", "experiments.student_success.evaluate_student_success_multiseed"],
-            )
-        )
 
     return steps
 
