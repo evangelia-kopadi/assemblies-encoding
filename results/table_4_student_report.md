@@ -24,8 +24,8 @@
 
 ## Artifacts
 
-- Summary CSV: `table_5_student_summary.csv`
-- do() deltas CSV: `table_5_student_dodeltas.csv`
+- Summary CSV: `table_4_student_summary.csv`
+- do() deltas CSV: `table_4_student_dodeltas.csv`
 
 ## Magnitude / importance preservation (beyond direction)
 
