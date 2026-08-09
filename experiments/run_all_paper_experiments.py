@@ -1,4 +1,4 @@
-"""Run all experiment scripts needed to regenerate current paper data artifacts.
+"""Run full experiment pipeline (paper artifacts + validation diagnostics).
 
 This orchestrator executes the full paper pipeline in a fixed order:
 1) Validation diagnostics matrix (all datasets x both methods x both encodings) and flat CSV artifacts
@@ -36,7 +36,7 @@ class Step:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Run all scripts required to regenerate paper experiment data"
+        description="Run full scripts required to regenerate all experiment artifacts"
     )
     parser.add_argument(
         "--methods",
