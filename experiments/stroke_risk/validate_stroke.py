@@ -112,6 +112,7 @@ def _render_comparison_png(
     plt.close(fig)
 
 
+from src.visualization.dag_plotting import visualize_three_dags
 from src.validation.interventional.pearl_do_calculus import (
     compute_neuron_and_assembly_mean_features,
     probability_of_values,
@@ -382,12 +383,12 @@ def main():
     results = best_row["results"]
 
     png_out = Path(output_dir) / "stroke_3dag_comparison.png"
-    _render_comparison_png(
-        var_names=var_names,
+    visualize_three_dags(
         ground_truth_edges=ground_truth,
         neuron_edges=results.get("neuron_edges", []),
         assembly_edges=results.get("assembly_edges", []),
-        out_path=png_out,
+        var_names=var_names,
+        save_path=str(png_out),
     )
 
     # ---------------------------------------------------------------------
