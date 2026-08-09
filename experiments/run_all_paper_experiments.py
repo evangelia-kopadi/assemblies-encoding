@@ -18,6 +18,7 @@ import argparse
 import os
 import subprocess
 import sys
+import shutil
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -206,6 +207,13 @@ def main() -> int:
     print(f"Artifacts {write_verb} under {run_output_dir} via get_output_filepath().")
     if not args.dry_run:
         print(f"Total elapsed time: {_format_duration(time.perf_counter() - total_started)}.")
+        # Copy the config snapshot used for this run into results/ for traceability
+        results_root = Path(REPO_ROOT / "results")
+        cfg_src = run_output_dir / "experiments_configuration.json"
+        cfg_dst = results_root / "experiments_configuration.json"
+        if cfg_src.exists() and results_root.exists():
+            shutil.copy2(cfg_src, cfg_dst)
+            print(f"Config snapshot copied to {cfg_dst}")
     return 0
 
 
