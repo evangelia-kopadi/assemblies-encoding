@@ -42,7 +42,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--methods",
         default="pc,ges",
-        help="Comma-separated methods for run_sensitivity_sweep.py (allowed: pc,ges)",
+        help="Comma-separated methods for run_encoding_ablation.py (allowed: pc,ges)",
     )
     parser.add_argument(
         "--skip-validate",
@@ -126,7 +126,7 @@ def build_steps(methods: list[str], args: argparse.Namespace) -> list[Step]:
             steps.append(
                 Step(
                     f"Run sensitivity sweep ({method.upper()})",
-                    ["-m", "experiments.run_sensitivity_sweep", "--method", method],
+                    ["-m", "experiments.run_encoding_ablation", "--method", method],
                 )
             )
 
