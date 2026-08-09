@@ -1,23 +1,25 @@
-"""Run full experiment pipeline (paper artifacts + validation diagnostics).
+"""Run only paper data artifact scripts (no diagnostics matrix).
 
-This orchestrator executes the full paper pipeline in a fixed order:
-1) Validation diagnostics matrix (all datasets x both methods x both encodings) and flat CSV artifacts
-2) Sensitivity sweeps for both methods (PC and GES)
+This orchestrator generates only the CSV artifacts currently used in the paper:
+1) Single-run benchmark CSV artifacts (Table 2 family)
+2) Encoding ablation sweeps for both methods (Table 3 family)
+
+It intentionally skips `*_causal_results.txt` and `*_3dag_comparison.png`
+validation diagnostics.
 
 Usage:
-  python -m experiments.run_all_paper_experiments
-  python -m experiments.run_all_paper_experiments --dry-run
-  python -m experiments.run_all_paper_experiments --skip-validate
-  python -m experiments.run_all_paper_experiments --methods pc,ges
+  python -m experiments.run_paper_data_only
+  python -m experiments.run_paper_data_only --dry-run
+  python -m experiments.run_paper_data_only --methods pc,ges
 """
 
 from __future__ import annotations
 
 import argparse
 import os
+import shutil
 import subprocess
 import sys
-import shutil
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -36,7 +38,7 @@ class Step:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Run full scripts required to regenerate all experiment artifacts"
+        description="Run only scripts required to regenerate paper data artifacts"
     )
     parser.add_argument(
         "--methods",
@@ -44,14 +46,14 @@ def parse_args() -> argparse.Namespace:
         help="Comma-separated methods for run_encoding_ablation.py (allowed: pc,ges)",
     )
     parser.add_argument(
-        "--skip-validate",
+        "--skip-single-run",
         action="store_true",
-        help="Skip validation diagnostics matrix and single-run CSV artifact generation",
+        help="Skip single-run benchmark CSV artifact generation (Table 2 family)",
     )
     parser.add_argument(
         "--skip-sweep",
         action="store_true",
-        help="Skip sensitivity sweeps and compact PC/GES artifact generation",
+        help="Skip encoding ablation sweeps (Table 3 family)",
     )
     parser.add_argument(
         "--dry-run",
@@ -68,7 +70,6 @@ def _parse_methods(raw: str) -> list[str]:
     invalid = [m for m in methods if m not in {"pc", "ges"}]
     if invalid:
         raise ValueError(f"Unsupported methods in --methods: {invalid}")
-    # Keep order, remove duplicates.
     seen: set[str] = set()
     ordered: list[str] = []
     for m in methods:
@@ -81,13 +82,9 @@ def _parse_methods(raw: str) -> list[str]:
 def build_steps(methods: list[str], args: argparse.Namespace) -> list[Step]:
     steps: list[Step] = []
 
-    if not args.skip_validate:
+    if not args.skip_single_run:
         steps.extend(
             [
-                Step(
-                    "Generate validation diagnostics matrix (PC/GES x Det-k/Bernoulli)",
-                    ["-m", "experiments.generate_validation_matrix_artifacts"],
-                ),
                 Step(
                     "Generate single-run benchmark CSV artifacts (PC)",
                     ["-m", "experiments.generate_single_run_table_artifacts", "--method", "pc"],
@@ -103,12 +100,10 @@ def build_steps(methods: list[str], args: argparse.Namespace) -> list[Step]:
         for method in methods:
             steps.append(
                 Step(
-                    f"Run sensitivity sweep ({method.upper()})",
+                    f"Run encoding ablation sweep ({method.upper()})",
                     ["-m", "experiments.run_encoding_ablation", "--method", method],
                 )
             )
-
-
 
     return steps
 
@@ -155,7 +150,7 @@ def main() -> int:
         print("No steps selected. Nothing to run.")
         return 0
 
-    print("Planned pipeline steps:")
+    print("Planned paper-data-only pipeline steps:")
     run_output_dir = Path(get_results_root()) / run_id
     print(f"Run output directory: {run_output_dir}")
     for i, step in enumerate(steps, start=1):
@@ -173,12 +168,11 @@ def main() -> int:
             )
             return code
 
-    print("\nAll selected experiment steps completed successfully.")
+    print("\nAll selected paper-data-only steps completed successfully.")
     write_verb = "would be written" if args.dry_run else "are written"
     print(f"Artifacts {write_verb} under {run_output_dir} via get_output_filepath().")
     if not args.dry_run:
         print(f"Total elapsed time: {_format_duration(time.perf_counter() - total_started)}.")
-        # Copy the config snapshot used for this run into results/ for traceability
         results_root = Path(REPO_ROOT / "results")
         cfg_src = run_output_dir / "experiments_configuration.json"
         cfg_dst = results_root / "experiments_configuration.json"
