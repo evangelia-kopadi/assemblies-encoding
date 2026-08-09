@@ -18,7 +18,7 @@ from pathlib import Path
 import pandas as pd
 
 from experiments.experiment_defaults import DEFAULTS, get_output_filepath, runner_kwargs
-from experiments.run_sensitivity_sweep import build_datasets
+from experiments.run_encoding_ablation import build_datasets
 from src.runner import run_causal_dag_validation
 
 

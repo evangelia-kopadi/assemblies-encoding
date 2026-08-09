@@ -1,7 +1,7 @@
 """Run all experiment scripts needed to regenerate current paper data artifacts.
 
 This orchestrator executes the full paper pipeline in a fixed order:
-1) Single-run dataset validations and flat CSV artifacts
+1) Validation diagnostics matrix (all datasets x both methods x both encodings) and flat CSV artifacts
 2) Sensitivity sweeps for both methods (PC and GES)
 
 Usage:
@@ -46,7 +46,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--skip-validate",
         action="store_true",
-        help="Skip validate_*.py scripts and single-run CSV artifact generation",
+        help="Skip validation diagnostics matrix and single-run CSV artifact generation",
     )
     parser.add_argument(
         "--skip-sweep",
@@ -85,24 +85,8 @@ def build_steps(methods: list[str], args: argparse.Namespace) -> list[Step]:
         steps.extend(
             [
                 Step(
-                    "Validate Alzheimer dataset",
-                    ["-m", "experiments.alzheimers.validate_alzheimers"],
-                ),
-                Step(
-                    "Validate Stroke dataset",
-                    ["-m", "experiments.stroke_risk.validate_stroke"],
-                ),
-                Step(
-                    "Validate Credit dataset",
-                    ["-m", "experiments.credit_default.validate_credit"],
-                ),
-                Step(
-                    "Validate Student Success dataset",
-                    ["-m", "experiments.student_success.validate_student_success"],
-                ),
-                Step(
-                    "Validate Vaccine dataset",
-                    ["-m", "experiments.vaccine_efficacy.validate_vaccine"],
+                    "Generate validation diagnostics matrix (PC/GES x Det-k/Bernoulli)",
+                    ["-m", "experiments.generate_validation_matrix_artifacts"],
                 ),
                 Step(
                     "Generate single-run benchmark CSV artifacts (PC)",
