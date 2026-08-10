@@ -33,12 +33,11 @@ This repository accompanies the SUM 2026 manuscript **"Causal Structure Preserva
 - `notebooks/pipeline_visualization.ipynb`: executable visual walkthrough of the Stage I-VI pipeline for Bernoulli and deterministic-k encodings.
 - `experiments/run_encoding_ablation.py`: PC/GES encoding ablation sweep runner.
 - `experiments/generate_validation_matrix_artifacts.py`: diagnostics matrix generator (dataset x method x encoding) for detailed causal reports and 3-DAG figures.
-- `experiments/run_paper_data_only.py`: paper-only orchestrator (single-run, ablation, and Student Table 4 artifacts).
+- `experiments/run_paper_data_only.py`: paper-only orchestrator (single-run and ablation artifacts).
 - `experiments/run_all_paper_experiments.py`: full-artifacts orchestrator (paper artifacts plus diagnostics matrix).
 - `results/`: frozen single-run benchmark artifacts under flat compatibility filenames for the manuscript's single-run benchmark table (for example, `table_1_single_run_means.csv` and `table_1_single_run_metrics.csv`).
 - `results/`: frozen multi-run PC/GES sensitivity sweep artifacts with paper-mapped filenames: `table_3_pc_*.csv` and `table_4_ges_sensitivity_*.csv`.
 - `results/`: sensitivity sweep raw, summary, and overall CSV files for PC (Table 3) and GES (Table 4).
-- `results/`: frozen Student Success 50-seed robustness artifacts under flat names such as `table_4_student_summary.csv`, `table_4_student_dodeltas.csv`, and `table_4_student_report.md`.
 - `figures/`: figures referenced by the paper source.
 - `paper/`: editable paper source, bibliography, and build script.
 
@@ -56,7 +55,6 @@ The diagnostics matrix artifacts are generated separately from the paper-only wo
 
 - Topology benchmark (paper Table 1) -> generator definitions in `experiments/<dataset>/validate_*.py` and `experiments/run_encoding_ablation.py`
 - Single-run benchmark (paper Table 2; flat compatibility filenames) -> `results/table_1_single_run_*.csv`
-- Student robustness set (paper Table 4 files) -> `results/table_4_student_*.csv`
 - Encoding ablation PC (paper Table 3) -> `results/table_3_pc_*.csv`
 - Encoding ablation GES (paper Table 3) -> `results/table_3_ges_*.csv`
 - Diagnostics matrix artifacts (full pipeline only) -> run-local `runs/YYYYMMDD_HHMMSS/*_causal_results.txt` and `*_3dag_comparison.png`
@@ -223,12 +221,6 @@ python -m experiments.run_encoding_ablation --method pc
 python -m experiments.run_encoding_ablation --method ges
 ```
 
-### Student robustness set (table_4_student_* artifacts)
-
-```bash
-python -m experiments.student_success.evaluate_student_success_multiseed
-```
-
 ### Diagnostics matrix artifacts (full pipeline only)
 
 This optional step writes per-dataset, per-method, per-encoding causal reports and 3-DAG comparison figures:
@@ -250,7 +242,7 @@ Fresh outputs are written under `runs/YYYYMMDD_HHMMSS/`. Frozen reference artifa
 
 Use these entry points depending on what you need:
 
-- Paper artifacts only (recommended for reproducing manuscript tables, including `table_4_student_*`):
+- Paper artifacts only (recommended for reproducing manuscript tables):
 
 ```bash
 python -m experiments.run_paper_data_only
@@ -287,7 +279,6 @@ Paper-only orchestrator parameters (`experiments/run_paper_data_only.py`):
 - `--methods`: methods to run, comma-separated, allowed values `pc` and `ges` (default `pc,ges`).
 - `--skip-single-run`: skip `generate_single_run_table_artifacts.py`.
 - `--skip-sweep`: skip `run_encoding_ablation.py` runs.
-- `--skip-student-table4`: skip `experiments.student_success.evaluate_student_success_multiseed`.
 - `--dry-run`: print plan and commands only, no execution.
 
 Full-artifacts orchestrator parameters (`experiments/run_all_paper_experiments.py`):
@@ -312,8 +303,3 @@ Output location:
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-
-
-
-
