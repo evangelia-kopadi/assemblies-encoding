@@ -31,8 +31,10 @@ This repository accompanies the SUM 2026 manuscript **"Causal Structure Preserva
   - Student Success
   - Vaccine Efficacy
 - `notebooks/pipeline_visualization.ipynb`: executable visual walkthrough of the Stage I-VI pipeline for Bernoulli and deterministic-k encodings.
-- `experiments/run_sensitivity_sweep.py`: PC/GES encoding sensitivity sweep runner.
-- `experiments/student_success/evaluate_student_success_multiseed.py`: Student Success multi-seed graph and intervention robustness check used for the Student Success validation study.
+- `experiments/run_encoding_ablation.py`: PC/GES encoding ablation sweep runner.
+- `experiments/generate_validation_matrix_artifacts.py`: diagnostics matrix generator (dataset x method x encoding) for detailed causal reports and 3-DAG figures.
+- `experiments/run_paper_data_only.py`: paper-only orchestrator (single-run, ablation, and Student Table 4 artifacts).
+- `experiments/run_all_paper_experiments.py`: full-artifacts orchestrator (paper artifacts plus diagnostics matrix).
 - `results/`: frozen single-run benchmark artifacts under flat compatibility filenames for the manuscript's single-run benchmark table (for example, `table_1_single_run_means.csv` and `table_1_single_run_metrics.csv`).
 - `results/`: frozen multi-run PC/GES sensitivity sweep artifacts with paper-mapped filenames: `table_3_pc_*.csv` and `table_4_ges_sensitivity_*.csv`.
 - `results/`: sensitivity sweep raw, summary, and overall CSV files for PC (Table 3) and GES (Table 4).
@@ -48,15 +50,16 @@ The single-run benchmark (`results/`) supports the concrete deterministic-k exam
 
 The main encoding conclusion is based on the five-dataset, ten-seed sensitivity sweeps (`results/`). In those sweeps, each SCM generator produces symbolic observations that pass through the same Bernoulli and deterministic-k encoding grid before PC/GES graph recovery. Each discovery method has 400 runs.
 
-The Student Success multi-seed experiment (`results/`) is a separate 50-seed robustness and intervention validation check.
+The diagnostics matrix artifacts are generated separately from the paper-only workflow so paper reruns stay lean.
 
 ## Result-artifact mapping
 
-- Topology benchmark (paper Table 1) -> generator definitions in `experiments/<dataset>/validate_*.py` and `experiments/run_sensitivity_sweep.py`
+- Topology benchmark (paper Table 1) -> generator definitions in `experiments/<dataset>/validate_*.py` and `experiments/run_encoding_ablation.py`
 - Single-run benchmark (paper Table 2; flat compatibility filenames) -> `results/table_1_single_run_*.csv`
+- Student robustness set (paper Table 4 files) -> `results/table_4_student_*.csv`
 - Encoding ablation PC (paper Table 3) -> `results/table_3_pc_*.csv`
 - Encoding ablation GES (paper Table 3) -> `results/table_3_ges_*.csv`
-- Student Success validation (paper Table 5) -> `results/table_4_student_*.csv`
+- Diagnostics matrix artifacts (full pipeline only) -> run-local `runs/YYYYMMDD_HHMMSS/*_causal_results.txt` and `*_3dag_comparison.png`
 
 
 ## Encoding grid used in the paper
@@ -141,7 +144,7 @@ The full pipeline writes fresh artifacts under `runs/YYYYMMDD_HHMMSS/`, where th
 
 ### Runtime and hardware expectations
 
-The full paper pipeline is CPU-bound and does not require a GPU. Runtime depends mainly on CPU speed, available cores, memory bandwidth, and the installed numerical stack. The PC/GES sensitivity sweeps dominate the wall-clock time because they run the five-dataset, ten-seed encoding grid for both discovery methods.
+The full paper pipeline is CPU-bound and does not require a GPU. Runtime depends mainly on CPU speed, available cores, memory bandwidth, and the installed numerical stack. The PC/GES encoding ablation sweeps dominate the wall-clock time.
 
 Practical baseline for a reasonable local run:
 
@@ -150,7 +153,7 @@ Practical baseline for a reasonable local run:
 - 16 GB RAM is recommended; 8 GB can work for smaller/partial runs but may be less comfortable while other applications are open.
 - SSD-backed working directory, because each run writes CSV, text, metadata, and figure artifacts under `runs/YYYYMMDD_HHMMSS/`.
 
-The one-command orchestrator prints elapsed time for each step and the total runtime. To record an external wall-clock measurement on your own machine, wrap the full command in a shell timer:
+The orchestrator prints elapsed time per step and total elapsed time. To measure wall-clock time externally:
 
 ```powershell
 Measure-Command { python -m experiments.run_all_paper_experiments }
@@ -160,7 +163,9 @@ Measure-Command { python -m experiments.run_all_paper_experiments }
 time python -m experiments.run_all_paper_experiments
 ```
 
-For a quicker smoke test or for machines with limited CPU/RAM, run selected parts first with `--skip-sweep`, `--skip-multiseed`, or `--methods pc` / `--methods ges`.
+For a quicker smoke test or for machines with limited CPU/RAM, run `python -m experiments.run_paper_data_only` (paper artifacts only) instead of the full-artifacts orchestrator.
+
+Observed on this project with current defaults: `python -m experiments.run_paper_data_only` completed in about 2h 39m 50s (final GES sweep step: about 1h 10m).
 
 ## What "reproducibility" means in this repository
 
@@ -170,23 +175,23 @@ Fresh reruns with broad dependencies from `requirements.txt` are expected to pre
 
 ## Local generated artifacts
 
-Experiment scripts write local outputs through `experiments/experiment_defaults.py`. Each script process uses a run folder named `runs/YYYYMMDD_HHMMSS/`; the one-command orchestrator fixes this timestamp at startup and passes the same run id to every child script, so all artifacts from one pipeline run land in the same folder.
+Experiment scripts write local outputs through `experiments/experiment_defaults.py`. Each script process uses a run folder named `runs/YYYYMMDD_HHMMSS/`; orchestrators fix this timestamp at startup and pass the same run id to every child script, so artifacts from one pipeline run land in the same folder.
 
 These local run folders contain generated CSV, text, figure, configuration-snapshot, and `run_metadata.json` files. They are intentionally excluded from version control by `.gitignore` via `runs/`. Keep local reruns there, and only copy/promote selected files into `results/` when intentionally refreshing the frozen paper reference artifacts.
 
-## Paper Table Runbook (Scripts and Commands)
+## Paper table runbook (scripts and commands)
 
-Open a shell at the repository root first, meaning the directory that contains `README.md`, `pyproject.toml`, `src/`, and `experiments/`:
+Open a shell at the repository root first (the directory that contains `README.md`, `pyproject.toml`, `src/`, and `experiments/`):
 
 ```bash
 cd path/to/assemblies-encoding
 ```
 
-Run the `python -m experiments...` commands from this repository root, not from inside `experiments/`; otherwise Python cannot resolve the top-level `experiments` package. All defaults are read from `experiments/experiments_configuration.json`.
+Run all `python -m experiments...` commands from this repository root, not from inside `experiments/`; otherwise Python cannot resolve the top-level `experiments` package. All defaults are read from `experiments/experiments_configuration.json`.
 
 ### Table 1 - Benchmark topologies
 
-The topology table is fixed by the SCM generator definitions in `experiments/<dataset>/validate_*.py` and `experiments/run_sensitivity_sweep.py`.
+The topology table is fixed by the SCM generator definitions in `experiments/<dataset>/validate_*.py` and `experiments/run_encoding_ablation.py`.
 
 ### Table 2 - Single-run benchmark (5 datasets)
 
@@ -206,30 +211,30 @@ python -m experiments.vaccine_efficacy.validate_vaccine
 python -m experiments.student_success.validate_student_success
 ```
 
-### Table 3 - PC sensitivity sweep (400 runs)
+### Table 3 - PC encoding ablation sweep (400 runs)
 
 ```bash
-python -m experiments.run_sensitivity_sweep --method pc
+python -m experiments.run_encoding_ablation --method pc
 ```
 
-### Table 4 - GES robustness sweep (400 runs)
+### Table 4 - GES encoding ablation sweep (400 runs)
 
 ```bash
-python -m experiments.run_sensitivity_sweep --method ges
+python -m experiments.run_encoding_ablation --method ges
 ```
 
-### Compact PC/GES derived artifacts
-
-After both full sweeps have run, generate the compact single-seed PC/GES comparison files:
-
-```bash
-python -m experiments.generate_compact_pc_ges_artifacts
-```
-
-### Table 5 - Student 50-seed robustness
+### Student robustness set (table_4_student_* artifacts)
 
 ```bash
 python -m experiments.student_success.evaluate_student_success_multiseed
+```
+
+### Diagnostics matrix artifacts (full pipeline only)
+
+This optional step writes per-dataset, per-method, per-encoding causal reports and 3-DAG comparison figures:
+
+```bash
+python -m experiments.generate_validation_matrix_artifacts
 ```
 
 Fresh outputs are written under `runs/YYYYMMDD_HHMMSS/`. Frozen reference artifacts used by the paper stay under `results/`.
@@ -237,77 +242,78 @@ Fresh outputs are written under `runs/YYYYMMDD_HHMMSS/`. Frozen reference artifa
 ## Notes for extension
 
 - Add a new SCM generator under `experiments/<dataset>/`.
-- Register it in `experiments/run_sensitivity_sweep.py` inside `build_datasets()`.
+- Register it in `experiments/run_encoding_ablation.py` inside `build_datasets()`.
 - Add new encoding configurations in `build_sweep_configs()`.
 - Keep discovery settings fixed when comparing representation effects, unless the goal is explicitly algorithm tuning.
 
-## License
+## Orchestrator commands
 
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+Use these entry points depending on what you need:
 
+- Paper artifacts only (recommended for reproducing manuscript tables, including `table_4_student_*`):
 
+```bash
+python -m experiments.run_paper_data_only
+```
 
-
-## One-command full pipeline (all paper tables)
-
-To run all paper data-generation scripts in the recommended order (Table 1 topology sources, Table 2 single-run artifacts, Table 3 PC sweep, Table 4 GES sweep, compact PC/GES derived artifacts, Table 5 multiseed), use:
+- Full artifacts (paper outputs plus diagnostics matrix text/figures):
 
 ```bash
 python -m experiments.run_all_paper_experiments
 ```
 
-Preview the planned commands without running:
+Preview either orchestrator plan without running:
 
 ```bash
+python -m experiments.run_paper_data_only --dry-run
 python -m experiments.run_all_paper_experiments --dry-run
-```
-
-Skip parts if needed:
-
-```bash
-python -m experiments.run_all_paper_experiments --skip-validate
-python -m experiments.run_all_paper_experiments --skip-sweep
-python -m experiments.run_all_paper_experiments --skip-multiseed
 ```
 
 Select methods explicitly (default is both):
 
 ```bash
+python -m experiments.run_paper_data_only --methods pc,ges
 python -m experiments.run_all_paper_experiments --methods pc,ges
 ```
 
 ## Parameter quick reference
 
 Parameter source of truth:
-- Core defaults are loaded from experiments/experiments_configuration.json.
-- Shared loader and default wiring are implemented in experiments/experiment_defaults.py.
+- Core defaults are loaded from `experiments/experiments_configuration.json`.
+- Shared loader and default wiring are implemented in `experiments/experiment_defaults.py`.
 - Script CLI arguments override configuration defaults when provided.
 
-Orchestrator parameters (experiments/run_all_paper_experiments.py):
-- --methods: sweep methods to run, comma-separated, allowed values pc and ges (default pc,ges).
-- --skip-validate: skip all five validate_*.py scripts and the single-run CSV generator.
-- --skip-sweep: skip run_sensitivity_sweep.py runs and compact PC/GES derived artifacts.
-- --skip-multiseed: skip evaluate_student_success_multiseed.py.
-- --dry-run: print plan and commands only, no execution.
+Paper-only orchestrator parameters (`experiments/run_paper_data_only.py`):
+- `--methods`: methods to run, comma-separated, allowed values `pc` and `ges` (default `pc,ges`).
+- `--skip-single-run`: skip `generate_single_run_table_artifacts.py`.
+- `--skip-sweep`: skip `run_encoding_ablation.py` runs.
+- `--skip-student-table4`: skip `experiments.student_success.evaluate_student_success_multiseed`.
+- `--dry-run`: print plan and commands only, no execution.
 
-Sensitivity sweep parameters (experiments/run_sensitivity_sweep.py):
-- --datasets: dataset list (default from sensitivity_sweep.datasets).
-- --seeds: seed list (default from sensitivity_sweep.seeds).
-- --n-samples: per-dataset sample count.
-- --n-train: training examples for the assembly stage.
-- --n-presentations: repeated presentation cycles.
-- --method: causal discovery method, pc or ges.
-- --alpha-pc: PC conditional-independence significance level.
+Full-artifacts orchestrator parameters (`experiments/run_all_paper_experiments.py`):
+- `--methods`: methods to run, comma-separated, allowed values `pc` and `ges` (default `pc,ges`).
+- `--skip-validate`: skip `generate_validation_matrix_artifacts.py` and single-run table generation.
+- `--skip-sweep`: skip `run_encoding_ablation.py` runs.
+- `--dry-run`: print plan and commands only, no execution.
 
-Student multiseed parameters (experiments/student_success/evaluate_student_success_multiseed.py):
-- --n-seeds: number of sequential seeds to evaluate.
-- --seed0: starting seed.
-- --n-samples: training cohort size per seed.
-- --n-eval: intervention evaluation cohort size.
-- --alpha-primary: primary PC alpha.
-- --alpha-fallback: fallback PC alpha if needed.
-- --verbose: print per-seed logs.
+Encoding ablation parameters (`experiments/run_encoding_ablation.py`):
+- `--datasets`: dataset list (default from `sensitivity_sweep.datasets`).
+- `--seeds`: seed list (default from `sensitivity_sweep.seeds`).
+- `--n-samples`: per-dataset sample count.
+- `--n-train`: training examples for the assembly stage.
+- `--n-presentations`: repeated presentation cycles.
+- `--method`: causal discovery method, `pc` or `ges`.
+- `--alpha-pc`: PC conditional-independence significance level.
 
 Output location:
-- New run artifacts are written under runs/YYYYMMDD_HHMMSS via get_output_filepath.
-- Frozen paper reference artifacts remain under results.
+- New run artifacts are written under `runs/YYYYMMDD_HHMMSS` via `get_output_filepath`.
+- Frozen paper reference artifacts remain under `results`.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+
+
+
+
