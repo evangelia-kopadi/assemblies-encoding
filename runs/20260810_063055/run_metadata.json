@@ -1,0 +1,83 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "/home/jovyan/work/assemblies-encoding/experiments/generate_single_run_table_artifacts.py",
+        "--method",
+        "pc"
+      ],
+      "command": "/opt/conda/envs/py313/bin/python /home/jovyan/work/assemblies-encoding/experiments/generate_single_run_table_artifacts.py --method pc",
+      "cwd": "/home/jovyan/work/assemblies-encoding",
+      "python_executable": "/opt/conda/envs/py313/bin/python",
+      "timestamp_utc": "2026-08-10T06:32:24.284069Z"
+    },
+    {
+      "argv": [
+        "/home/jovyan/work/assemblies-encoding/experiments/generate_single_run_table_artifacts.py",
+        "--method",
+        "ges"
+      ],
+      "command": "/opt/conda/envs/py313/bin/python /home/jovyan/work/assemblies-encoding/experiments/generate_single_run_table_artifacts.py --method ges",
+      "cwd": "/home/jovyan/work/assemblies-encoding",
+      "python_executable": "/opt/conda/envs/py313/bin/python",
+      "timestamp_utc": "2026-08-10T06:33:53.609325Z"
+    },
+    {
+      "argv": [
+        "/home/jovyan/work/assemblies-encoding/experiments/run_encoding_ablation.py",
+        "--method",
+        "pc"
+      ],
+      "command": "/opt/conda/envs/py313/bin/python /home/jovyan/work/assemblies-encoding/experiments/run_encoding_ablation.py --method pc",
+      "cwd": "/home/jovyan/work/assemblies-encoding",
+      "python_executable": "/opt/conda/envs/py313/bin/python",
+      "timestamp_utc": "2026-08-10T07:17:46.045228Z"
+    },
+    {
+      "argv": [
+        "/home/jovyan/work/assemblies-encoding/experiments/run_encoding_ablation.py",
+        "--method",
+        "ges"
+      ],
+      "command": "/opt/conda/envs/py313/bin/python /home/jovyan/work/assemblies-encoding/experiments/run_encoding_ablation.py --method ges",
+      "cwd": "/home/jovyan/work/assemblies-encoding",
+      "python_executable": "/opt/conda/envs/py313/bin/python",
+      "timestamp_utc": "2026-08-10T08:01:44.277987Z"
+    },
+    {
+      "argv": [
+        "/home/jovyan/work/assemblies-encoding/experiments/student_success/evaluate_student_success_multiseed.py"
+      ],
+      "command": "/opt/conda/envs/py313/bin/python /home/jovyan/work/assemblies-encoding/experiments/student_success/evaluate_student_success_multiseed.py",
+      "cwd": "/home/jovyan/work/assemblies-encoding",
+      "python_executable": "/opt/conda/envs/py313/bin/python",
+      "timestamp_utc": "2026-08-10T08:06:18.762616Z"
+    }
+  ],
+  "config_snapshot": "experiments_configuration.json",
+  "created_at_utc": "2026-08-10T06:32:24.273305Z",
+  "dependency_mode": {
+    "mode": "requirements.txt",
+    "source": "default assumption; set ASSEMBLIES_ENCODING_DEPENDENCY_MODE to override"
+  },
+  "git": {
+    "branch": "main",
+    "commit_sha": "39851ac2a4d5cef94f72b0e55046c569ba2ee681",
+    "is_dirty_tracked": false
+  },
+  "python": {
+    "executable": "/opt/conda/envs/py313/bin/python",
+    "implementation": "CPython",
+    "platform": "Linux-6.8.0-134-generic-x86_64-with-glibc2.35",
+    "version": "3.13.14 | packaged by conda-forge | (main, Jun 12 2026, 09:50:25) [GCC 14.3.0]",
+    "version_info": [
+      3,
+      13,
+      14
+    ]
+  },
+  "run_directory": "/home/jovyan/work/assemblies-encoding/runs/20260810_063055",
+  "run_id": "20260810_063055",
+  "schema_version": 1,
+  "updated_at_utc": "2026-08-10T08:06:18.762438Z"
+}
