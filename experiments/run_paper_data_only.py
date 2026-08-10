@@ -1,8 +1,9 @@
 """Run only paper data artifact scripts (no diagnostics matrix).
 
-This orchestrator generates only the CSV artifacts currently used in the paper:
+This orchestrator generates the artifacts currently used in the paper:
 1) Single-run benchmark CSV artifacts (Table 2 family)
 2) Encoding ablation sweeps for both methods (Table 3 family)
+3) Student multiseed robustness artifacts (Table 4 family)
 
 It intentionally skips `*_causal_results.txt` and `*_3dag_comparison.png`
 validation diagnostics.
@@ -56,6 +57,11 @@ def parse_args() -> argparse.Namespace:
         help="Skip encoding ablation sweeps (Table 3 family)",
     )
     parser.add_argument(
+        "--skip-student-table4",
+        action="store_true",
+        help="Skip Student multiseed robustness artifacts (Table 4 family)",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Print planned commands without running them",
@@ -104,6 +110,14 @@ def build_steps(methods: list[str], args: argparse.Namespace) -> list[Step]:
                     ["-m", "experiments.run_encoding_ablation", "--method", method],
                 )
             )
+
+    if not args.skip_student_table4:
+        steps.append(
+            Step(
+                "Generate Student multiseed robustness artifacts (Table 4)",
+                ["-m", "experiments.student_success.evaluate_student_success_multiseed"],
+            )
+        )
 
     return steps
 
