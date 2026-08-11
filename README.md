@@ -236,12 +236,6 @@ python -m experiments.generate_validation_dag_artifacts
 
 Fresh outputs are written under `runs/YYYYMMDD_HHMMSS/`. Frozen reference artifacts used by the paper stay under `results/`.
 
-Manual freeze/promotion from a chosen run:
-
-```bash
-python -m experiments.freeze_results_from_run --run-id YYYYMMDD_HHMMSS --overwrite
-```
-
 ## Orchestrator commands
 
 Use these entry points depending on what you need:
@@ -299,6 +293,8 @@ Output location:
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+
 
 
 
