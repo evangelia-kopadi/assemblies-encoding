@@ -2,7 +2,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from experiments.generate_paper_data_only import _parse_methods, build_steps
+from experiments.generate_paper_data import _parse_methods, build_steps
 
 
 def test_build_steps_default_calls_all_required_scripts_in_order():
@@ -66,4 +66,5 @@ def test_parse_methods_rejects_invalid_values():
 def test_parse_methods_rejects_empty_input():
     with pytest.raises(ValueError, match="cannot be empty"):
         _parse_methods("   ")
+
 
