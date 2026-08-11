@@ -47,15 +47,6 @@ Fresh outputs are written under `runs/YYYYMMDD_HHMMSS/`. Frozen reference artifa
 
 `results/` contains the canonical paper artifacts. The SCM topologies are defined in `experiments/<dataset>/validate_*.py`.
 
-## Paper source
-
-The editable manuscript is at `paper/causal_structure_preservation_in_neural_assemblies_under_encoding_uncertainty.md`. Build the PDF with:
-
-```bash
-cd paper
-pwsh -File build_paper.ps1
-```
-
 ## License
 
 MIT — see [LICENSE](LICENSE).
