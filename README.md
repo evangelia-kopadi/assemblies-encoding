@@ -39,7 +39,7 @@ This repository accompanies the SUM 2026 manuscript **"Causal Structure Preserva
 - `Table 5 -> experiments/generate_table5_intervention_multiseed.py`: interventional robustness generator (multiseed).
 - `experiments/generate_paper_data.py`: paper pipeline runner (single-run and ablation artifacts).
 - `results/`: frozen single-run benchmark artifacts under flat compatibility filenames for the manuscript's single-run benchmark table (for example, `single_run_pc_means.csv` and `single_run_ges_metrics.csv`).
-- `results/`: frozen multi-run PC/GES sensitivity sweep artifacts with paper-mapped filenames: `encoding_ablation_pc_*.csv` and `encoding_ablation_ges_*.csv`.
+- `results/`: frozen multi-run PC/GES sensitivity sweep artifacts with paper-mapped filenames: `table_3_pc_*.csv` and `table_3_ges_*.csv`.
 - `results/`: sensitivity sweep raw, summary, and overall CSV files for PC (Table 3) and GES (Table 4).
 - `figures/`: figures referenced by the paper source.
 - `paper/`: editable paper source, bibliography, and build script.
@@ -57,11 +57,11 @@ The DAG diagnostics artifacts are generated separately from the paper workflow s
 ## Result-artifact mapping
 
 - Topology benchmark (paper Table 1) -> generator definitions in `experiments/<dataset>/validate_*.py` and `experiments/generate_table3_multiseed_run_artifacts.py`
-- Single-run benchmark (paper Table 2) -> canonical `results/single_run_*.csv` plus table aliases `results/table_2_*.csv`
-- Encoding ablation PC (paper Table 3) -> canonical `results/encoding_ablation_pc_*.csv` plus table aliases `results/table_3_pc_*.csv`
-- Encoding ablation GES (paper Table 3) -> canonical `results/encoding_ablation_ges_*.csv` plus table aliases `results/table_3_ges_*.csv`
-- Interventional robustness (paper Table 5) -> canonical `results/intervention_multiseed_*.{csv,md}` plus table aliases `results/table_5_interventional_*.{csv,md}`
-- Practical success-rate summary (derived from sweeps; paper Table 4) -> canonical `results/practical_success_rate_summary.csv` plus alias `results/table_4_practical_success_rate_summary.csv`
+- Single-run benchmark (paper Table 2) -> `results/table_2_*.csv`
+- Encoding ablation PC (paper Table 3) -> `results/table_3_pc_*.csv`
+- Encoding ablation GES (paper Table 3) -> `results/table_3_ges_*.csv`
+- Interventional robustness (paper Table 5) -> `results/table_5_interventional_*.{csv,md}`
+- Practical success-rate summary (derived from sweeps; paper Table 4) -> `results/table_4_practical_success_rate_summary.csv`
 - DAG diagnostics artifacts (optional, manual) -> run-local `runs/YYYYMMDD_HHMMSS/*_causal_results.txt` and `*_3dag_comparison.png`
 
 ## Encoding grid used in the paper
@@ -197,7 +197,7 @@ The topology table is fixed by the SCM generator definitions in `experiments/<da
 
 ### Table 2 - Single-run benchmark (5 datasets)
 
-This workflow uses `n_train=200` from config by default and writes the flat `single_run_*.csv` artifact family.
+This workflow uses `n_train=200` from config by default and writes the `table_2_single_run_*.csv` artifact family.
 
 ```bash
 python -m experiments.generate_table2_single_run_artifacts
@@ -299,6 +299,8 @@ Output location:
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+
 
 
 
