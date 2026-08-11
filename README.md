@@ -33,7 +33,7 @@ This repository accompanies the SUM 2026 manuscript **"Causal Structure Preserva
 - `notebooks/pipeline_visualization.ipynb`: executable visual walkthrough of the Stage I-VI pipeline for Bernoulli and deterministic-k encodings.
 - `experiments/generate_encoding_ablation.py`: PC/GES encoding ablation sweep runner.
 - `experiments/generate_validation_matrix_artifacts.py`: diagnostics matrix generator (dataset x method x encoding) for detailed causal reports and 3-DAG figures.
-- `experiments/generate_paper_data_only.py`: paper-only orchestrator (single-run and ablation artifacts).
+- `experiments/generate_paper_data.py`: paper orchestrator (single-run and ablation artifacts).
 - `results/`: frozen single-run benchmark artifacts under flat compatibility filenames for the manuscript's single-run benchmark table (for example, `single_run_pc_means.csv` and `single_run_ges_metrics.csv`).
 - `results/`: frozen multi-run PC/GES sensitivity sweep artifacts with paper-mapped filenames: `encoding_ablation_pc_*.csv` and `encoding_ablation_ges_*.csv`.
 - `results/`: sensitivity sweep raw, summary, and overall CSV files for PC (Table 3) and GES (Table 4).
@@ -48,7 +48,7 @@ The single-run benchmark (`results/`) supports the concrete deterministic-k exam
 
 The main encoding conclusion is based on the five-dataset, ten-seed sensitivity sweeps (`results/`). In those sweeps, each SCM generator produces symbolic observations that pass through the same Bernoulli and deterministic-k encoding grid before PC/GES graph recovery. Each discovery method has 400 runs.
 
-The diagnostics matrix artifacts are generated separately from the paper-only workflow so paper reruns stay lean.
+The diagnostics matrix artifacts are generated separately from the paper workflow so paper reruns stay lean.
 
 ## Result-artifact mapping
 
@@ -99,7 +99,7 @@ Total = 400 runs per discovery method
 
 ## Quick start
 
-**Python 3.9 or later is required** for general use. The frozen paper artifacts were produced with **Python 3.13.4**.
+**Python 3.9 or later is required** for general use. The frozen paper artifacts were produced with **Python 3.13**.
 
 The `.venv/` directory is intentionally not committed. Create a local virtual environment first, then install either the exact reproduction dependencies or the broader development dependencies.
 
@@ -117,16 +117,16 @@ python -m venv .venv
 source .venv/bin/activate
 ```
 
-For exact frozen-artifact reproduction of Tables 1-5, use Python 3.13.4 and the pinned lockfile:
+For exact frozen-artifact reproduction of Tables 1-5, use Python 3.13 and the pinned lockfile:
 
 ```powershell
-python --version  # expected: Python 3.13.4
+python --version  # expected: Python 3.13.x
 pip install -r requirements-lock.txt
 pip install -e . --no-deps
-python -m experiments.generate_paper_data_only
+python -m experiments.generate_paper_data
 ```
 
-`requirements-lock.txt` is a full `pip freeze` from the canonical latest-env run (Python 3.13.4; generated 2026-08-06). The `--no-deps` flag keeps pip from changing those pinned versions while installing this repository in editable mode, so `src.*` and `experiments.*` imports resolve.
+`requirements-lock.txt` is a full `pip freeze` from the canonical latest-env run (Python 3.13.x; generated 2026-08-06). The `--no-deps` flag keeps pip from changing those pinned versions while installing this repository in editable mode, so `src.*` and `experiments.*` imports resolve.
 
 For general development or extension work on Python 3.9+:
 
@@ -135,7 +135,7 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
-`requirements.txt` contains broad compatible ranges. It should preserve the paper conclusions, but exact row-level identity with `results/` requires Python 3.13.4, `requirements-lock.txt`, the frozen configuration, and the same script version.
+`requirements.txt` contains broad compatible ranges. It should preserve the paper conclusions, but exact row-level identity with `results/` requires Python 3.13.x, `requirements-lock.txt`, the frozen configuration, and the same script version.
 
 The full pipeline writes fresh artifacts under `runs/YYYYMMDD_HHMMSS/`, where the timestamp is fixed at script start; reruns on the same day therefore create separate folders. Compare or promote those files against `results/` when refreshing the frozen reference set. Each run directory also includes `experiments_configuration.json` and `run_metadata.json`, recording the git commit SHA, Python version, dependency mode, timestamps, working directory, and command arguments for scripts that wrote artifacts there. Set `ASSEMBLIES_ENCODING_DEPENDENCY_MODE=requirements-lock.txt` or `requirements.txt` to override dependency-mode inference.
 
@@ -146,7 +146,7 @@ The full paper pipeline is CPU-bound and does not require a GPU. Runtime depends
 
 Practical baseline for a reasonable local run:
 
-- Python 3.13.4 with `requirements-lock.txt` for exact frozen-artifact reproduction.
+- Python 3.13.x with `requirements-lock.txt` for exact frozen-artifact reproduction.
 - Modern 4-core CPU or better; 8 cores / 16 threads is a more comfortable target for full reruns.
 - 16 GB RAM is recommended; 8 GB can work for smaller/partial runs but may be less comfortable while other applications are open.
 - SSD-backed working directory, because each run writes CSV, text, metadata, and figure artifacts under `runs/YYYYMMDD_HHMMSS/`.
@@ -154,22 +154,22 @@ Practical baseline for a reasonable local run:
 The orchestrator prints elapsed time per step and total elapsed time. To measure wall-clock time externally:
 
 ```powershell
-Measure-Command { python -m experiments.generate_paper_data_only }
+Measure-Command { python -m experiments.generate_paper_data }
 ```
 
 ```bash
-time python -m experiments.generate_paper_data_only
+time python -m experiments.generate_paper_data
 ```
 
-Use `python -m experiments.generate_paper_data_only` for the paper artifact pipeline. Additional diagnostics artifacts are generated manually with `python -m experiments.generate_validation_matrix_artifacts`.
+Use `python -m experiments.generate_paper_data` for the paper artifact pipeline. Additional diagnostics artifacts are generated manually with `python -m experiments.generate_validation_matrix_artifacts`.
 
-Observed on this project with current defaults: `python -m experiments.generate_paper_data_only` completed in about 2h 39m 50s (final GES sweep step: about 1h 10m).
+Observed on this project with current defaults: `python -m experiments.generate_paper_data` completed in about 2h 39m 50s (final GES sweep step: about 1h 10m).
 
 ## What "reproducibility" means in this repository
 
 The frozen artifacts under `results/` are tied to three things: the pinned latest-env environment (`requirements-lock.txt`), frozen run settings (`results/experiments_configuration_frozen_sweeps.json`, synchronized with `experiments/experiments_configuration.json` for the current canonical set), and the script versions that produced them.
 
-Fresh reruns with broad dependencies from `requirements.txt` are expected to preserve the paper conclusions, but exact row-level identity requires Python 3.13.4, `requirements-lock.txt`, the frozen configuration, and the same script version.
+Fresh reruns with broad dependencies from `requirements.txt` are expected to preserve the paper conclusions, but exact row-level identity requires Python 3.13.x, `requirements-lock.txt`, the frozen configuration, and the same script version.
 
 ## Local generated artifacts
 
@@ -237,13 +237,6 @@ Manual freeze/promotion from a chosen run:
 python -m experiments.freeze_results_from_run --run-id YYYYMMDD_HHMMSS --overwrite
 ```
 
-## Notes for extension
-
-- Add a new SCM generator under `experiments/<dataset>/`.
-- Register it in `experiments/generate_encoding_ablation.py` inside `build_datasets()`.
-- Add new encoding configurations in `build_sweep_configs()`.
-- Keep discovery settings fixed when comparing representation effects, unless the goal is explicitly algorithm tuning.
-
 ## Orchestrator commands
 
 Use these entry points depending on what you need:
@@ -251,7 +244,7 @@ Use these entry points depending on what you need:
 - Paper artifacts only (recommended for reproducing manuscript tables):
 
 ```bash
-python -m experiments.generate_paper_data_only
+python -m experiments.generate_paper_data
 ```
 
 - Optional diagnostics artifacts (manual text/figures):
@@ -263,13 +256,13 @@ python -m experiments.generate_validation_matrix_artifacts
 Preview orchestrator plan without running:
 
 ```bash
-python -m experiments.generate_paper_data_only --dry-run
+python -m experiments.generate_paper_data --dry-run
 ```
 
 Select methods explicitly (default is both):
 
 ```bash
-python -m experiments.generate_paper_data_only --methods pc,ges
+python -m experiments.generate_paper_data --methods pc,ges
 ```
 
 ## Parameter quick reference
@@ -279,7 +272,7 @@ Parameter source of truth:
 - Shared loader and default wiring are implemented in `experiments/experiment_defaults.py`.
 - Script CLI arguments override configuration defaults when provided.
 
-Paper-only orchestrator parameters (`experiments/generate_paper_data_only.py`):
+Paper orchestrator parameters (`experiments/generate_paper_data.py`):
 - `--methods`: methods to run, comma-separated, allowed values `pc` and `ges` (default `pc,ges`).
 - `--skip-single-run`: skip `generate_single_run_table_artifacts.py`.
 - `--skip-sweep`: skip `generate_encoding_ablation.py` runs.
@@ -301,6 +294,10 @@ Output location:
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+
+
+
 
 
 

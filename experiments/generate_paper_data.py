@@ -8,9 +8,9 @@ It intentionally skips `*_causal_results.txt` and `*_3dag_comparison.png`
 validation diagnostics.
 
 Usage:
-  python -m experiments.generate_paper_data_only
-  python -m experiments.generate_paper_data_only --dry-run
-  python -m experiments.generate_paper_data_only --methods pc,ges
+  python -m experiments.generate_paper_data
+  python -m experiments.generate_paper_data --dry-run
+  python -m experiments.generate_paper_data --methods pc,ges
 """
 
 from __future__ import annotations
@@ -195,5 +195,6 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
 
 
