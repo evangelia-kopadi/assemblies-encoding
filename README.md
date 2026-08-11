@@ -22,18 +22,23 @@ Use `requirements-lock.txt` with Python 3.13 for exact frozen-artifact reproduct
 
 All commands run from the repository root.
 
-**All tables (recommended):**
+**Tables 2–4** (single command):
 ```bash
 python -m experiments.generate_paper_data
 ```
 
-**Individual tables:**
+**Table 5** (interventional sign-match, run separately — heavy; paper used `--n-seeds 50`):
+```bash
+python -m experiments.generate_table5_multiseed_intervention          # default: 10 seeds
+python -m experiments.generate_table5_multiseed_intervention --n-seeds 50  # paper replication
+```
+
+**Individual tables 2–4:**
 ```bash
 python -m experiments.generate_table2_single_run_artifacts                      # Table 2
 python -m experiments.generate_table3_multiseed_run_artifacts --method pc       # Table 3 (PC)
 python -m experiments.generate_table3_multiseed_run_artifacts --method ges      # Table 3 (GES)
 python -m experiments.generate_table4_practical_success_summary --methods pc,ges # Table 4
-python -m experiments.generate_table5_multiseed_intervention                     # Table 5 (all datasets, multiseed)
 ```
 
 **DAG diagnostic figures (optional):**
