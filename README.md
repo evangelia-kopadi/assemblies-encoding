@@ -33,7 +33,7 @@ python -m experiments.generate_table2_single_run_artifacts                      
 python -m experiments.generate_table3_multiseed_run_artifacts --method pc       # Table 3 (PC)
 python -m experiments.generate_table3_multiseed_run_artifacts --method ges      # Table 3 (GES)
 python -m experiments.generate_table4_practical_success_summary --methods pc,ges # Table 4
-python -m experiments.generate_student_multiseed_intervention                    # Table 5 (Student Success multiseed)
+python -m experiments.generate_table5_multiseed_intervention                     # Table 5 (all datasets, multiseed)
 ```
 
 **DAG diagnostic figures (optional):**
