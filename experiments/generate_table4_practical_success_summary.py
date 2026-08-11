@@ -5,9 +5,9 @@ single CSV artifact there. This keeps the paper's practical summary reproducible
 from run-local artifacts.
 
 Usage:
-  python -m experiments.generate_practical_success_summary
-  python -m experiments.generate_practical_success_summary --methods pc,ges --threshold 0.6
-  python -m experiments.generate_practical_success_summary --input-root results --output-root results
+  python -m experiments.generate_table4_practical_success_summary
+  python -m experiments.generate_table4_practical_success_summary --methods pc,ges --threshold 0.6
+  python -m experiments.generate_table4_practical_success_summary --input-root results --output-root results
 """
 
 from __future__ import annotations
@@ -153,3 +153,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

@@ -26,11 +26,26 @@ DEFAULT_COPY_FILES = [
     "encoding_ablation_ges_summary.csv",
     "encoding_ablation_ges_overall.csv",
     "practical_success_rate_summary.csv",
-    "interventional_multiseed_summary.csv",
-    "interventional_multiseed_dodeltas.csv",
-    "interventional_multiseed_report.md",
+    "intervention_multiseed_summary.csv",
+    "intervention_multiseed_dodeltas.csv",
+    "intervention_multiseed_report.md",
     "experiments_configuration.json",
 ]
+
+LEGACY_FILENAME_FALLBACKS = {
+    "intervention_multiseed_summary.csv": [
+        "interventional_multiseed_summary.csv",
+        "interventional_summary.csv",
+    ],
+    "intervention_multiseed_dodeltas.csv": [
+        "interventional_multiseed_dodeltas.csv",
+        "interventional_dodeltas.csv",
+    ],
+    "intervention_multiseed_report.md": [
+        "interventional_multiseed_report.md",
+        "interventional_report.md",
+    ],
+}
 
 
 def parse_args() -> argparse.Namespace:
@@ -81,8 +96,15 @@ def main() -> int:
     for name in DEFAULT_COPY_FILES:
         src = run_dir / name
         if not src.exists():
-            missing.append(name)
-            continue
+            for legacy_name in LEGACY_FILENAME_FALLBACKS.get(name, []):
+                legacy_path = run_dir / legacy_name
+                if legacy_path.exists():
+                    src = legacy_path
+                    break
+            else:
+                missing.append(name)
+                continue
+
         dst = results_dir / name
         _copy_file(src, dst, overwrite=args.overwrite)
         copied.append(dst)
