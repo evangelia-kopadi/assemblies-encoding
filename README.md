@@ -31,16 +31,15 @@ This repository accompanies the SUM 2026 manuscript **"Causal Structure Preserva
   - Student Success
   - Vaccine Efficacy
 - `notebooks/pipeline_visualization.ipynb`: executable visual walkthrough of the Stage I-VI pipeline for Bernoulli and deterministic-k encodings.
-- `Table 3 -> experiments/generate_table3_multiseed_run_artifacts.py`: PC/GES encoding ablation sweep runner.
-- `experiments/generate_validation_dag_artifacts.py`: DAG diagnostics generator (dataset x method x encoding) for detailed causal reports and 3-DAG figures.
 - `Table 2 -> experiments/generate_table2_single_run_artifacts.py`: single-run benchmark data generator.
 - `Table 3 -> experiments/generate_table3_multiseed_run_artifacts.py`: PC/GES encoding ablation sweep runner.
+- `experiments/generate_validation_dag_artifacts.py`: DAG diagnostics generator (dataset x method x encoding) for detailed causal reports and 3-DAG figures.
 - `Table 4 -> experiments/generate_table4_practical_success_summary.py`: practical success-rate summary generator (derived from ablation raw files).
 - `Table 5 -> experiments/generate_table5_intervention_multiseed.py`: interventional robustness generator (multiseed).
 - `experiments/generate_paper_data.py`: paper pipeline runner (single-run and ablation artifacts).
-- `results/`: frozen single-run benchmark artifacts under flat compatibility filenames for the manuscript's single-run benchmark table (for example, `single_run_pc_means.csv` and `single_run_ges_metrics.csv`).
+- `results/`: frozen single-run benchmark artifacts under flat compatibility filenames for the manuscript's single-run benchmark table (for example, `table_2_single_run_pc_means.csv` and `table_2_single_run_ges_metrics.csv`).
 - `results/`: frozen multi-run PC/GES sensitivity sweep artifacts with paper-mapped filenames: `table_3_pc_*.csv` and `table_3_ges_*.csv`.
-- `results/`: sensitivity sweep raw, summary, and overall CSV files for PC (Table 3) and GES (Table 4).
+- `results/`: sensitivity sweep raw, summary, and overall CSV files for PC and GES (both Table 3).
 - `figures/`: figures referenced by the paper source.
 - `paper/`: editable paper source, bibliography, and build script.
 
@@ -171,7 +170,7 @@ Observed on this project with current defaults: `python -m experiments.generate_
 
 ## What "reproducibility" means in this repository
 
-The frozen artifacts under `results/` are tied to three things: the pinned latest-env environment (`requirements-lock.txt`), frozen run settings (`results/experiments_configuration_frozen_sweeps.json`, synchronized with `experiments/experiments_configuration.json` for the current canonical set), and the script versions that produced them.
+The frozen artifacts under `results/` are tied to three things: the pinned latest-env environment (`requirements-lock.txt`), frozen run settings (`results/experiments_configuration.json` for the current canonical set), and the script versions that produced them.
 
 Fresh reruns with broad dependencies from `requirements.txt` are expected to preserve the paper conclusions, but exact row-level identity requires Python 3.13.x, `requirements-lock.txt`, the frozen configuration, and the same script version.
 
@@ -224,6 +223,12 @@ python -m experiments.generate_table3_multiseed_run_artifacts --method ges
 
 ```bash
 python -m experiments.generate_table4_practical_success_summary --methods pc,ges
+```
+
+### Table 5 - Interventional robustness (multiseed)
+
+```bash
+python -m experiments.generate_table5_intervention_multiseed
 ```
 
 ### DAG diagnostics artifacts (manual, optional)
