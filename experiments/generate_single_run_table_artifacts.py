@@ -1,6 +1,6 @@
 """Generate flat single-run benchmark CSV artifacts.
 
-This script writes the table_2_single_run_pc/ges artifact family from the same
+This script writes the single_run_pc/ges artifact family from the same
 runner used by the validation scripts. It evaluates the baseline Bernoulli
 (0.30/0.10) setting and deterministic-k step 10 once per benchmark dataset,
 for a given causal discovery method (PC or GES).
@@ -17,6 +17,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from experiments.artifact_aliases import write_table_alias_copy
 from experiments.experiment_defaults import DEFAULTS, get_output_filepath, runner_kwargs
 from experiments.run_encoding_ablation import build_datasets
 from src.runner import run_causal_dag_validation
@@ -83,7 +84,7 @@ def _round(value: float) -> float:
 
 
 def _file_prefix(method: str) -> str:
-    return f"table_2_single_run_{method}"
+    return f"single_run_{method}"
 
 
 def main() -> None:
@@ -140,6 +141,7 @@ def main() -> None:
     metrics_df = pd.DataFrame(rows)
     metrics_path = Path(get_output_filepath(f"{prefix}_metrics.csv"))
     metrics_df.to_csv(metrics_path, index=False)
+    metrics_alias_path = write_table_alias_copy(metrics_path)
 
     means = (
         metrics_df.groupby("Config", as_index=False)[
@@ -159,9 +161,14 @@ def main() -> None:
     means["Method"] = method.upper()
     means_path = Path(get_output_filepath(f"{prefix}_means.csv"))
     means.to_csv(means_path, index=False)
+    means_alias_path = write_table_alias_copy(means_path)
 
     print(f"Saved metrics: {metrics_path}")
+    if metrics_alias_path is not None:
+        print(f"Saved table alias: {metrics_alias_path}")
     print(f"Saved means: {means_path}")
+    if means_alias_path is not None:
+        print(f"Saved table alias: {means_alias_path}")
     print(means.to_string(index=False))
 
 

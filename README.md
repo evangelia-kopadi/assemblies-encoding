@@ -35,8 +35,8 @@ This repository accompanies the SUM 2026 manuscript **"Causal Structure Preserva
 - `experiments/generate_validation_matrix_artifacts.py`: diagnostics matrix generator (dataset x method x encoding) for detailed causal reports and 3-DAG figures.
 - `experiments/run_paper_data_only.py`: paper-only orchestrator (single-run and ablation artifacts).
 - `experiments/run_all_paper_experiments.py`: full-artifacts orchestrator (paper artifacts plus diagnostics matrix).
-- `results/`: frozen single-run benchmark artifacts under flat compatibility filenames for the manuscript's single-run benchmark table (for example, `table_1_single_run_means.csv` and `table_1_single_run_metrics.csv`).
-- `results/`: frozen multi-run PC/GES sensitivity sweep artifacts with paper-mapped filenames: `table_3_pc_*.csv` and `table_4_ges_sensitivity_*.csv`.
+- `results/`: frozen single-run benchmark artifacts under flat compatibility filenames for the manuscript's single-run benchmark table (for example, `single_run_pc_means.csv` and `single_run_ges_metrics.csv`).
+- `results/`: frozen multi-run PC/GES sensitivity sweep artifacts with paper-mapped filenames: `encoding_ablation_pc_*.csv` and `encoding_ablation_ges_*.csv`.
 - `results/`: sensitivity sweep raw, summary, and overall CSV files for PC (Table 3) and GES (Table 4).
 - `figures/`: figures referenced by the paper source.
 - `paper/`: editable paper source, bibliography, and build script.
@@ -54,11 +54,12 @@ The diagnostics matrix artifacts are generated separately from the paper-only wo
 ## Result-artifact mapping
 
 - Topology benchmark (paper Table 1) -> generator definitions in `experiments/<dataset>/validate_*.py` and `experiments/run_encoding_ablation.py`
-- Single-run benchmark (paper Table 2; flat compatibility filenames) -> `results/table_1_single_run_*.csv`
-- Encoding ablation PC (paper Table 3) -> `results/table_3_pc_*.csv`
-- Encoding ablation GES (paper Table 3) -> `results/table_3_ges_*.csv`
+- Single-run benchmark (paper Table 2) -> canonical `results/single_run_*.csv` plus table aliases `results/table_2_*.csv`
+- Encoding ablation PC (paper Table 3) -> canonical `results/encoding_ablation_pc_*.csv` plus table aliases `results/table_3_pc_*.csv`
+- Encoding ablation GES (paper Table 3) -> canonical `results/encoding_ablation_ges_*.csv` plus table aliases `results/table_3_ges_*.csv`
+- Interventional multiseed (paper Table 5) -> canonical `results/interventional_multiseed_*.{csv,md}` plus table aliases `results/table_5_interventional_*.{csv,md}`
+- Practical success-rate summary (derived from sweeps; paper Table 4) -> canonical `results/practical_success_rate_summary.csv` plus alias `results/table_4_practical_success_rate_summary.csv`
 - Diagnostics matrix artifacts (full pipeline only) -> run-local `runs/YYYYMMDD_HHMMSS/*_causal_results.txt` and `*_3dag_comparison.png`
-
 
 ## Encoding grid used in the paper
 
@@ -193,7 +194,7 @@ The topology table is fixed by the SCM generator definitions in `experiments/<da
 
 ### Table 2 - Single-run benchmark (5 datasets)
 
-This workflow uses `n_train=200` from config by default and writes the flat `table_1_single_run_*.csv` artifact family.
+This workflow uses `n_train=200` from config by default and writes the flat `single_run_*.csv` artifact family.
 
 ```bash
 python -m experiments.generate_single_run_table_artifacts
@@ -230,6 +231,12 @@ python -m experiments.generate_validation_matrix_artifacts
 ```
 
 Fresh outputs are written under `runs/YYYYMMDD_HHMMSS/`. Frozen reference artifacts used by the paper stay under `results/`.
+
+Manual freeze/promotion from a chosen run:
+
+```bash
+python -m experiments.freeze_results_from_run --run-id YYYYMMDD_HHMMSS --overwrite
+```
 
 ## Notes for extension
 
@@ -303,3 +310,11 @@ Output location:
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+
+
+
+
+
+
+

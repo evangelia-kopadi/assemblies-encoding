@@ -24,8 +24,8 @@
 
 ## Artifacts
 
-- Summary CSV: `table_4_interventional_summary.csv`
-- do() deltas CSV: `table_4_interventional_dodeltas.csv`
+- Summary CSV: `interventional_multiseed_summary.csv`
+- do() deltas CSV: `interventional_multiseed_dodeltas.csv`
 
 ## Magnitude / importance preservation (beyond direction)
 
@@ -37,5 +37,6 @@ These metrics ask whether *bigger raw do-effects correspond to bigger feature-sp
 | Grade | 1.000 | 1.000 | 1.000 | 1.000 | 5.001 | 1.000 | 0.000 | 5.001 | 1.000 | 0.000 |
 
 Notes: PearsonR uses signed deltas; SpearmanRho uses |delta| to test importance ordering; calibration fits raw ≈ a·feature.
+
 
 

@@ -104,6 +104,17 @@ def build_steps(methods: list[str], args: argparse.Namespace) -> list[Step]:
                     ["-m", "experiments.run_encoding_ablation", "--method", method],
                 )
             )
+        steps.append(
+            Step(
+                "Generate practical success-rate summary (from ablation raw files)",
+                [
+                    "-m",
+                    "experiments.generate_practical_success_summary",
+                    "--methods",
+                    ",".join(methods),
+                ],
+            )
+        )
 
     return steps
 
@@ -184,3 +195,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
