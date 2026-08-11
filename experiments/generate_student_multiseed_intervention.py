@@ -1,4 +1,4 @@
-"""Multi-seed evaluation for Student Success (3-DAG + do() effects).
+"""Multi-seed interventional evaluation for Student Success (3-DAG + do() effects).
 
 Runs many random seeds to move from a single-run demo to aggregate statistics.
 
