@@ -13,9 +13,12 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import datetime
+import os
 from pathlib import Path
 
 from experiments.experiment_defaults import DEFAULTS, get_output_filepath, runner_kwargs
+from experiments.experiment_defaults import RUN_ID_ENV_VAR
 from experiments.generate_table3_multiseed_run_artifacts import build_datasets
 from src.runner import run_causal_dag_validation
 from src.visualization.dag_plotting import visualize_three_dags
@@ -115,6 +118,8 @@ def _write_text_report(path: Path, *, dataset: str, method: str, encoding_label:
 
 
 def main() -> None:
+    if RUN_ID_ENV_VAR not in os.environ:
+        os.environ[RUN_ID_ENV_VAR] = __import__("datetime").datetime.now().strftime("%Y%m%d_%H%M%S") + "_figures"
     args = parse_args()
     selected_datasets = [x.strip() for x in args.datasets.split(",") if x.strip()]
     methods = _normalize_methods(args.methods)
@@ -177,6 +182,8 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
 
 
 

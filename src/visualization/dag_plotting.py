@@ -221,3 +221,101 @@ def visualize_three_dags(
     return fig
 
 
+def visualize_two_dags(
+    ground_truth_edges,
+    assembly_edges,
+    var_names,
+    encoding_label,
+    save_path=None,
+):
+    """Two-panel (ground truth + assembly) paper-style figure: circles, minimal arc."""
+    import matplotlib.pyplot as plt
+    import networkx as nx
+
+    def _layout(edges, var_names):
+        g = nx.DiGraph()
+        g.add_nodes_from(var_names)
+        g.add_edges_from(edges)
+        in_deg = {n: 0 for n in var_names}
+        for s, t in edges:
+            in_deg[t] += 1
+        levels = {}
+        for n in var_names:
+            if in_deg[n] == 0:
+                levels[n] = 0
+        for n in var_names:
+            if n not in levels:
+                parents = [s for s, t in edges if t == n]
+                if parents and all(p in levels for p in parents):
+                    levels[n] = max(levels[p] for p in parents) + 1
+        for n in var_names:
+            if n not in levels:
+                levels[n] = max(levels.values(), default=0) + 1
+        by_level = {}
+        for n, lv in levels.items():
+            by_level.setdefault(lv, []).append(n)
+        pos = {}
+        max_lv = max(levels.values())
+        for lv, nodes in by_level.items():
+            y = 1.0 - lv / max(max_lv, 1)
+            for i, n in enumerate(sorted(nodes)):
+                pos[n] = ((i + 1) / (len(nodes) + 1), y)
+        return pos
+
+    colors = {"Ground Truth": "lightgreen", "Assembly": "lightcoral"}
+    panels = [("Ground Truth", ground_truth_edges), (f"Assembly\n({encoding_label})", assembly_edges)]
+
+    fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+    pos = _layout(ground_truth_edges, var_names)
+    gt_set = set(map(tuple, ground_truth_edges))
+
+    for ax, (title, edges) in zip(axes, panels):
+        g = nx.DiGraph()
+        g.add_nodes_from(var_names)
+        g.add_edges_from(edges)
+        is_assembly = title.startswith("Assembly")
+        color = colors["Assembly"] if is_assembly else colors["Ground Truth"]
+        correct = [e for e in edges if tuple(e) in gt_set] if is_assembly else list(edges)
+        spurious = [e for e in edges if tuple(e) not in gt_set] if is_assembly else []
+        missing = [e for e in ground_truth_edges if tuple(e) not in set(map(tuple, edges))] if is_assembly else []
+
+        if correct:
+            nx.draw_networkx_edges(g, pos, edgelist=correct, edge_color="black",
+                arrows=True, arrowsize=22, width=2.2, ax=ax,
+                connectionstyle="arc3,rad=0.05", arrowstyle="-|>", node_size=2800)
+        if spurious:
+            nx.draw_networkx_edges(g, pos, edgelist=spurious, edge_color="red",
+                arrows=True, arrowsize=22, width=3, ax=ax,
+                connectionstyle="arc3,rad=0.05", arrowstyle="-|>",
+                node_size=2800, style="dashed", alpha=0.85)
+        if missing:
+            nx.draw_networkx_edges(g, pos, edgelist=missing, edge_color="#aaaaaa",
+                arrows=True, arrowsize=18, width=1.5, ax=ax,
+                connectionstyle="arc3,rad=0.05", arrowstyle="-|>",
+                node_size=2800, style="dotted", alpha=0.6)
+
+        nx.draw_networkx_nodes(g, pos, node_color=color, node_size=2800,
+            alpha=0.9, ax=ax, node_shape="o", edgecolors="none")
+        nx.draw_networkx_labels(g, pos, font_size=9, font_weight="bold", ax=ax)
+
+        edge_count = len(edges)
+        ax.set_title(f"{title}\n({edge_count} edges)", fontsize=12, fontweight="bold", pad=8)
+        ax.axis("off")
+        ax.set_xlim(-0.1, 1.1)
+        ax.set_ylim(-0.15, 1.15)
+
+        if is_assembly and (spurious or missing):
+            from matplotlib.lines import Line2D
+            legend = []
+            if spurious:
+                legend.append(Line2D([0], [0], color="red", linewidth=2.5, linestyle="--", label="Spurious edge"))
+            if missing:
+                legend.append(Line2D([0], [0], color="#aaaaaa", linewidth=1.5, linestyle=":", label="Missing edge"))
+            ax.legend(handles=legend, loc="lower right", fontsize=8)
+
+    plt.tight_layout(pad=0.8, w_pad=1.5)
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches="tight")
+        plt.close(fig)
+    return fig
+
