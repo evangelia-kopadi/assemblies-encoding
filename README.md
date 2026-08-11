@@ -161,7 +161,7 @@ Run all `python -m experiments...` commands from this repository root, not from 
 
 ### Table 1 - Benchmark topologies
 
-The topology table is fixed by the SCM generator definitions in `experiments/<dataset>/validate_*.py` and `experiments/generate_table3_multiseed_run_artifacts.py`.
+The topology table is fixed by the SCM generator definitions in `experiments/<dataset>/validate_*.py` (imported by `experiments/generate_table3_multiseed_run_artifacts.py`).
 
 ### Table 2 - Single-run benchmark (5 datasets)
 
