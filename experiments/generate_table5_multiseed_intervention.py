@@ -125,7 +125,7 @@ def _run_seed_for_dataset(*, dataset_name: str, seed: int, n_samples: int, n_eva
 
 def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser()
-    p.add_argument("--n-seeds",   type=int, default=50)
+    p.add_argument("--n-seeds",   type=int, default=10)  # paper used 50; increase with --n-seeds 50
     p.add_argument("--seed-start", type=int, default=42)
     p.add_argument("--n-samples", type=int, default=DEFAULTS.n_samples)
     p.add_argument("--n-eval",    type=int, default=DEFAULTS.n_samples)
