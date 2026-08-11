@@ -15,6 +15,12 @@ def test_build_steps_default_calls_all_required_scripts_in_order():
         ["-m", "experiments.generate_single_run_table_artifacts", "--method", "ges"],
         ["-m", "experiments.run_encoding_ablation", "--method", "pc"],
         ["-m", "experiments.run_encoding_ablation", "--method", "ges"],
+        [
+            "-m",
+            "experiments.generate_practical_success_summary",
+            "--methods",
+            "pc,ges",
+        ],
     ]
 
 
@@ -26,6 +32,12 @@ def test_build_steps_respects_skip_single_run():
     assert [step.args for step in steps] == [
         ["-m", "experiments.run_encoding_ablation", "--method", "pc"],
         ["-m", "experiments.run_encoding_ablation", "--method", "ges"],
+        [
+            "-m",
+            "experiments.generate_practical_success_summary",
+            "--methods",
+            "pc,ges",
+        ],
     ]
 
 

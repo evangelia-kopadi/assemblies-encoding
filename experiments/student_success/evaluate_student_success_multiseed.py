@@ -14,11 +14,13 @@ import argparse
 import json
 import datetime
 import os
+from pathlib import Path
 from dataclasses import asdict
 
 import numpy as np
 import pandas as pd
 
+from experiments.artifact_aliases import write_table_alias_copy
 from experiments.experiment_defaults import (
     DEFAULTS,
     runner_kwargs,
@@ -434,8 +436,8 @@ def write_report(
 
     lines.append("## Artifacts")
     lines.append("")
-    lines.append("- Summary CSV: `table_4_interventional_summary.csv`")
-    lines.append("- do() deltas CSV: `table_4_interventional_dodeltas.csv`")
+    lines.append("- Summary CSV: `interventional_multiseed_summary.csv`")
+    lines.append("- do() deltas CSV: `interventional_multiseed_dodeltas.csv`")
     lines.append("")
 
     os.makedirs(os.path.dirname(out_md), exist_ok=True)
@@ -567,12 +569,14 @@ def main() -> int:
     summary_df = pd.DataFrame(summaries).sort_values("seed")
     do_df = pd.DataFrame(do_rows).sort_values(["seed", "intervention"])
 
-    summary_csv = get_output_filepath("table_4_interventional_summary.csv")
-    do_csv = get_output_filepath("table_4_interventional_dodeltas.csv")
+    summary_csv = get_output_filepath("interventional_multiseed_summary.csv")
+    do_csv = get_output_filepath("interventional_multiseed_dodeltas.csv")
     summary_df.to_csv(summary_csv, index=False)
     do_df.to_csv(do_csv, index=False)
+    summary_alias = write_table_alias_copy(Path(summary_csv))
+    do_alias = write_table_alias_copy(Path(do_csv))
 
-    out_md = get_output_filepath("table_4_interventional_report.md")
+    out_md = get_output_filepath("interventional_multiseed_report.md")
     write_report(
         summary_df=summary_df,
         do_df=do_df,
@@ -580,14 +584,26 @@ def main() -> int:
         summary_csv=summary_csv,
         do_csv=do_csv,
     )
+    report_alias = write_table_alias_copy(Path(out_md))
 
     print("Done.")
     print(f"  Wrote: {summary_csv}")
+    if summary_alias is not None:
+        print(f"  Wrote alias: {summary_alias}")
     print(f"  Wrote: {do_csv}")
+    if do_alias is not None:
+        print(f"  Wrote alias: {do_alias}")
     print(f"  Wrote: {out_md}")
+    if report_alias is not None:
+        print(f"  Wrote alias: {report_alias}")
     return 0
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+
+
+
+
 

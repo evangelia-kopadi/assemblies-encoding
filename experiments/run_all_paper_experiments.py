@@ -3,6 +3,7 @@
 This orchestrator executes the full paper pipeline in a fixed order:
 1) Validation diagnostics matrix (all datasets x both methods x both encodings) and flat CSV artifacts
 2) Sensitivity sweeps for both methods (PC and GES)
+3) Practical success-rate summary derived from sweep raw files
 
 Usage:
   python -m experiments.run_all_paper_experiments
@@ -68,7 +69,6 @@ def _parse_methods(raw: str) -> list[str]:
     invalid = [m for m in methods if m not in {"pc", "ges"}]
     if invalid:
         raise ValueError(f"Unsupported methods in --methods: {invalid}")
-    # Keep order, remove duplicates.
     seen: set[str] = set()
     ordered: list[str] = []
     for m in methods:
@@ -107,8 +107,17 @@ def build_steps(methods: list[str], args: argparse.Namespace) -> list[Step]:
                     ["-m", "experiments.run_encoding_ablation", "--method", method],
                 )
             )
-
-
+        steps.append(
+            Step(
+                "Generate practical success-rate summary (from ablation raw files)",
+                [
+                    "-m",
+                    "experiments.generate_practical_success_summary",
+                    "--methods",
+                    ",".join(methods),
+                ],
+            )
+        )
 
     return steps
 
@@ -178,7 +187,6 @@ def main() -> int:
     print(f"Artifacts {write_verb} under {run_output_dir} via get_output_filepath().")
     if not args.dry_run:
         print(f"Total elapsed time: {_format_duration(time.perf_counter() - total_started)}.")
-        # Copy the config snapshot used for this run into results/ for traceability
         results_root = Path(REPO_ROOT / "results")
         cfg_src = run_output_dir / "experiments_configuration.json"
         cfg_dst = results_root / "experiments_configuration.json"

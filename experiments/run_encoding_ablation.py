@@ -15,12 +15,11 @@ Usage examples:
 from __future__ import annotations
 
 import argparse
-import json
-import datetime
 from pathlib import Path
 
 import pandas as pd
 
+from experiments.artifact_aliases import write_table_alias_copy
 from experiments.experiment_defaults import DEFAULTS, get_output_filepath, _cfg
 from src.runner import run_causal_dag_validation
 
@@ -165,7 +164,6 @@ def build_datasets(n_samples: int):
 def build_sweep_configs(base_kwargs: dict) -> list[dict]:
     configs: list[dict] = []
 
-    # Bernoulli sweeps (keep one axis fixed each time)
     for pos in [0.20, 0.30, 0.40]:
         configs.append(
             {
@@ -191,7 +189,6 @@ def build_sweep_configs(base_kwargs: dict) -> list[dict]:
             }
         )
 
-    # Deterministic-k sweeps
     for step in [5, 10, 15]:
         configs.append(
             {
@@ -206,7 +203,6 @@ def build_sweep_configs(base_kwargs: dict) -> list[dict]:
             }
         )
 
-    # de-duplicate (baseline Bernoulli appears in both loops)
     dedup: dict[str, dict] = {}
     for c in configs:
         dedup[c["name"]] = c
@@ -282,16 +278,18 @@ def main() -> None:
                 )
 
     if args.method == "pc":
-        raw_name = "table_3_pc_raw.csv"
-        summary_name = "table_3_pc_summary.csv"
-        overall_name = "table_3_pc_overall.csv"
+        raw_name = "encoding_ablation_pc_raw.csv"
+        summary_name = "encoding_ablation_pc_summary.csv"
+        overall_name = "encoding_ablation_pc_overall.csv"
     else:
-        raw_name = "table_3_ges_raw.csv"
-        summary_name = "table_3_ges_summary.csv"
-        overall_name = "table_3_ges_overall.csv"
+        raw_name = "encoding_ablation_ges_raw.csv"
+        summary_name = "encoding_ablation_ges_summary.csv"
+        overall_name = "encoding_ablation_ges_overall.csv"
+
     df_all = pd.DataFrame(rows)
     all_path = Path(get_output_filepath(raw_name))
     df_all.to_csv(all_path, index=False)
+    raw_alias_path = write_table_alias_copy(all_path)
 
     summary = (
         df_all.groupby(["Dataset", "Config"], as_index=False)
@@ -309,6 +307,7 @@ def main() -> None:
 
     summary_path = Path(get_output_filepath(summary_name))
     summary.to_csv(summary_path, index=False)
+    summary_alias_path = write_table_alias_copy(summary_path)
 
     overall = (
         df_all.groupby("Config", as_index=False)
@@ -322,6 +321,7 @@ def main() -> None:
 
     overall_path = Path(get_output_filepath(overall_name))
     overall.to_csv(overall_path, index=False)
+    overall_alias_path = write_table_alias_copy(overall_path)
 
     print("\n" + "=" * 80)
     print("OVERALL CONFIG RANKING (higher Assembly_F1_mean is better)")
@@ -329,8 +329,14 @@ def main() -> None:
     print(overall.to_string(index=False))
 
     print(f"\nSaved raw: {all_path}")
+    if raw_alias_path is not None:
+        print(f"Saved table alias: {raw_alias_path}")
     print(f"Saved summary: {summary_path}")
+    if summary_alias_path is not None:
+        print(f"Saved table alias: {summary_alias_path}")
     print(f"Saved overall: {overall_path}")
+    if overall_alias_path is not None:
+        print(f"Saved table alias: {overall_alias_path}")
 
 
 if __name__ == "__main__":

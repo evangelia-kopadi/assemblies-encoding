@@ -1,0 +1,5 @@
+Method,EncodingFamily,Runs,Mean_Assembly_F1,Mean_AN_Gap,Success_Rate_Percent
+ges,Bernoulli,250,0.555,-0.367,42.8
+ges,Det-k,150,0.913,-0.013,98.0
+pc,Bernoulli,250,0.443,-0.385,28.4
+pc,Det-k,150,0.815,-0.025,84.0
