@@ -31,10 +31,9 @@ This repository accompanies the SUM 2026 manuscript **"Causal Structure Preserva
   - Student Success
   - Vaccine Efficacy
 - `notebooks/pipeline_visualization.ipynb`: executable visual walkthrough of the Stage I-VI pipeline for Bernoulli and deterministic-k encodings.
-- `experiments/run_encoding_ablation.py`: PC/GES encoding ablation sweep runner.
+- `experiments/generate_encoding_ablation.py`: PC/GES encoding ablation sweep runner.
 - `experiments/generate_validation_matrix_artifacts.py`: diagnostics matrix generator (dataset x method x encoding) for detailed causal reports and 3-DAG figures.
-- `experiments/run_paper_data_only.py`: paper-only orchestrator (single-run and ablation artifacts).
-- `experiments/run_all_paper_experiments.py`: full-artifacts orchestrator (paper artifacts plus diagnostics matrix).
+- `experiments/generate_paper_data_only.py`: paper-only orchestrator (single-run and ablation artifacts).
 - `results/`: frozen single-run benchmark artifacts under flat compatibility filenames for the manuscript's single-run benchmark table (for example, `single_run_pc_means.csv` and `single_run_ges_metrics.csv`).
 - `results/`: frozen multi-run PC/GES sensitivity sweep artifacts with paper-mapped filenames: `encoding_ablation_pc_*.csv` and `encoding_ablation_ges_*.csv`.
 - `results/`: sensitivity sweep raw, summary, and overall CSV files for PC (Table 3) and GES (Table 4).
@@ -53,13 +52,13 @@ The diagnostics matrix artifacts are generated separately from the paper-only wo
 
 ## Result-artifact mapping
 
-- Topology benchmark (paper Table 1) -> generator definitions in `experiments/<dataset>/validate_*.py` and `experiments/run_encoding_ablation.py`
+- Topology benchmark (paper Table 1) -> generator definitions in `experiments/<dataset>/validate_*.py` and `experiments/generate_encoding_ablation.py`
 - Single-run benchmark (paper Table 2) -> canonical `results/single_run_*.csv` plus table aliases `results/table_2_*.csv`
 - Encoding ablation PC (paper Table 3) -> canonical `results/encoding_ablation_pc_*.csv` plus table aliases `results/table_3_pc_*.csv`
 - Encoding ablation GES (paper Table 3) -> canonical `results/encoding_ablation_ges_*.csv` plus table aliases `results/table_3_ges_*.csv`
 - Interventional multiseed (paper Table 5) -> canonical `results/interventional_multiseed_*.{csv,md}` plus table aliases `results/table_5_interventional_*.{csv,md}`
 - Practical success-rate summary (derived from sweeps; paper Table 4) -> canonical `results/practical_success_rate_summary.csv` plus alias `results/table_4_practical_success_rate_summary.csv`
-- Diagnostics matrix artifacts (full pipeline only) -> run-local `runs/YYYYMMDD_HHMMSS/*_causal_results.txt` and `*_3dag_comparison.png`
+- Diagnostics matrix artifacts (optional, manual) -> run-local `runs/YYYYMMDD_HHMMSS/*_causal_results.txt` and `*_3dag_comparison.png`
 
 ## Encoding grid used in the paper
 
@@ -124,7 +123,7 @@ For exact frozen-artifact reproduction of Tables 1-5, use Python 3.13.4 and the 
 python --version  # expected: Python 3.13.4
 pip install -r requirements-lock.txt
 pip install -e . --no-deps
-python -m experiments.run_all_paper_experiments
+python -m experiments.generate_paper_data_only
 ```
 
 `requirements-lock.txt` is a full `pip freeze` from the canonical latest-env run (Python 3.13.4; generated 2026-08-06). The `--no-deps` flag keeps pip from changing those pinned versions while installing this repository in editable mode, so `src.*` and `experiments.*` imports resolve.
@@ -155,16 +154,16 @@ Practical baseline for a reasonable local run:
 The orchestrator prints elapsed time per step and total elapsed time. To measure wall-clock time externally:
 
 ```powershell
-Measure-Command { python -m experiments.run_all_paper_experiments }
+Measure-Command { python -m experiments.generate_paper_data_only }
 ```
 
 ```bash
-time python -m experiments.run_all_paper_experiments
+time python -m experiments.generate_paper_data_only
 ```
 
-For a quicker smoke test or for machines with limited CPU/RAM, run `python -m experiments.run_paper_data_only` (paper artifacts only) instead of the full-artifacts orchestrator.
+Use `python -m experiments.generate_paper_data_only` for the paper artifact pipeline. Additional diagnostics artifacts are generated manually with `python -m experiments.generate_validation_matrix_artifacts`.
 
-Observed on this project with current defaults: `python -m experiments.run_paper_data_only` completed in about 2h 39m 50s (final GES sweep step: about 1h 10m).
+Observed on this project with current defaults: `python -m experiments.generate_paper_data_only` completed in about 2h 39m 50s (final GES sweep step: about 1h 10m).
 
 ## What "reproducibility" means in this repository
 
@@ -190,7 +189,7 @@ Run all `python -m experiments...` commands from this repository root, not from 
 
 ### Table 1 - Benchmark topologies
 
-The topology table is fixed by the SCM generator definitions in `experiments/<dataset>/validate_*.py` and `experiments/run_encoding_ablation.py`.
+The topology table is fixed by the SCM generator definitions in `experiments/<dataset>/validate_*.py` and `experiments/generate_encoding_ablation.py`.
 
 ### Table 2 - Single-run benchmark (5 datasets)
 
@@ -213,16 +212,16 @@ python -m experiments.student_success.validate_student_success
 ### Table 3 - PC encoding ablation sweep (400 runs)
 
 ```bash
-python -m experiments.run_encoding_ablation --method pc
+python -m experiments.generate_encoding_ablation --method pc
 ```
 
 ### Table 4 - GES encoding ablation sweep (400 runs)
 
 ```bash
-python -m experiments.run_encoding_ablation --method ges
+python -m experiments.generate_encoding_ablation --method ges
 ```
 
-### Diagnostics matrix artifacts (full pipeline only)
+### Diagnostics matrix artifacts (manual, optional)
 
 This optional step writes per-dataset, per-method, per-encoding causal reports and 3-DAG comparison figures:
 
@@ -241,7 +240,7 @@ python -m experiments.freeze_results_from_run --run-id YYYYMMDD_HHMMSS --overwri
 ## Notes for extension
 
 - Add a new SCM generator under `experiments/<dataset>/`.
-- Register it in `experiments/run_encoding_ablation.py` inside `build_datasets()`.
+- Register it in `experiments/generate_encoding_ablation.py` inside `build_datasets()`.
 - Add new encoding configurations in `build_sweep_configs()`.
 - Keep discovery settings fixed when comparing representation effects, unless the goal is explicitly algorithm tuning.
 
@@ -252,27 +251,25 @@ Use these entry points depending on what you need:
 - Paper artifacts only (recommended for reproducing manuscript tables):
 
 ```bash
-python -m experiments.run_paper_data_only
+python -m experiments.generate_paper_data_only
 ```
 
-- Full artifacts (paper outputs plus diagnostics matrix text/figures):
+- Optional diagnostics artifacts (manual text/figures):
 
 ```bash
-python -m experiments.run_all_paper_experiments
+python -m experiments.generate_validation_matrix_artifacts
 ```
 
-Preview either orchestrator plan without running:
+Preview orchestrator plan without running:
 
 ```bash
-python -m experiments.run_paper_data_only --dry-run
-python -m experiments.run_all_paper_experiments --dry-run
+python -m experiments.generate_paper_data_only --dry-run
 ```
 
 Select methods explicitly (default is both):
 
 ```bash
-python -m experiments.run_paper_data_only --methods pc,ges
-python -m experiments.run_all_paper_experiments --methods pc,ges
+python -m experiments.generate_paper_data_only --methods pc,ges
 ```
 
 ## Parameter quick reference
@@ -282,19 +279,13 @@ Parameter source of truth:
 - Shared loader and default wiring are implemented in `experiments/experiment_defaults.py`.
 - Script CLI arguments override configuration defaults when provided.
 
-Paper-only orchestrator parameters (`experiments/run_paper_data_only.py`):
+Paper-only orchestrator parameters (`experiments/generate_paper_data_only.py`):
 - `--methods`: methods to run, comma-separated, allowed values `pc` and `ges` (default `pc,ges`).
 - `--skip-single-run`: skip `generate_single_run_table_artifacts.py`.
-- `--skip-sweep`: skip `run_encoding_ablation.py` runs.
+- `--skip-sweep`: skip `generate_encoding_ablation.py` runs.
 - `--dry-run`: print plan and commands only, no execution.
 
-Full-artifacts orchestrator parameters (`experiments/run_all_paper_experiments.py`):
-- `--methods`: methods to run, comma-separated, allowed values `pc` and `ges` (default `pc,ges`).
-- `--skip-validate`: skip `generate_validation_matrix_artifacts.py` and single-run table generation.
-- `--skip-sweep`: skip `run_encoding_ablation.py` runs.
-- `--dry-run`: print plan and commands only, no execution.
-
-Encoding ablation parameters (`experiments/run_encoding_ablation.py`):
+Encoding ablation parameters (`experiments/generate_encoding_ablation.py`):
 - `--datasets`: dataset list (default from `sensitivity_sweep.datasets`).
 - `--seeds`: seed list (default from `sensitivity_sweep.seeds`).
 - `--n-samples`: per-dataset sample count.
@@ -310,6 +301,11 @@ Output location:
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+
+
+
+
 
 
 

@@ -16,7 +16,7 @@ import argparse
 from pathlib import Path
 
 from experiments.experiment_defaults import DEFAULTS, get_output_filepath, runner_kwargs
-from experiments.run_encoding_ablation import build_datasets
+from experiments.generate_encoding_ablation import build_datasets
 from src.runner import run_causal_dag_validation
 from src.visualization.dag_plotting import visualize_three_dags
 
@@ -177,3 +177,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
