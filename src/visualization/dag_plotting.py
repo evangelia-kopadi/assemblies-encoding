@@ -280,26 +280,35 @@ def visualize_two_dags(
         missing = [e for e in ground_truth_edges if tuple(e) not in set(map(tuple, edges))] if is_assembly else []
 
         if correct:
-            nx.draw_networkx_edges(g, pos, edgelist=correct, edge_color="black",
-                arrows=True, arrowsize=22, width=2.2, ax=ax,
-                connectionstyle="arc3,rad=0.05", arrowstyle="-|>", node_size=2800)
+            # long edges (y-span > 0.45) get same arc as missing/spurious for visual consistency
+            def _arc(e): return 0.25 if abs(pos[e[0]][1] - pos[e[1]][1]) > 0.45 else 0.05
+            short_c = [e for e in correct if _arc(e) == 0.05]
+            long_c  = [e for e in correct if _arc(e) == 0.25]
+            if short_c:
+                nx.draw_networkx_edges(g, pos, edgelist=short_c, edge_color="black",
+                    arrows=True, arrowsize=18, width=1.5, ax=ax,
+                    connectionstyle="arc3,rad=0.05", arrowstyle="-|>", node_size=2800)
+            if long_c:
+                nx.draw_networkx_edges(g, pos, edgelist=long_c, edge_color="black",
+                    arrows=True, arrowsize=18, width=1.5, ax=ax,
+                    connectionstyle="arc3,rad=0.25", arrowstyle="-|>", node_size=2800)
         if spurious:
             nx.draw_networkx_edges(g, pos, edgelist=spurious, edge_color="red",
-                arrows=True, arrowsize=22, width=3, ax=ax,
-                connectionstyle="arc3,rad=0.05", arrowstyle="-|>",
-                node_size=2800, style="dashed", alpha=0.85)
-        if missing:
-            nx.draw_networkx_edges(g, pos, edgelist=missing, edge_color="#aaaaaa",
                 arrows=True, arrowsize=18, width=1.5, ax=ax,
-                connectionstyle="arc3,rad=0.05", arrowstyle="-|>",
-                node_size=2800, style="dotted", alpha=0.6)
+                connectionstyle="arc3,rad=0.35", arrowstyle="-|>",
+                node_size=2800, style="dashed", alpha=0.9)
+        if missing:
+            nx.draw_networkx_edges(g, pos, edgelist=missing, edge_color="#555555",
+                arrows=True, arrowsize=18, width=1.5, ax=ax,
+                connectionstyle="arc3,rad=0.25", arrowstyle="-|>",
+                node_size=2800, style=(0,(5,4)), alpha=0.85)
 
         nx.draw_networkx_nodes(g, pos, node_color=color, node_size=2800,
             alpha=0.9, ax=ax, node_shape="o", edgecolors="none")
-        nx.draw_networkx_labels(g, pos, font_size=9, font_weight="bold", ax=ax)
+        nx.draw_networkx_labels(g, pos, font_size=9, font_weight="normal", ax=ax)
 
         edge_count = len(edges)
-        ax.set_title(f"{title}\n({edge_count} edges)", fontsize=12, fontweight="bold", pad=8)
+        ax.set_title(f"{title}\n({edge_count} edges)", fontsize=12, fontweight="normal", pad=8)
         ax.axis("off")
         ax.set_xlim(-0.1, 1.1)
         ax.set_ylim(-0.15, 1.15)
@@ -310,7 +319,7 @@ def visualize_two_dags(
             if spurious:
                 legend.append(Line2D([0], [0], color="red", linewidth=2.5, linestyle="--", label="Spurious edge"))
             if missing:
-                legend.append(Line2D([0], [0], color="#aaaaaa", linewidth=1.5, linestyle=":", label="Missing edge"))
+                legend.append(Line2D([0], [0], color="#555555", linewidth=1.5, linestyle=(0,(5,4)), label="Missing edge"))
             ax.legend(handles=legend, loc="lower right", fontsize=8)
 
     plt.tight_layout(pad=0.8, w_pad=1.5)
