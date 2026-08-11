@@ -19,7 +19,7 @@ import pandas as pd
 
 from experiments.artifact_aliases import write_table_alias_copy
 from experiments.experiment_defaults import DEFAULTS, get_output_filepath, runner_kwargs
-from experiments.run_encoding_ablation import build_datasets
+from experiments.generate_encoding_ablation import build_datasets
 from src.runner import run_causal_dag_validation
 
 
@@ -174,3 +174,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
