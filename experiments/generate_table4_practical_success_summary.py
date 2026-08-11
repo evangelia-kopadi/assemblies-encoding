@@ -17,13 +17,12 @@ from pathlib import Path
 
 import pandas as pd
 
-from experiments.artifact_aliases import write_table_alias_copy
 from experiments.experiment_defaults import get_output_filepath, get_run_output_dir
 
 
 RAW_BY_METHOD = {
-    "pc": "encoding_ablation_pc_raw.csv",
-    "ges": "encoding_ablation_ges_raw.csv",
+    "pc": "table_3_pc_raw.csv",
+    "ges": "table_3_ges_raw.csv",
 }
 
 
@@ -45,7 +44,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--input-root",
         default=None,
-        help="Optional folder containing encoding_ablation_<method>_raw.csv files (default: current run folder)",
+        help="Optional folder containing table_3_<method>_raw.csv files (default: current run folder)",
     )
     parser.add_argument(
         "--output-root",
@@ -54,7 +53,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--output-name",
-        default="practical_success_rate_summary.csv",
+        default="table_4_practical_success_rate_summary.csv",
         help="Output CSV filename",
     )
     return parser.parse_args()
@@ -141,16 +140,14 @@ def main() -> int:
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     summary.to_csv(output_path, index=False)
-    alias_path = write_table_alias_copy(output_path)
 
     print("Saved practical success summary:")
     print(output_path)
-    if alias_path is not None:
-        print(f"Saved table alias: {alias_path}")
     print(summary.to_string(index=False))
     return 0
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
 

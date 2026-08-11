@@ -1,4 +1,4 @@
-"""Promote one selected run into frozen results with table aliases.
+"""Promote one selected run into frozen results.
 
 Usage:
   python -m experiments.freeze_results_from_run --run-id 20260811_101010
@@ -11,41 +11,24 @@ import argparse
 import shutil
 from pathlib import Path
 
-from experiments.artifact_aliases import TABLE_ALIAS_BY_CANONICAL, write_table_alias_copy
-
 
 DEFAULT_COPY_FILES = [
-    "single_run_pc_metrics.csv",
-    "single_run_pc_means.csv",
-    "single_run_ges_metrics.csv",
-    "single_run_ges_means.csv",
-    "encoding_ablation_pc_raw.csv",
-    "encoding_ablation_pc_summary.csv",
-    "encoding_ablation_pc_overall.csv",
-    "encoding_ablation_ges_raw.csv",
-    "encoding_ablation_ges_summary.csv",
-    "encoding_ablation_ges_overall.csv",
-    "practical_success_rate_summary.csv",
-    "intervention_multiseed_summary.csv",
-    "intervention_multiseed_dodeltas.csv",
-    "intervention_multiseed_report.md",
+    "table_2_single_run_pc_metrics.csv",
+    "table_2_single_run_pc_means.csv",
+    "table_2_single_run_ges_metrics.csv",
+    "table_2_single_run_ges_means.csv",
+    "table_3_pc_raw.csv",
+    "table_3_pc_summary.csv",
+    "table_3_pc_overall.csv",
+    "table_3_ges_raw.csv",
+    "table_3_ges_summary.csv",
+    "table_3_ges_overall.csv",
+    "table_4_practical_success_rate_summary.csv",
+    "table_5_interventional_summary.csv",
+    "table_5_interventional_dodeltas.csv",
+    "table_5_interventional_report.md",
     "experiments_configuration.json",
 ]
-
-LEGACY_FILENAME_FALLBACKS = {
-    "intervention_multiseed_summary.csv": [
-        "interventional_multiseed_summary.csv",
-        "interventional_summary.csv",
-    ],
-    "intervention_multiseed_dodeltas.csv": [
-        "interventional_multiseed_dodeltas.csv",
-        "interventional_dodeltas.csv",
-    ],
-    "intervention_multiseed_report.md": [
-        "interventional_multiseed_report.md",
-        "interventional_report.md",
-    ],
-}
 
 
 def parse_args() -> argparse.Namespace:
@@ -73,9 +56,7 @@ def parse_args() -> argparse.Namespace:
 
 def _copy_file(src: Path, dst: Path, overwrite: bool) -> None:
     if dst.exists() and not overwrite:
-        raise FileExistsError(
-            f"Destination exists and --overwrite not set: {dst}"
-        )
+        raise FileExistsError(f"Destination exists and --overwrite not set: {dst}")
     dst.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(src, dst)
 
@@ -90,40 +71,22 @@ def main() -> int:
     results_dir.mkdir(parents=True, exist_ok=True)
 
     copied: list[Path] = []
-    copied_aliases: list[Path] = []
     missing: list[str] = []
 
     for name in DEFAULT_COPY_FILES:
         src = run_dir / name
         if not src.exists():
-            for legacy_name in LEGACY_FILENAME_FALLBACKS.get(name, []):
-                legacy_path = run_dir / legacy_name
-                if legacy_path.exists():
-                    src = legacy_path
-                    break
-            else:
-                missing.append(name)
-                continue
-
+            missing.append(name)
+            continue
         dst = results_dir / name
         _copy_file(src, dst, overwrite=args.overwrite)
         copied.append(dst)
 
-        if name in TABLE_ALIAS_BY_CANONICAL:
-            alias_path = write_table_alias_copy(dst)
-            if alias_path is not None:
-                copied_aliases.append(alias_path)
-
     print(f"Run source: {run_dir}")
     print(f"Frozen destination: {results_dir}")
-    print("Copied canonical files:")
+    print("Copied files:")
     for path in copied:
         print(f"  - {path.name}")
-
-    if copied_aliases:
-        print("Copied table-alias files:")
-        for path in copied_aliases:
-            print(f"  - {path.name}")
 
     if missing:
         print("Missing in run (skipped):")
