@@ -6,8 +6,8 @@ dataset under:
 - encodings: deterministic-k(step=10), Bernoulli(0.30/0.10)
 
 Usage:
-  python -m experiments.generate_validation_matrix_artifacts
-  python -m experiments.generate_validation_matrix_artifacts --methods pc --datasets Credit,Student
+  python -m experiments.generate_validation_dag_artifacts
+  python -m experiments.generate_validation_dag_artifacts --methods pc --datasets Credit,Student
 """
 
 from __future__ import annotations
@@ -16,7 +16,7 @@ import argparse
 from pathlib import Path
 
 from experiments.experiment_defaults import DEFAULTS, get_output_filepath, runner_kwargs
-from experiments.generate_encoding_ablation import build_datasets
+from experiments.generate_table3_multiseed_run_artifacts import build_datasets
 from src.runner import run_causal_dag_validation
 from src.visualization.dag_plotting import visualize_three_dags
 
@@ -177,4 +177,6 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
 

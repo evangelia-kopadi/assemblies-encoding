@@ -18,9 +18,15 @@ TABLE_ALIAS_BY_CANONICAL: dict[str, str] = {
     "encoding_ablation_ges_summary.csv": "table_3_ges_summary.csv",
     "encoding_ablation_ges_overall.csv": "table_3_ges_overall.csv",
     "practical_success_rate_summary.csv": "table_4_practical_success_rate_summary.csv",
-    "interventional_multiseed_summary.csv": "table_5_interventional_summary.csv",
-    "interventional_multiseed_dodeltas.csv": "table_5_interventional_dodeltas.csv",
-    "interventional_multiseed_report.md": "table_5_interventional_report.md",
+    "intervention_multiseed_summary.csv": "table_5_interventional_summary.csv",
+    "intervention_multiseed_dodeltas.csv": "table_5_interventional_dodeltas.csv",
+    "intervention_multiseed_report.md": "table_5_interventional_report.md",
+    "interventional_multiseed_summary.csv": "table_5_interventional_summary.csv",  # legacy name
+    "interventional_multiseed_dodeltas.csv": "table_5_interventional_dodeltas.csv",  # legacy name
+    "interventional_multiseed_report.md": "table_5_interventional_report.md",  # legacy name
+    "interventional_summary.csv": "table_5_interventional_summary.csv",  # legacy name
+    "interventional_dodeltas.csv": "table_5_interventional_dodeltas.csv",  # legacy name
+    "interventional_report.md": "table_5_interventional_report.md",  # legacy name
 }
 
 

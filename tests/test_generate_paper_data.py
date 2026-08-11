@@ -11,13 +11,13 @@ def test_build_steps_default_calls_all_required_scripts_in_order():
     steps = build_steps(methods=["pc", "ges"], args=args)
 
     assert [step.args for step in steps] == [
-        ["-m", "experiments.generate_single_run_table_artifacts", "--method", "pc"],
-        ["-m", "experiments.generate_single_run_table_artifacts", "--method", "ges"],
-        ["-m", "experiments.generate_encoding_ablation", "--method", "pc"],
-        ["-m", "experiments.generate_encoding_ablation", "--method", "ges"],
+        ["-m", "experiments.generate_table2_single_run_artifacts", "--method", "pc"],
+        ["-m", "experiments.generate_table2_single_run_artifacts", "--method", "ges"],
+        ["-m", "experiments.generate_table3_multiseed_run_artifacts", "--method", "pc"],
+        ["-m", "experiments.generate_table3_multiseed_run_artifacts", "--method", "ges"],
         [
             "-m",
-            "experiments.generate_practical_success_summary",
+            "experiments.generate_table4_practical_success_summary",
             "--methods",
             "pc,ges",
         ],
@@ -30,11 +30,11 @@ def test_build_steps_respects_skip_single_run():
     steps = build_steps(methods=["pc", "ges"], args=args)
 
     assert [step.args for step in steps] == [
-        ["-m", "experiments.generate_encoding_ablation", "--method", "pc"],
-        ["-m", "experiments.generate_encoding_ablation", "--method", "ges"],
+        ["-m", "experiments.generate_table3_multiseed_run_artifacts", "--method", "pc"],
+        ["-m", "experiments.generate_table3_multiseed_run_artifacts", "--method", "ges"],
         [
             "-m",
-            "experiments.generate_practical_success_summary",
+            "experiments.generate_table4_practical_success_summary",
             "--methods",
             "pc,ges",
         ],
@@ -47,8 +47,8 @@ def test_build_steps_respects_skip_sweep():
     steps = build_steps(methods=["pc", "ges"], args=args)
 
     assert [step.args for step in steps] == [
-        ["-m", "experiments.generate_single_run_table_artifacts", "--method", "pc"],
-        ["-m", "experiments.generate_single_run_table_artifacts", "--method", "ges"],
+        ["-m", "experiments.generate_table2_single_run_artifacts", "--method", "pc"],
+        ["-m", "experiments.generate_table2_single_run_artifacts", "--method", "ges"],
     ]
 
 
@@ -66,5 +66,10 @@ def test_parse_methods_rejects_invalid_values():
 def test_parse_methods_rejects_empty_input():
     with pytest.raises(ValueError, match="cannot be empty"):
         _parse_methods("   ")
+
+
+
+
+
 
 

@@ -31,9 +31,13 @@ This repository accompanies the SUM 2026 manuscript **"Causal Structure Preserva
   - Student Success
   - Vaccine Efficacy
 - `notebooks/pipeline_visualization.ipynb`: executable visual walkthrough of the Stage I-VI pipeline for Bernoulli and deterministic-k encodings.
-- `experiments/generate_encoding_ablation.py`: PC/GES encoding ablation sweep runner.
-- `experiments/generate_validation_matrix_artifacts.py`: diagnostics matrix generator (dataset x method x encoding) for detailed causal reports and 3-DAG figures.
-- `experiments/generate_paper_data.py`: paper orchestrator (single-run and ablation artifacts).
+- `Table 3 -> experiments/generate_table3_multiseed_run_artifacts.py`: PC/GES encoding ablation sweep runner.
+- `experiments/generate_validation_dag_artifacts.py`: DAG diagnostics generator (dataset x method x encoding) for detailed causal reports and 3-DAG figures.
+- `Table 2 -> experiments/generate_table2_single_run_artifacts.py`: single-run benchmark data generator.
+- `Table 3 -> experiments/generate_table3_multiseed_run_artifacts.py`: PC/GES encoding ablation sweep runner.
+- `Table 4 -> experiments/generate_table4_practical_success_summary.py`: practical success-rate summary generator (derived from ablation raw files).
+- `Table 5 -> experiments/generate_table5_intervention_multiseed.py`: interventional robustness generator (multiseed).
+- `experiments/generate_paper_data.py`: paper pipeline runner (single-run and ablation artifacts).
 - `results/`: frozen single-run benchmark artifacts under flat compatibility filenames for the manuscript's single-run benchmark table (for example, `single_run_pc_means.csv` and `single_run_ges_metrics.csv`).
 - `results/`: frozen multi-run PC/GES sensitivity sweep artifacts with paper-mapped filenames: `encoding_ablation_pc_*.csv` and `encoding_ablation_ges_*.csv`.
 - `results/`: sensitivity sweep raw, summary, and overall CSV files for PC (Table 3) and GES (Table 4).
@@ -48,17 +52,17 @@ The single-run benchmark (`results/`) supports the concrete deterministic-k exam
 
 The main encoding conclusion is based on the five-dataset, ten-seed sensitivity sweeps (`results/`). In those sweeps, each SCM generator produces symbolic observations that pass through the same Bernoulli and deterministic-k encoding grid before PC/GES graph recovery. Each discovery method has 400 runs.
 
-The diagnostics matrix artifacts are generated separately from the paper workflow so paper reruns stay lean.
+The DAG diagnostics artifacts are generated separately from the paper workflow so paper reruns stay lean.
 
 ## Result-artifact mapping
 
-- Topology benchmark (paper Table 1) -> generator definitions in `experiments/<dataset>/validate_*.py` and `experiments/generate_encoding_ablation.py`
+- Topology benchmark (paper Table 1) -> generator definitions in `experiments/<dataset>/validate_*.py` and `experiments/generate_table3_multiseed_run_artifacts.py`
 - Single-run benchmark (paper Table 2) -> canonical `results/single_run_*.csv` plus table aliases `results/table_2_*.csv`
 - Encoding ablation PC (paper Table 3) -> canonical `results/encoding_ablation_pc_*.csv` plus table aliases `results/table_3_pc_*.csv`
 - Encoding ablation GES (paper Table 3) -> canonical `results/encoding_ablation_ges_*.csv` plus table aliases `results/table_3_ges_*.csv`
-- Interventional multiseed (paper Table 5) -> canonical `results/interventional_multiseed_*.{csv,md}` plus table aliases `results/table_5_interventional_*.{csv,md}`
+- Interventional robustness (paper Table 5) -> canonical `results/intervention_multiseed_*.{csv,md}` plus table aliases `results/table_5_interventional_*.{csv,md}`
 - Practical success-rate summary (derived from sweeps; paper Table 4) -> canonical `results/practical_success_rate_summary.csv` plus alias `results/table_4_practical_success_rate_summary.csv`
-- Diagnostics matrix artifacts (optional, manual) -> run-local `runs/YYYYMMDD_HHMMSS/*_causal_results.txt` and `*_3dag_comparison.png`
+- DAG diagnostics artifacts (optional, manual) -> run-local `runs/YYYYMMDD_HHMMSS/*_causal_results.txt` and `*_3dag_comparison.png`
 
 ## Encoding grid used in the paper
 
@@ -151,7 +155,7 @@ Practical baseline for a reasonable local run:
 - 16 GB RAM is recommended; 8 GB can work for smaller/partial runs but may be less comfortable while other applications are open.
 - SSD-backed working directory, because each run writes CSV, text, metadata, and figure artifacts under `runs/YYYYMMDD_HHMMSS/`.
 
-The orchestrator prints elapsed time per step and total elapsed time. To measure wall-clock time externally:
+The pipeline runner prints elapsed time per step and total elapsed time. To measure wall-clock time externally:
 
 ```powershell
 Measure-Command { python -m experiments.generate_paper_data }
@@ -161,7 +165,7 @@ Measure-Command { python -m experiments.generate_paper_data }
 time python -m experiments.generate_paper_data
 ```
 
-Use `python -m experiments.generate_paper_data` for the paper artifact pipeline. Additional diagnostics artifacts are generated manually with `python -m experiments.generate_validation_matrix_artifacts`.
+Use `python -m experiments.generate_paper_data` for the paper artifact pipeline. Additional diagnostics artifacts are generated manually with `python -m experiments.generate_validation_dag_artifacts`.
 
 Observed on this project with current defaults: `python -m experiments.generate_paper_data` completed in about 2h 39m 50s (final GES sweep step: about 1h 10m).
 
@@ -173,7 +177,7 @@ Fresh reruns with broad dependencies from `requirements.txt` are expected to pre
 
 ## Local generated artifacts
 
-Experiment scripts write local outputs through `experiments/experiment_defaults.py`. Each script process uses a run folder named `runs/YYYYMMDD_HHMMSS/`; orchestrators fix this timestamp at startup and pass the same run id to every child script, so artifacts from one pipeline run land in the same folder.
+Experiment scripts write local outputs through `experiments/experiment_defaults.py`. Each script process uses a run folder named `runs/YYYYMMDD_HHMMSS/`; the pipeline runner fixes this timestamp at startup and passes the same run id to every child script, so artifacts from one pipeline run land in the same folder.
 
 These local run folders contain generated CSV, text, figure, configuration-snapshot, and `run_metadata.json` files. They are intentionally excluded from version control by `.gitignore` via `runs/`. Keep local reruns there, and only copy/promote selected files into `results/` when intentionally refreshing the frozen paper reference artifacts.
 
@@ -189,14 +193,14 @@ Run all `python -m experiments...` commands from this repository root, not from 
 
 ### Table 1 - Benchmark topologies
 
-The topology table is fixed by the SCM generator definitions in `experiments/<dataset>/validate_*.py` and `experiments/generate_encoding_ablation.py`.
+The topology table is fixed by the SCM generator definitions in `experiments/<dataset>/validate_*.py` and `experiments/generate_table3_multiseed_run_artifacts.py`.
 
 ### Table 2 - Single-run benchmark (5 datasets)
 
 This workflow uses `n_train=200` from config by default and writes the flat `single_run_*.csv` artifact family.
 
 ```bash
-python -m experiments.generate_single_run_table_artifacts
+python -m experiments.generate_table2_single_run_artifacts
 ```
 
 For detailed per-dataset logs and DAG PNGs, run the validation scripts:
@@ -209,24 +213,25 @@ python -m experiments.vaccine_efficacy.validate_vaccine
 python -m experiments.student_success.validate_student_success
 ```
 
-### Table 3 - PC encoding ablation sweep (400 runs)
+### Table 3 - Encoding ablation sweep (400 runs per method)
 
 ```bash
-python -m experiments.generate_encoding_ablation --method pc
+python -m experiments.generate_table3_multiseed_run_artifacts --method pc
+python -m experiments.generate_table3_multiseed_run_artifacts --method ges
 ```
 
-### Table 4 - GES encoding ablation sweep (400 runs)
+### Table 4 - Practical success-rate summary (derived)
 
 ```bash
-python -m experiments.generate_encoding_ablation --method ges
+python -m experiments.generate_table4_practical_success_summary --methods pc,ges
 ```
 
-### Diagnostics matrix artifacts (manual, optional)
+### DAG diagnostics artifacts (manual, optional)
 
 This optional step writes per-dataset, per-method, per-encoding causal reports and 3-DAG comparison figures:
 
 ```bash
-python -m experiments.generate_validation_matrix_artifacts
+python -m experiments.generate_validation_dag_artifacts
 ```
 
 Fresh outputs are written under `runs/YYYYMMDD_HHMMSS/`. Frozen reference artifacts used by the paper stay under `results/`.
@@ -250,10 +255,10 @@ python -m experiments.generate_paper_data
 - Optional diagnostics artifacts (manual text/figures):
 
 ```bash
-python -m experiments.generate_validation_matrix_artifacts
+python -m experiments.generate_validation_dag_artifacts
 ```
 
-Preview orchestrator plan without running:
+Preview pipeline plan without running:
 
 ```bash
 python -m experiments.generate_paper_data --dry-run
@@ -272,13 +277,13 @@ Parameter source of truth:
 - Shared loader and default wiring are implemented in `experiments/experiment_defaults.py`.
 - Script CLI arguments override configuration defaults when provided.
 
-Paper orchestrator parameters (`experiments/generate_paper_data.py`):
+Paper pipeline parameters (`experiments/generate_paper_data.py`):
 - `--methods`: methods to run, comma-separated, allowed values `pc` and `ges` (default `pc,ges`).
-- `--skip-single-run`: skip `generate_single_run_table_artifacts.py`.
-- `--skip-sweep`: skip `generate_encoding_ablation.py` runs.
+- `--skip-single-run`: skip `generate_table2_single_run_artifacts.py`.
+- `--skip-sweep`: skip `generate_table3_multiseed_run_artifacts.py` runs.
 - `--dry-run`: print plan and commands only, no execution.
 
-Encoding ablation parameters (`experiments/generate_encoding_ablation.py`):
+Encoding ablation parameters (`experiments/generate_table3_multiseed_run_artifacts.py`):
 - `--datasets`: dataset list (default from `sensitivity_sweep.datasets`).
 - `--seeds`: seed list (default from `sensitivity_sweep.seeds`).
 - `--n-samples`: per-dataset sample count.
@@ -294,6 +299,20 @@ Output location:
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

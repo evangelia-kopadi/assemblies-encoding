@@ -8,8 +8,8 @@ call src.runner.run_causal_dag_validation with PC or GES; collect neuron and
 assembly DAG F1 scores; write raw, summary, and overall CSV outputs.
 
 Usage examples:
-  python -m experiments.generate_encoding_ablation
-  python -m experiments.generate_encoding_ablation --datasets Credit,Student,Vaccine --method ges --n-samples 800
+  python -m experiments.generate_table3_multiseed_run_artifacts
+  python -m experiments.generate_table3_multiseed_run_artifacts --datasets Credit,Student,Vaccine --method ges --n-samples 800
 """
 
 from __future__ import annotations
@@ -341,4 +341,6 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
 

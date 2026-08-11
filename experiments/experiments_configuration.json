@@ -29,7 +29,7 @@
   "data_generation": {
     "n_samples": 5000,
     "seed": 42,
-    "_used_by": "generate_single_run_table_artifacts.py (paper Table 2: single-run benchmark); validate_*.py scripts provide detailed logs and DAG PNGs"
+    "_used_by": "generate_table2_single_run_artifacts.py (paper Table 2: single-run benchmark); validate_*.py scripts provide detailed logs and DAG PNGs"
   },
   "stroke_validation": {
     "sweep_n_train": [
@@ -63,4 +63,5 @@
   },
   "_comment": "Central configuration for all experiments. Edit values here to change defaults across all scripts. CLI args still override these values."
 }
+
 

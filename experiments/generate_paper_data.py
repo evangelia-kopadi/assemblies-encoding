@@ -1,16 +1,19 @@
-"""Run only paper data artifact scripts (no diagnostics matrix).
+"""Run paper data artifact scripts (no DAG diagnostics).
 
-This orchestrator generates only the CSV artifacts currently used in the paper:
+This script generates only the CSV artifacts currently used in the paper:
 1) Single-run benchmark CSV artifacts (Table 2 family)
 2) Encoding ablation sweeps for both methods (Table 3 family)
 
 It intentionally skips `*_causal_results.txt` and `*_3dag_comparison.png`
 validation diagnostics.
 
-Usage:
+Usage (canonical):
   python -m experiments.generate_paper_data
   python -m experiments.generate_paper_data --dry-run
   python -m experiments.generate_paper_data --methods pc,ges
+
+Alias (backward-compatible):
+  python -m experiments.generate_paper_data
 """
 
 from __future__ import annotations
@@ -43,7 +46,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--methods",
         default="pc,ges",
-        help="Comma-separated methods for generate_encoding_ablation.py (allowed: pc,ges)",
+        help="Comma-separated methods for generate_table3_multiseed_run_artifacts.py (allowed: pc,ges)",
     )
     parser.add_argument(
         "--skip-single-run",
@@ -87,11 +90,11 @@ def build_steps(methods: list[str], args: argparse.Namespace) -> list[Step]:
             [
                 Step(
                     "Generate single-run benchmark CSV artifacts (PC)",
-                    ["-m", "experiments.generate_single_run_table_artifacts", "--method", "pc"],
+                    ["-m", "experiments.generate_table2_single_run_artifacts", "--method", "pc"],
                 ),
                 Step(
                     "Generate single-run benchmark CSV artifacts (GES)",
-                    ["-m", "experiments.generate_single_run_table_artifacts", "--method", "ges"],
+                    ["-m", "experiments.generate_table2_single_run_artifacts", "--method", "ges"],
                 ),
             ]
         )
@@ -101,7 +104,7 @@ def build_steps(methods: list[str], args: argparse.Namespace) -> list[Step]:
             steps.append(
                 Step(
                     f"Run encoding ablation sweep ({method.upper()})",
-                    ["-m", "experiments.generate_encoding_ablation", "--method", method],
+                    ["-m", "experiments.generate_table3_multiseed_run_artifacts", "--method", method],
                 )
             )
         steps.append(
@@ -109,7 +112,7 @@ def build_steps(methods: list[str], args: argparse.Namespace) -> list[Step]:
                 "Generate practical success-rate summary (from ablation raw files)",
                 [
                     "-m",
-                    "experiments.generate_practical_success_summary",
+                    "experiments.generate_table4_practical_success_summary",
                     "--methods",
                     ",".join(methods),
                 ],
@@ -161,7 +164,7 @@ def main() -> int:
         print("No steps selected. Nothing to run.")
         return 0
 
-    print("Planned paper-data-only pipeline steps:")
+    print("Planned paper pipeline steps:")
     run_output_dir = Path(get_results_root()) / run_id
     print(f"Run output directory: {run_output_dir}")
     for i, step in enumerate(steps, start=1):
@@ -179,7 +182,7 @@ def main() -> int:
             )
             return code
 
-    print("\nAll selected paper-data-only steps completed successfully.")
+    print("\nAll selected paper pipeline steps completed successfully.")
     write_verb = "would be written" if args.dry_run else "are written"
     print(f"Artifacts {write_verb} under {run_output_dir} via get_output_filepath().")
     if not args.dry_run:
@@ -195,6 +198,14 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+
+
+
+
+
+
+
 
 
 

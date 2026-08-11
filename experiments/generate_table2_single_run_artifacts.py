@@ -6,8 +6,8 @@ runner used by the validation scripts. It evaluates the baseline Bernoulli
 for a given causal discovery method (PC or GES).
 
 Usage:
-  python -m experiments.generate_single_run_table_artifacts
-  python -m experiments.generate_single_run_table_artifacts --method ges
+  python -m experiments.generate_table2_single_run_artifacts
+  python -m experiments.generate_table2_single_run_artifacts --method ges
 """
 
 from __future__ import annotations
@@ -19,7 +19,7 @@ import pandas as pd
 
 from experiments.artifact_aliases import write_table_alias_copy
 from experiments.experiment_defaults import DEFAULTS, get_output_filepath, runner_kwargs
-from experiments.generate_encoding_ablation import build_datasets
+from experiments.generate_table3_multiseed_run_artifacts import build_datasets
 from src.runner import run_causal_dag_validation
 
 
@@ -174,4 +174,6 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
 
