@@ -12,37 +12,6 @@ Parts of the neural assembly simulation core (notably `src/representation/brain.
 
 This repository accompanies the SUM 2026 manuscript **"Causal Structure Preservation in Neural Assemblies under Encoding Uncertainty"**. The editable paper source is available at `paper/causal_structure_preservation_in_neural_assemblies_under_encoding_uncertainty.md`, with its bibliography and build script in the same folder. References to Tables 1-5 in this README refer to that manuscript.
 
-## What is included
-
-- `src/`: neural encoding, assembly formation, causal discovery, validation, and metrics code.
-  - `src/encoding/bernoulli.py`: Bernoulli spike-pattern encoding.
-  - `src/encoding/deterministic_k.py`: deterministic-k stimulus-set encoding.
-  - `src/discovery/pc.py`: PC-specific observational discovery helpers.
-  - `src/discovery/ges.py`: GES-specific observational discovery helpers.
-  - `src/validation/interventional/pearl_do_calculus.py`: Pearl-style `do(...)` intervention validation helpers.
-  - `src/representation/information_preservation_mi.py`: MI-based neuron/assembly information-preservation metrics.
-  - `src/representation/assembly_formation.py`: Papadimitriou-style assembly formation.
-  - `src/representation/neuron_feature_extraction.py`: neuron-level feature extraction from encoded spike patterns.
-  - `src/representation/assembly_feature_extraction.py`: assembly-level feature extraction from learned Brain connectomes.
-- `experiments/`: SCM dataset generators used for the paper's main encoding sensitivity sweep:
-  - Alzheimer
-  - Stroke Risk
-  - Credit Default
-  - Student Success
-  - Vaccine Efficacy
-- `notebooks/pipeline_visualization.ipynb`: executable visual walkthrough of the Stage I-VI pipeline for Bernoulli and deterministic-k encodings.
-- `Table 2 -> experiments/generate_table2_single_run_artifacts.py`: single-run benchmark data generator.
-- `Table 3 -> experiments/generate_table3_multiseed_run_artifacts.py`: PC/GES encoding ablation sweep runner.
-- `experiments/generate_validation_dag_artifacts.py`: DAG diagnostics generator (dataset x method x encoding) for detailed causal reports and 3-DAG figures.
-- `Table 4 -> experiments/generate_table4_practical_success_summary.py`: practical success-rate summary generator (derived from ablation raw files).
-- `Table 5 -> experiments/generate_table5_intervention_multiseed.py`: interventional robustness generator (multiseed).
-- `experiments/generate_paper_data.py`: paper pipeline runner (single-run and ablation artifacts).
-- `results/`: frozen single-run benchmark artifacts under flat compatibility filenames for the manuscript's single-run benchmark table (for example, `table_2_single_run_pc_means.csv` and `table_2_single_run_ges_metrics.csv`).
-- `results/`: frozen multi-run PC/GES sensitivity sweep artifacts with paper-mapped filenames: `table_3_pc_*.csv` and `table_3_ges_*.csv`.
-- `results/`: sensitivity sweep raw, summary, and overall CSV files for PC and GES (both Table 3).
-- `figures/`: figures referenced by the paper source.
-- `paper/`: editable paper source, bibliography, and build script.
-
 ## Experiment roles
 
 The repository contains both single-run and multi-run artifacts.
