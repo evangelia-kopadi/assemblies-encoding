@@ -39,3 +39,6 @@ runs/
 # Local helper script not tracked in git
 experiments/freeze_results_from_run.py
 
+
+# Local paper materials
+paper/
