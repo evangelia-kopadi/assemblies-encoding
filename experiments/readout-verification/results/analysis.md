@@ -1,6 +1,6 @@
 # Readout verification: results
 
-## PC  (1050 runs, commits ['de702bc'])
+## PC  (1050 runs, commits ['07ac996'])
 
 R0 replication (A0 vs stored mean assembly F1):
   Bernoulli_pos0.20_neg0.10: 0.337 vs 0.337 (diff +0.000)
@@ -55,7 +55,7 @@ Means per dataset and arm (gap):
 
 Verdict inputs: H1=met, H2=met, H3=met
 
-## GES  (1050 runs, commits ['de702bc'])
+## GES  (1050 runs, commits ['07ac996'])
 
 R0 replication (A0 vs stored mean assembly F1):
   Bernoulli_pos0.20_neg0.10: 0.477 vs 0.477 (diff +0.000)
